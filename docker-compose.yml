@@ -2,22 +2,26 @@ services:
   db:
     image: ${DB_IMAGE}
     container_name: ${DB_NAME}
-    restart: unless-stopped
+    restart: unless-stopped # automatic restarts unless explicit stop with docker stop
     env_file: .env
     environment:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_DB=${DB_NAME}
     volumes:
-      - db_data:/var/lib/postgresql/data
-      - ./initdb:/docker-entrypoint-initdb.d:ro
+      - db_data:/var/lib/postgresql/data # where data is stored
+      - img_data:/app/images # images stored separately
+      - audio_data:/app/audio # audio stored separately
+      # - ./initdb:/docker-entrypoint-initdb.d:ro # files are automatically executed here on first init of db
     ports:
       - ${DB_PORT}
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+    healthcheck: # checks whether or not db is ready accept connections, so app can wait until service is ready before connecting
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 10s
       timeout: 5s
       retries: 5
 
 volumes:
   db_data:
+  img_data:
+  audio_data:

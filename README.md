@@ -14,3 +14,6 @@ docker compose up -d
 
 If successful, you should see the container, group5_softwareengineering in Docker.
 
+To completely restart with a fresh container (NOTE: this wipes all data):
+docker compose down -v
+docker compose up -d
