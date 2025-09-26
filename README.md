@@ -23,6 +23,5 @@ try at localhost:8000/api/persons
 
 
 
-To completely restart with a fresh container (NOTE: this wipes all data):
+To remove containers and volumes:
 docker compose down -v
-docker compose up -d
