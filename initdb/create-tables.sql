@@ -33,7 +33,9 @@ CREATE TABLE translations (
     example_target_hard TEXT NOT NULL,
     example_en_hard TEXT NOT NULL,
     audio_name VARCHAR(255) NOT NULL,    
-    audio_path VARCHAR(255) NOT NULL
+    audio_path VARCHAR(255) NOT NULL,
+
+    UNIQUE (target_lang, word_id)
 );
 
 CREATE TABLE user_history (
@@ -53,11 +55,14 @@ CREATE TABLE quizzes (
     quiz_name VARCHAR(50) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     last_reviewed_at TIMESTAMP,
-    UNIQUE (user_id, name)   -- ensures uniqueness per user
+
+    UNIQUE (user_id, quiz_name)   -- ensures uniqueness per user
 );
 
 CREATE TABLE quiz_words (
+    id SERIAL PRIMARY KEY,
     quiz_id INTEGER NOT NULL REFERENCES quizzes(id) ON DELETE CASCADE,
     translation_id INTEGER NOT NULL REFERENCES translations(id) ON DELETE CASCADE,
-    PRIMARY KEY (quiz_id, translation_id)
+
+    UNIQUE (quiz_id, translation_id)
 );
