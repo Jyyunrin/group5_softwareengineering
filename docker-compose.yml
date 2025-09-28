@@ -15,11 +15,11 @@ services:
      - audio_data:/app/audio # audio stored separately
    env_file:
      - .env
- 
+  
  django-web:
    build: 
     context: ./backend
-   container_name: fango-group5
+   container_name: fango-back
    ports:
      - "8000:8000"
    depends_on:
@@ -44,3 +44,4 @@ volumes:
    postgres_data:
    img_data:
    audio_data:
+

@@ -14,11 +14,11 @@ ENV PYTHONUNBUFFERED=1
 # Upgrade pip and install dependencies
 RUN pip install --upgrade pip 
  
-# Copy the requirements file first (better caching)
-COPY requirements.txt /app/
+# Copy the ments file first (better caching)
+COPY ments.txt /app/
  
 # Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r ments.txt
  
 # Stage 2: Production stage
 FROM python:3.13-slim
