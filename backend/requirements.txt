@@ -8,3 +8,5 @@ psycopg2-binary==2.9.10
 python-dotenv==1.1.1
 sqlparse==0.5.3
 gunicorn==23.0.0
+djangorestframework-simplejwt==5.5.1 
+pyjwt==2.10.1

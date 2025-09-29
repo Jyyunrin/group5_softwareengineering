@@ -1,13 +1,12 @@
 from django.db import models
 from django.utils import timezone
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from .managers import CustomUserManager
 
-# Create your models here.
+class AppUser(AbstractBaseUser, PermissionsMixin):
 
-class Person(models.Model):
-    first_name = models.CharField(max_length=30)
-    last_name = models.CharField(max_length=30)
+    username = None
 
-class AppUser(models.Model):
     ROLE_CHOICES = [
         ('user', 'User'),
         ('admin', 'Admin'),
@@ -18,12 +17,16 @@ class AppUser(models.Model):
     ]
 
     email = models.EmailField(unique=True)
-    name = models.CharField(max_length=50)
-    password = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, default="user")
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='user')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
     created_at = models.DateTimeField(default=timezone.now)
     last_login_at = models.DateTimeField(null=True, blank=True)
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
+
+    objects = CustomUserManager()
 
     def __str__(self):
         return self.name

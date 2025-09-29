@@ -1,7 +1,17 @@
 from rest_framework import serializers
-from .models import Person
+from .models import AppUser
 
-class PersonSerializer(serializers.ModelSerializer):
+class AppUserSerializer(serializers.HyperlinkedModelSerializer):
+    password = serializers.CharField(write_only=True)
+
     class Meta:
-        model = Person
-        fields = ('id', 'first_name', 'last_name')
+        model = AppUser
+        fields = ['email', 'name', 'password', 'role', 'status', 'created_at', 'last_login_at'] 
+
+
+    def create(self, validated_data):
+        user = AppUser.objects.create_user(
+            email=validated_data['email'],
+            password=validated_data['password']
+        )
+        return user
