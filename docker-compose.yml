@@ -40,6 +40,20 @@ services:
      DATABASE_PORT: ${DATABASE_PORT}
    env_file:
      - .env
+
+ frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: fango-front
+    ports:
+      - "3000:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - django-web
+
 volumes:
    postgres_data:
    img_data:
