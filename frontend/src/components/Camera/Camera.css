@@ -1,0 +1,15 @@
+form {
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 50px;
+}
+
+.image-preview {
+    width: 80vw;
+    height:auto;
+}
+
+input {
+    display:none;
+}
