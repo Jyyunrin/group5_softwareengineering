@@ -29,15 +29,15 @@ export default function Camera() {
       console.log(key[0] + ", " + key[1]);
     }
 
-    // TODO: CHANGE THIS URL
-    const data = await fetch("http://localhost:3000/upload/post", {
+    const data = await fetch("http://localhost:8000/api/image-translate/", {
       method: "post",
-      headers: { "Content-Type": "multipart/form-data" },
+      // headers: { "Content-Type": "multipart/form-data" },
       body: formData,
     });
+
     const uploadedImage = await data.json();
     if (uploadedImage) {
-      console.log("Successfully uploaded image");
+      console.log("Successfully uploaded image", uploadedImage);
     } else {
       console.log("Error Found");
     }
@@ -90,7 +90,7 @@ export default function Camera() {
         <button onClick={openBrowse} className="browse-button">
           Select Images
         </button>
-        <button onClick={clearImage} classname="clear-button">
+        <button onClick={clearImage} className="clear-button">
           Clear Image
         </button>
       </div>
