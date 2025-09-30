@@ -18,7 +18,9 @@
   },
   "homepage": "https://github.com/BlaiseKlein/group5_softwareengineering#readme",
   "dependencies": {
+    "@tailwindcss/vite": "^4.1.13",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "tailwindcss": "^4.1.13"
   }
 }
