@@ -12,7 +12,7 @@ import Login from './login.tsx'
 // import Processing from './translation/processing.tsx'
 import Result from './translation/result.tsx'
 import Userinfo from './user/userinfo.tsx'
-import UserLearningInfo from './user/userinfo.tsx'
+import UserLearningInfo from './user/userlearninginfo.tsx'
 
 const router = createBrowserRouter([
   // Basic
