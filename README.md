@@ -63,3 +63,8 @@ exit
 
 To remove containers and volumes:
 docker compose down -v
+
+### For frontend updates
+rm -rf node_modules package-lock.json pnpm-lock.yaml yarn.lock
+npm install
+npm run dev
