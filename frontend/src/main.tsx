@@ -8,6 +8,7 @@ import './index.css'
 // Routes
 import Landing from './landing.tsx'
 import Login from './login.tsx'
+import RegisterPage from "./register.tsx";
 import Camera from './translation/camera.tsx'
 // import Processing from './translation/processing.tsx'
 import Result from './translation/result.tsx'
@@ -18,6 +19,7 @@ const router = createBrowserRouter([
   // Basic
   {path: "/", element: <Landing />},
   {path: "/login", element: <Login />},
+  {path: "/register", element: <RegisterPage />},
 
   // Translation
   {path: "/translation/camera", element: <Camera />},
