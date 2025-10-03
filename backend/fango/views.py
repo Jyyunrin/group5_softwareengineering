@@ -23,10 +23,12 @@ class LoginView(APIView):
         password = request.data['password']
 
         user = AppUser.objects.filter(email=email).first()
-
         if user is None:
             raise AuthenticationFailed('User not found!')
         
+        if user.status == "banned":
+            raise AuthenticationFailed("User account inactive or banned")
+
         if not user.check_password(password):
             raise AuthenticationFailed('Incorrect Password')
         
@@ -40,7 +42,7 @@ class LoginView(APIView):
         
         # 60 minutes TTL
         ttl_seconds = 60 * 60
-        redis_client.setex("user:{user.id}:jwt", ttl_seconds, token)
+        redis_client.setex(f"user:{user.id}:jwt", ttl_seconds, token)
 
         response = Response()
 
@@ -53,26 +55,19 @@ class LoginView(APIView):
     
 class UserView(APIView):
     def get(self, request):
-        token = request.COOKIES.get('jwt')
+        if not getattr(request, "user_id", None):
+            raise AuthenticationFailed("Unauthenticated")
 
-        if not token:
-            raise AuthenticationFailed('Unauthenticated')
-        
-        try:
-            payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
-        except jwt.ExpiredSignatureError:
-            raise AuthenticationFailed('Unauthenticated')
+        user = AppUser.objects.filter(id=request.user_id).first()
+        if not user:
+            raise AuthenticationFailed("User not found")
 
-        user = AppUser.objects.filter(id=payload['id']).first()
         serializer = AppUserSerializer(user)
 
         return Response(serializer.data)
 
 class LogoutView(APIView):
     def post(self, request):
-        response = Response()
-        response.delete_cookie('jwt')
-
         token = request.COOKIES.get('jwt')
         if not token:
             raise AuthenticationFailed('Unauthenticated')
@@ -82,8 +77,11 @@ class LogoutView(APIView):
             user_id = payload['id']
             ttl_seconds = int(payload['exp'] - datetime.datetime.utcnow().timestamp())
             redis_client.setex(f"user:{user_id}:jwt", ttl_seconds, "revoked")
-        except (ExpiredSignatureError, InvalidTokenError):
-
+        except jwt.ExpiredSignatureError:
+            pass
+        
+        response = Response()
+        response.delete_cookie('jwt')
         response.data = {
             'message': "success"
         }
