@@ -42,11 +42,12 @@ export default function LoginPage() {
     });
 
     const upload_response = await data.json();
-    if (upload_response) {
+    if (upload_response['success'] == true) {
         console.log("Successful login attempt");
         window.location.replace(import.meta.env.VITE_REDIRECT_URL)
     } else {
         console.log("Error Found");
+        alert("Login failed")
     }
   }
 
@@ -78,7 +79,7 @@ export default function LoginPage() {
             <input
               value={id}
               onChange={(e) => setId(e.target.value)}
-              placeholder="ID"
+              placeholder="Email"
               className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 outline-none ring-0 focus:border-blue-500"
               autoComplete="username"
               name="email"
@@ -121,9 +122,9 @@ export default function LoginPage() {
             <button
               type="button"
               className="rounded-full border border-sky-500 px-6 py-2.5 text-sky-600 font-medium hover:bg-sky-50 active:bg-sky-100 transition"
-              onClick={() => alert("Go to sign-up flow")}
+              onClick={() => window.location.replace("http://localhost:3000/register")} //alert("Go to sign-up flow")}
             >
-              Sign Up
+              Go To Sign Up
             </button>
           </div>
         </form>

@@ -44,9 +44,10 @@ export default function RegisterPage() {
         const upload_response = await data.json();
         if (upload_response) {
             console.log("Successful register attempt");
-        window.location.replace(import.meta.env.VITE_REDIRECT_URL)
+            window.location.replace(import.meta.env.VITE_REDIRECT_URL)
         } else {
             console.log("Error Found");
+            alert("Register failed")
         }
     }
 
@@ -78,7 +79,7 @@ export default function RegisterPage() {
             <input
               value={id}
               onChange={(e) => setId(e.target.value)}
-              placeholder="ID"
+              placeholder="Email"
               className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 outline-none ring-0 focus:border-blue-500"
               autoComplete="username"
               name="email"
@@ -121,9 +122,9 @@ export default function RegisterPage() {
             <button
               type="button"
               className="rounded-full border border-sky-500 px-6 py-2.5 text-sky-600 font-medium hover:bg-sky-50 active:bg-sky-100 transition"
-              onClick={() => alert("Go to sign-in flow")}
+              onClick={() => window.location.replace("http://localhost:3000/login")} //alert("Go to sign-in flow")}
             >
-              Sign In
+              Go To Sign In
             </button>
           </div>
         </form>

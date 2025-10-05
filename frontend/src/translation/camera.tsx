@@ -56,6 +56,7 @@ export default function Camera() {
       const uploadedImage = await response.json();
       if (uploadedImage) {
         console.log("Successfully uploaded image", uploadedImage);
+        window.location.replace("http://localhost:3000/translation/result")
       } else {
         console.log("Error Found");
       }
