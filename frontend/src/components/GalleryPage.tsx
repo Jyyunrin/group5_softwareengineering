@@ -5,11 +5,13 @@
  * 
  * TODO:
  * Implement likes, history data instead of hardcoded one
+ * Make menu text centered
  */
 import { useState } from "react";
 import CardMenu from "./CardMenu";
 import ImageFlipCard from "./ImageFlipCard";
 
+// Hardcoded data
 const likesData = [
   { id: 1, image: "https://picsum.photos/seed/a/600/400", title: "Sunset Dune" },
   { id: 2, image: "https://picsum.photos/seed/b/600/400", title: "River Stone" },
@@ -28,7 +30,10 @@ export default function GalleryPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 space-y-6">
-      <CardMenu tab={tab} onChange={setTab} />
+      {/* Text center doesn't work? */}
+      <div className="text-center">
+        <CardMenu tab={tab} onChange={setTab} />
+      </div>
 
       {/* Image cards under the grey row */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
