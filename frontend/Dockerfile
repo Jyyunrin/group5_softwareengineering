@@ -10,10 +10,9 @@ RUN npm install
 
 # Copy rest of source into container and build
 COPY . .
-RUN npm run build
 
 # Expose Vite port
-EXPOSE 5173
+EXPOSE 3000
 
 # Run the dev server (hot reload, debugging, etc.)
 CMD ["npm", "run", "dev"]
