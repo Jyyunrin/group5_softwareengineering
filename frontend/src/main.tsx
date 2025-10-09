@@ -10,7 +10,7 @@ import Landing from './landing.tsx'
 import Login from './login.tsx'
 import RegisterPage from "./register.tsx";
 import Camera from './translation/camera.tsx'
-// import Processing from './translation/processing.tsx'
+import Processing from './translation/processing.tsx'
 import Result from './translation/result.tsx'
 import Userinfo from './user/userinfo.tsx'
 import UserLearningInfo from './user/userlearninginfo.tsx'
@@ -23,7 +23,7 @@ const router = createBrowserRouter([
 
   // Translation
   {path: "/translation/camera", element: <Camera />},
-  // {path: "/translation/processing", element: <Processing />},
+  {path: "/translation/processing", element: <Processing />},
   {path: "/translation/result", element: <Result />},
 
   // Userinfo

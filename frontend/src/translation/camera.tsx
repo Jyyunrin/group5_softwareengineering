@@ -8,6 +8,7 @@
  * Connect with database
  * Test with backend
  * Find the best file image size
+ * Fetch openAI 
  */
 import { useState, useRef, useEffect } from "react";
 import type { ChangeEvent, FormEvent } from "react";
