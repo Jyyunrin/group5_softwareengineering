@@ -12,6 +12,7 @@ import RegisterPage from "./register.tsx";
 import Camera from './translation/camera.tsx'
 import Processing from './translation/processing.tsx'
 import Result from './translation/result.tsx'
+import UserHistory from './user/userhistory.tsx'
 import Userinfo from './user/userinfo.tsx'
 import UserLearningInfo from './user/userlearninginfo.tsx'
 
@@ -27,6 +28,7 @@ const router = createBrowserRouter([
   {path: "/translation/result", element: <Result />},
 
   // Userinfo
+  {path: "/user/userhistory", element: <UserHistory />},
   {path: "/user/userinfo", element: <Userinfo />},
   {path: "/user/userlearninginfo", element: <UserLearningInfo />},
 ]);

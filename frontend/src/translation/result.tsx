@@ -3,7 +3,6 @@
  * 
  * TODO:
  * Connect with DB 
- * Choose icon: lucide? google icon?
  * Buttons functionality: pronunciation button, like button
  */
 
