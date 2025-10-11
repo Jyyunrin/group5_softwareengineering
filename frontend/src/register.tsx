@@ -29,7 +29,7 @@ export default function RegisterPage() {
         console.log(jsonData)
 
         // TODO: CHANGE THIS URL
-        const data = await fetch('http://localhost:8000/api/register', {
+        const data = await fetch(import.meta.env.VITE_SERVER_URL + "/register", {
             method: "post",
             headers: { "Content-Type": "application/json" },
             body: jsonData,
@@ -38,7 +38,7 @@ export default function RegisterPage() {
         const upload_response = await data.json();
         if (upload_response) {
             console.log("Successful register attempt");
-            window.location.replace('http://localhost:3000/login')
+            window.location.replace(import.meta.env.VITE_REDIRECT_URL + "/login")
         } else {
             console.log("Error Found");
             alert("Register failed")

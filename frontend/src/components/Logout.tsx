@@ -1,24 +1,18 @@
 
-export default function Logout({email}: {email: string}) {
-    const attemptLogout = async (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault()
-
-        let formData = {
-            "email": email
-        }
-        const jsonData = JSON.stringify(formData)
+export default function Logout() {
+    const attemptLogout = async () => {
 
         // TODO: CHANGE THIS URL
         const data = await fetch(import.meta.env.VITE_SERVER_URL + "/logout", {
             method: "post",
             headers: { "Content-Type": "application/json" },
-            body: jsonData,
+            credentials: 'include'
         });
 
         const upload_response = await data.json();
         if (upload_response) {
             console.log("Successful logout attempt");
-            // window.location.replace()
+            window.location.replace(import.meta.env.VITE_REDIRECT_URL + "/login")
         } else {
             console.log("Error Found");
         }

@@ -29,7 +29,7 @@ export default function LoginPage() {
     console.log(jsonData)
 
     // TODO: CHANGE THIS URL
-    const data = await fetch('http://localhost:8000/api/login', {
+    const data = await fetch(import.meta.env.VITE_SERVER_URL + "/login", {
         method: "post",
         headers: { "Content-Type": "application/json" },
         credentials: 'include',
@@ -39,7 +39,7 @@ export default function LoginPage() {
     const upload_response = await data.json();
     if (upload_response['success'] == true) {
         console.log("Successful login attempt");
-        window.location.replace('http://localhost:3000')
+        window.location.replace(import.meta.env.VITE_REDIRECT_URL)
     } else {
         console.log("Error Found");
         alert("Login failed")

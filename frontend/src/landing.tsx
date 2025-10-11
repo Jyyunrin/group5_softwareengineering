@@ -11,19 +11,31 @@
 import './landing.css';
 import Card from './components/Cards';
 import GalleryPage from './components/GalleryPage';
+import Logout from './components/Logout';
 
 function Landing() {
   return (
-    <div className="min-h-screen bg-white">
+  <div className="flex flex-col h-screen">
+    {/* Col1. Greetings */}
+    <div className="bg-red-400 h-20">
+      Ola, <br></br>
+      Username!
       
-      {/* Adjust max width size for various screen size */}
-      <main className="mx-auto w-full max-w-[1080px] px-5 pb-10">
-        <section className="pt-6">
-          <h1 className="text-4xl font-extrabold leading-tight tracking-tight">
-            {/* Dynamic data needed */}
-            Olá,<br />
-            <span>Username!</span>
-          </h1>
+      <div className="flex flex-row h-screen justify-between">
+        {/* Row1. Quick guide */}
+        <div className="flex">
+          Quick Guide
+        </div>
+      
+        <div className="absolute top-4 right-4 z-50">
+          <Logout />
+        </div>
+
+        {/* Row2. Target language */}
+        <div className="flex">
+          Target Language
+        </div>
+      </div>
 
           <div className="mt-2 flex items-center justify-between text-sm text-gray-600">
             {/* Connect to quick guid page */}
@@ -67,7 +79,9 @@ function Landing() {
         </section>
       </main>
     </div>
-  );
+  </div>
+
+  )
 }
 
 export default Landing;
