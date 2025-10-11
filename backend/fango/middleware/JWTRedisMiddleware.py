@@ -1,6 +1,11 @@
+import os
+import jwt
+from jwt import InvalidTokenError
 from fango.redis_client import redis_client
 from fango.models import AppUser
+from rest_framework.exceptions import AuthenticationFailed
 
+SECRET_KEY = os.getenv("TOKEN_SECRET", "secret")
 class JWTRedisMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
@@ -9,23 +14,31 @@ class JWTRedisMiddleware:
     def __call__(self, request):
         if request.path in self.exempt_paths:
             return self.get_response(request)
-
+        # print("1\n")
         token = request.COOKIES.get("jwt")
         if not token:
             raise AuthenticationFailed('Unauthenticated')
+        # print("2\n")
+        # print(f"{token}\n")
         
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
             user_id = payload['id']
             request.user_id = user_id
-            if redis_client.get(f"user:{user_id}:jwt") == "revoked":
-                raise InvalidTokenError("Token revoked")
+            session = redis_client.hgetall(f"user:{user_id}:session")
 
-            user = AppUser.objects.get(id=user_id)
-            if user.status == "banned":
-                raise InvalidTokenError("User account inactive or banned")
+            if session and session.get(b"jwt") == b"revoked":
+                raise InvalidTokenError("Token revoked")
+            
+            if session:
+                request.user_info = dict(session)
+            else:
+                request.user_info = {}
+            
+            # print("3\n")
 
         except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
             raise AuthenticationFailed('Unauthenticated')
+        # print("4\n")
 
         return self.get_response(request)

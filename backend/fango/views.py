@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework import status
+from django.utils import timezone
 from .models import AppUser
 from .redis_client import redis_client
 import jwt, datetime
@@ -40,9 +41,21 @@ class LoginView(APIView):
 
         token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
         
+        current_time = timezone.now()
         # 60 minutes TTL
         ttl_seconds = 60 * 60
-        redis_client.setex(f"user:{user.id}:jwt", ttl_seconds, token)
+        redis_client.hset(f"user:{user.id}:session",
+        mapping={
+            "jwt": token,
+            "email": user.email,
+            "name": user.name,
+            "role": user.role,
+            "status": user.status,
+            "created_at": user.created_at.isoformat() if user.created_at else current_time.isoformat(),
+            "last_login_at": user.last_login_at.isoformat() if user.last_login_at else current_time.isoformat()
+        })
+
+        redis_client.expire(f"user:{user.id}:session", ttl_seconds)
 
         response = Response()
 
@@ -51,12 +64,18 @@ class LoginView(APIView):
             "jwt": token
         }
 
+        user.last_login_at = current_time
+        user.save(update_fields=["last_login_at"])
+
         return response
     
 class UserView(APIView):
     def get(self, request):
         if not getattr(request, "user_id", None):
             raise AuthenticationFailed("Unauthenticated")
+
+        # if getattr(request, "user_info", None):
+        #     return Response(request.user_info)
 
         user = AppUser.objects.filter(id=request.user_id).first()
         if not user:
@@ -76,7 +95,7 @@ class LogoutView(APIView):
             payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
             user_id = payload['id']
             ttl_seconds = int(payload['exp'] - datetime.datetime.utcnow().timestamp())
-            redis_client.setex(f"user:{user_id}:jwt", ttl_seconds, "revoked")
+            redis_client.hset(f"user:{user_id}:session", "jwt", "revoked")
         except jwt.ExpiredSignatureError:
             pass
         
