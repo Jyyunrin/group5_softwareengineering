@@ -88,6 +88,9 @@ TTL <some key>
 
 ---
 
+### Disable rate limiting:
+Comment out the RateLimitMiddleware under settings.py
+
 ### Restarting container to load new changes:
 docker restart <container name>
 
