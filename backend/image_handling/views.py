@@ -6,6 +6,7 @@ from rest_framework.exceptions import AuthenticationFailed
 from rest_framework import status
 from django.conf import settings
 from django.http import FileResponse
+from fango.models import UserHistory, AppUser, Translation
 
 class ImageTranslate(APIView):
 
@@ -34,6 +35,19 @@ class ImageTranslate(APIView):
 
         db_path = os.path.join("images", filename)
         frontend_path = request.build_absolute_uri(settings.MEDIA_URL + db_path)
+
+        # Get user and translation
+        user = AppUser.objects.get(id=1)
+        translation = Translation.objects.get(id=1)
+        
+
+        # Save image to userhistory in database
+        user_history = UserHistory.objects.create(
+             img_name = uploaded_file.name,
+             img_path = db_path,
+             translation_id = translation,
+             user_id = user
+        )
 
         return Response({
              "filename": filename,
