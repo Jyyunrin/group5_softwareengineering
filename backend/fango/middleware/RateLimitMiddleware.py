@@ -30,8 +30,6 @@ class RateLimitMiddleware:
 
             ip = self.get_client_ip(request)
 
-            print("\nClient IP:", ip)
-
             if request.path in self.rate_limits:
                 limit, window = self.rate_limits[request.path]
                 key = f"ratelimit:ip:{ip}:{request.path}"

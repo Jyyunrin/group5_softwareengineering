@@ -76,8 +76,8 @@ class UserView(APIView):
             raise AuthenticationFailed("Unauthenticated")
 
         # if getattr(request, "user_info", None):
-        #     return Response(request.user_info)
-
+            # return Response(request.user_info)
+        # TODO: Above 2 lines working and returns a response of the current user's info, which was fetched from redis
         user = AppUser.objects.filter(id=request.user_id).first()
         if not user:
             raise AuthenticationFailed("User not found")
@@ -95,7 +95,6 @@ class LogoutView(APIView):
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
             user_id = payload['id']
-            ttl_seconds = int(payload['exp'] - datetime.datetime.utcnow().timestamp())
             redis_client.hset(f"user:{user_id}:session", "jwt", "revoked")
         except jwt.ExpiredSignatureError:
             pass
