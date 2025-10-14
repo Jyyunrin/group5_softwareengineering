@@ -1,19 +1,9 @@
-/**
- * Log-in page 
- * 
- * TODO:
- * Implement user database 
- * Center-aligned items
- * Add mascot image
- * Adjust mascot 
- * Mobile testing
- */
 import { motion } from "framer-motion";
 import { useState } from "react";
 import bcrypt from "bcryptjs";
 import { Eye, EyeOff } from "lucide-react";
 
-export default function Login() {
+export default function Landing() {
       const [id, setId] = useState("");
       const [pw, setPw] = useState("");
       const [showPw, setShowPw] = useState(false);
@@ -47,7 +37,7 @@ export default function Login() {
             window.location.replace(import.meta.env.VITE_REDIRECT_URL)
         } else {
             console.log("Error Found");
-            alert("Login failed");
+            alert("Login failed")
         }
       }
       

@@ -24,6 +24,9 @@ import UserHistory from "./user/userhistory";
 import Userinfo from "./user/userinfo";
 import UserLearningInfo from "./user/userlearninginfo";
 
+// Signin
+import NewUserLanding from "./signin/landing";
+
 const router = createBrowserRouter([
   // For Bottom Nav
   {
@@ -43,6 +46,7 @@ const router = createBrowserRouter([
   { path: "/login", element: <Login /> },
   { path: "/register", element: <RegisterPage /> },
   { path: "/translation/processing", element: <Processing /> },
+  { path: "/signin/landing", element: <NewUserLanding /> },
 ]);
 
   ReactDOM.createRoot(document.getElementById("root")!).render(
