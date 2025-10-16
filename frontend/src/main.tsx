@@ -24,8 +24,12 @@ import UserHistory from "./user/userhistory";
 import Userinfo from "./user/userinfo";
 import UserLearningInfo from "./user/userlearninginfo";
 
-// Signin
-import landing from "./signup/landing";
+// Sign Up
+import SignUpName from "./signup/name";
+import SignUpGoal from "./signup/goal";
+import SignUpTargetLan from "./signup/targetlan";
+import SignUpDifficulty from "./signup/difficulty";
+import SignUpAllSet from "./signup/allset";
 
 const router = createBrowserRouter([
   // For Bottom Nav
@@ -38,7 +42,7 @@ const router = createBrowserRouter([
       { path: "user/userhistory", element: <UserHistory /> },
       { path: "user/userinfo", element: <Userinfo /> },
       { path: "user/userlearninginfo", element: <UserLearningInfo /> },
-      { path: "*", element: <Landing /> },
+      { path: "*", element: <Landing /> }, 
     ],
   },
 
@@ -46,7 +50,11 @@ const router = createBrowserRouter([
   { path: "/login", element: <Login /> },
   { path: "/register", element: <RegisterPage /> },
   { path: "/translation/processing", element: <Processing /> },
-  { path: "/signup/landing", element: <NewUserLanding /> },
+  { path: "/signup/name", element: <SignUpName /> },
+  { path: "/signup/goal", element: <SignUpGoal /> },
+  { path: "/signup/targetlan", element: <SignUpTargetLan /> },
+  { path: "/signup/difficulty", element: <SignUpDifficulty /> },
+  { path: "/signup/difficulty", element: <SignUpAllSet /> },
 ]);
 
   ReactDOM.createRoot(document.getElementById("root")!).render(
