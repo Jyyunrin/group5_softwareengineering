@@ -34,6 +34,17 @@ export default function UserInfo() {
     console.log({ name, email, password, country, avatarUrl });
   }
 
+  const request_info = async() => {
+    const response = await fetch(import.meta.env.VITE_SERVER_URL + "/get_user_info")
+    .then(function(response) { return response.json(); })
+    .then(function(json) {
+      // use the json
+      setName(json.name)
+      setEmail(json.email)
+      setCountry(json.country)
+    });
+  }
+
   return (
     <div className="min-h-screen mx-auto w-full max-w-[1080px] bg-white text-gray-900">
       {/* Top banner: Connected to user's favurite language(monumnets) : we may need to figure out for basic images */}

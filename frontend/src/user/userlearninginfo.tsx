@@ -50,7 +50,7 @@ const GOAL_OPTIONS = [
 
 export default function UserLearningInfo() {
   // Profile header (kept simple)
-  const [name] = useState("Melissa Peters");
+  const [name, setName] = useState("Melissa Peters");
   const [avatarUrl, setAvatarUrl] = useState(
     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSmpCWL__69pek5fgjE8HfImGkxYXrKsLdHAg&s"
   );
@@ -88,6 +88,16 @@ export default function UserLearningInfo() {
       goals,
     });
     alert("Saved!");
+  }
+
+  const request_info = async() => {
+    const response = await fetch(import.meta.env.VITE_SERVER_URL + "/get_user_info")
+    .then(function(response) { return response.json(); })
+    .then(function(json) {
+      // use the json
+      setName(json.name)
+      setPrimaryLang(json.default_language)
+    });
   }
 
   return (

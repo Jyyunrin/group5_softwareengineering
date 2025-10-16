@@ -26,7 +26,23 @@ const historyData = [
 
 export default function GalleryPage() {
   const [tab, setTab] = useState<"likes" | "history">("likes");
-  const data = tab === "likes" ? likesData : historyData;
+  const [history, setHistory] = useState([])
+  const [data, setData] = useState(tab === "likes" ? likesData : history);
+  // const data = tab ==="likes" ? likesData : historyData;
+
+  const request_info = async() => {
+    const response = await fetch(import.meta.env.VITE_SERVER_URL + "/get_user_history")
+    .then(function(response) { return response.json(); })
+    .then(function(json) {
+      // use the json
+      for (let i = 0; i < json.history.length; i++){
+        json.history[i].id = i;
+      }
+
+      setHistory(json.history)
+    });
+  }
+  request_info();
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 space-y-6">
