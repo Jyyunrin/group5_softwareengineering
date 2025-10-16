@@ -38,6 +38,10 @@ services:
      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
      DATABASE_HOST: ${DATABASE_HOST}
      DATABASE_PORT: ${DATABASE_PORT}
+
+     REDIS_HOST: ${REDIS_HOST}
+     REDIS_PORT: ${REDIS_PORT}
+     REDIS_DB: ${REDIS_DB}
    env_file:
      - .env
 
@@ -54,8 +58,19 @@ services:
     depends_on:
       - django-web
 
+ redis:
+    image: redis:7
+    container_name: fango-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
 volumes:
    postgres_data:
    img_data:
    audio_data:
+   redis_data:
 

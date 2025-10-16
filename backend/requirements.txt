@@ -10,3 +10,4 @@ sqlparse==0.5.3
 gunicorn==23.0.0
 djangorestframework-simplejwt==5.5.1 
 pyjwt==2.10.1
+redis==5.3.1

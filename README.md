@@ -24,6 +24,8 @@ If successful, you should see the container, group5_softwareengineering in Docke
 
 try at localhost:8000/api/persons
 
+---
+
 ## Inserting mock data:
 
 Run Django shell:
@@ -66,9 +68,33 @@ SELECT * FROM fango_appuser;
 5. When you're finished:
 exit
 
+---
 
+# Testing Redis Sessioning and Rate Limiting:
+docker exec -it fango-redis redis-cli
 
-To remove containers and volumes:
+## Show all stored keys
+KEYS *
+
+## Show all values of a session key, e.g. user:<uid>:session
+HGETALL user:<uid>:session
+We use HGETALL because this key is a hash, which is a dictionary stored in Redis 
+
+## To show number of requests made in the current period of a rate limit key, e.g. ratelimit:<ip/user>:...
+GET ratelimit:<ip/user>:...
+
+## Show the seconds until a key's expiration
+TTL <some key>
+
+---
+
+### Disable rate limiting:
+Comment out the RateLimitMiddleware under settings.py
+
+### Restarting container to load new changes:
+docker restart <container name>
+
+### To remove containers and volumes:
 docker compose down -v
 
 ### For frontend updates

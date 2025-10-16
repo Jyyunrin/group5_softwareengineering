@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import AppUser
+from .models import AppUser, UserHistory
 
 class AppUserSerializer(serializers.HyperlinkedModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -15,3 +15,4 @@ class AppUserSerializer(serializers.HyperlinkedModelSerializer):
             password=validated_data['password']
         )
         return user
+    
