@@ -1,12 +1,10 @@
 /**
- * Log-in page 
+ * The very first page that user will see
  * 
  * TODO:
  * Implement user database 
- * Center-aligned items
- * Add mascot image
- * Adjust mascot 
- * Mobile testing
+ * Find a proper mascot image
+ * Adjust input form a bit higher
  */
 import { motion } from "framer-motion";
 import { useState } from "react";
@@ -74,7 +72,7 @@ export default function Login() {
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.55, duration: 0.45, ease: "easeOut" }}
-        className="absolute left-1/2 top-1/2 -translate-x-1/2 mt-24 flex w-64 flex-col items-center gap-4"
+        className="absolute left-1/2 top-1/2 -translate-x-1/2 flex w-64 flex-col items-center gap-4"
       >
         {/* Form */}
         <form onSubmit={attemptLogin} className="space-y-4">
@@ -85,7 +83,7 @@ export default function Login() {
               value={id}
               onChange={(e) => setId(e.target.value)}
               placeholder="Email"
-              className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 outline-none ring-0 focus:border-blue-500"
+              className="w-full rounded-md border border-gray-200 bg-white px-4 py-3 mb-2 outline-none ring-0 focus:border-blue-500"
               autoComplete="username"
               name="email"
               required
@@ -100,7 +98,7 @@ export default function Login() {
               value={pw}
               onChange={(e) => setPw(e.target.value)}
               placeholder="Password"
-              className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 pr-11 outline-none focus:border-blue-500"
+              className="w-full rounded-md border border-gray-200 bg-white px-4 py-3 pr-11 outline-none focus:border-blue-500"
               autoComplete="current-password"
               name="password"
               required
