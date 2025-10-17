@@ -51,6 +51,8 @@ class LoginView(APIView):
             "name": user.name,
             "role": user.role,
             "status": user.status,
+            "country": user.country,
+            "default_lang_id": user.default_lang_id.id if user.default_lang_id else "",
             "created_at": user.created_at.isoformat() if user.created_at else current_time.isoformat(),
             "last_login_at": current_time.isoformat()
         })
