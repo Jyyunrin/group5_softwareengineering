@@ -2,23 +2,36 @@
  * Backside of the card component for the landing page(homepage).
  * When a user clicks a card image, the card will be fliped and shows corresponding letters.
  * 
+ * Paried with GalleryPage.tsx
+ * 
  */
-import { useState } from "react";
+import { useState, type KeyboardEvent } from "react";
 
-export default function ImageFlipCard({
-  image,
-  title,
-}: {
+type Props = {
   image: string;
-  title: string;
-}) {
+  lan: string;
+  word: string;
+  details: string;
+  onDetails: () => void; 
+};
+
+export default function ImageFlipCard({ image, lan, word, details, onDetails }: Props) {
   const [flipped, setFlipped] = useState(false);
 
+  const handleKey = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      setFlipped(v => !v);
+    }
+  };
+
   return (
-    <button
-      type="button"
+    <div
+      role="button"
+      tabIndex={0}
       aria-pressed={flipped}
-      onClick={() => setFlipped((v) => !v)}
+      onClick={() => setFlipped(v => !v)}
+      onKeyDown={handleKey}
       className="
         group relative w-full overflow-hidden rounded-2xl
         [perspective:1000px] outline-none focus:ring-2 focus:ring-blue-500
@@ -34,30 +47,39 @@ export default function ImageFlipCard({
         `}
       >
         {/* front */}
-        <div
-          className="
-            absolute inset-0 [backface-visibility:hidden]
-          "
-        >
-          <img
-            src={image}
-            alt={title}
-            className="h-full w-full object-cover"
-          />
+        <div className="absolute inset-0 [backface-visibility:hidden]">
+          <img src={image} alt={word} className="h-full w-full object-cover" />
         </div>
 
         {/* back */}
         <div
           className="
-            absolute inset-0 flex items-center justify-center
+            absolute inset-0 flex flex-col items-center justify-center space-y-2
             rounded-2xl bg-white p-6 text-center
             [transform:rotateY(180deg)] [backface-visibility:hidden]
             border border-gray-200
           "
         >
-          <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+          <h3 className="text-lg font-semibold text-gray-900">{word}</h3>
+          <p className="text-base text-gray-500">{lan}</p>
+          <p className="text-sm text-gray-500 line-clamp-2">{details}</p>
+
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation(); // prevent auto flips
+              onDetails();
+            }}
+            className="
+              mt-3 rounded-lg border border-gray-300 px-3 py-1.5 text-sm
+              hover:bg-gray-50 active:bg-gray-100
+              focus:outline-none focus:ring-2 focus:ring-blue-500
+            "
+          >
+            View details
+          </button>
         </div>
       </div>
-    </button>
+    </div>
   );
 }
