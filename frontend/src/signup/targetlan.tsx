@@ -13,7 +13,7 @@ import { useNavigate } from "react-router-dom";
 import SpringMotionLayout from "../components/SpringMotionLayout";
 import TextInputStep from "../components/TextInputStep";
 import SuggestInputStep from "../components/SuggestInputStep";
-import { suggestLanguages } from "../utils/languageSuggest";
+import { suggestLanguages } from "../utils/LanguageSuggest";
 
 export default function SetUpTargetLan() {
     const [targetLan, setTargetLan] = React.useState("");

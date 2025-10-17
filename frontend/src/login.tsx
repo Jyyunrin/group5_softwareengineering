@@ -27,7 +27,7 @@ export default function Login() {
     
         let formData = {
             "email": event.currentTarget.email.value,
-            "password": hashedPassword,
+            "password": event.currentTarget.password.value
         }
         const jsonData = JSON.stringify(formData)
         console.log(jsonData)
