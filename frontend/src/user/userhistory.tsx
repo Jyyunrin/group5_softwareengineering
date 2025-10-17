@@ -9,7 +9,7 @@
 
 import GalleryPage from '../components/GalleryPage';
 
-function UserHistory() {
+export default function UserHistory() {
   return (
     <div className="min-h-screen mx-auto w-full max-w-[1080px] bg-white">
         {/* Likes / Search history */}
@@ -22,5 +22,3 @@ function UserHistory() {
     </div>
   );
 }
-
-export default UserHistory;

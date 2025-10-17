@@ -1,5 +1,5 @@
 /**
- * User info page that pull up user's basic detatils, such as name, password, dob...
+ * User info page that pull up user's basic detatils, such as name...
  * 
  * TODO:
  * Connect with DB
@@ -7,15 +7,12 @@
  * 
  */
 import React, { useRef, useState } from "react";
-import { Camera, Pencil, Eye, EyeOff } from "lucide-react"; 
+import { Camera } from "lucide-react"; 
 
 export default function UserInfo() {
   // Hardcoded data - need to connect with DB
   const [name, setName] = useState("Melissa Peters");
   const [email, setEmail] = useState("melpeters@gmail.com");
-  const [password, setPassword] = useState("verysecurepassword");
-  const [showPw, setShowPw] = useState(false);
-  // const [dob, setDob] = useState("1996-05-23"); 
   const [country, setCountry] = useState("Nigeria");
   const [avatarUrl, setAvatarUrl] = useState("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSmpCWL__69pek5fgjE8HfImGkxYXrKsLdHAg&s"); 
   const fileRef = useRef<HTMLInputElement | null>(null);
@@ -30,8 +27,7 @@ export default function UserInfo() {
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     // TODO: send to API
-    // console.log({ name, email, password, dob, country, avatarUrl });
-    console.log({ name, email, password, country, avatarUrl });
+    console.log({ name, email, country, avatarUrl });
   }
 
   return (
@@ -117,9 +113,8 @@ export default function UserInfo() {
           </div>
 
           {/* Email */}
-
           <div>
-            <label className="mb-1 block text-sm font-medium">Name</label>
+            <label className="mb-1 block text-sm font-medium">Email</label>
             <input
               type="email"
               className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 pr-10 outline-none focus:border-indigo-500"
@@ -128,41 +123,7 @@ export default function UserInfo() {
               autoComplete="email"
               placeholder="you@example.com"
             />
-        
           </div>
-
-          {/* Password with toggle */}
-          <div>
-            <label className="mb-1 block text-sm font-medium">Password</label>
-            <div className="relative">
-              <input
-                type={showPw ? "text" : "password"}
-                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 pr-10 outline-none focus:border-indigo-500"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoComplete="new-password"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPw((v) => !v)}
-                className="absolute inset-y-0 right-3 my-auto grid h-8 w-8 place-items-center rounded-md text-gray-500 hover:bg-gray-100"
-                aria-label={showPw ? "Hide password" : "Show password"}
-              >
-                {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-            </div>
-          </div>
-
-          {/* Date of birth : we may don't need this */}
-          {/* <div>
-            <label className="mb-1 block text-sm font-medium">Date of Birth</label>
-            <input
-              type="date"
-              className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 pr-10 outline-none focus:border-indigo-500"
-              value={dob}
-              onChange={(e) => setDob(e.target.value)}
-            />
-          </div> */}
 
           {/* Country select: dropdown menu. Looks a bit disgusting */}
           <div>

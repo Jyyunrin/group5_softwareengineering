@@ -13,6 +13,7 @@
 import { useState, useRef, useEffect } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import { Languages } from "lucide-react";
 import {
   Camera,
   Upload,
@@ -40,6 +41,18 @@ export default function CameraPage() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+
+  const [targetLang, setTargetLang] = useState<string>("en"); 
+  const LANGS = [
+    { code: "en", label: "English" },
+    { code: "ko", label: "Korean" },
+    { code: "ja", label: "Japanese" },
+    { code: "zh", label: "Chinese (Simplified)" },
+    { code: "fr", label: "French" },
+    { code: "es", label: "Spanish" },
+    { code: "de", label: "German" },
+    { code: "it", label: "Italian" },
+  ];
 
   // Attach stream to video when ready
   useEffect(() => {
@@ -123,8 +136,10 @@ export default function CameraPage() {
   const handleUpload = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!picture) return;
+
     const formData = new FormData();
     formData.append("file", picture.pictureAsFile);
+    formData.append("target_lang", targetLang); 
 
     try {
       const response = await fetch("http://localhost:8000/api/image-translate/", {
@@ -306,6 +321,25 @@ export default function CameraPage() {
                   </button>
                 </>
               )}
+            </div>
+
+            {/* Choose a language translate to */}
+            <div className="grid gap-2">
+                <label htmlFor="targetLang" className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                  <Languages size={16} />
+                  Translate to
+                </label>
+                <select
+                  id="targetLang"
+                  value={targetLang}
+                  onChange={(e) => setTargetLang(e.target.value)}
+                  className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                >
+                  {LANGS.map(({ code, label }) => (
+                    <option key={code} value={code}>{label}</option>
+                  ))}
+                </select>
+                <p className="text-xs text-gray-500">Choose the output language for the translation.</p>
             </div>
 
             {/* Error message */}

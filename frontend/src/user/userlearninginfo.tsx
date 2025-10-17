@@ -57,8 +57,8 @@ export default function UserLearningInfo() {
   const fileRef = useRef<HTMLInputElement | null>(null);
 
   // Form state
-  const [primaryLang, setPrimaryLang] = useState("Portuguese"); 
-  const [secondaryLang, setSecondaryLang] = useState("");        
+  const [defaultLang, setdefaultLang] = useState("Portuguese"); 
+  // const [secondaryLang, setSecondaryLang] = useState("");        
   const [difficulty, setDifficulty] = useState<"Easy" | "Medium" | "Hard">("Medium");
   const [goals, setGoals] = useState<string[]>(["touristic_travel"]);
 
@@ -77,13 +77,13 @@ export default function UserLearningInfo() {
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!primaryLang) {
-      alert("Please select your primary learning language.");
+    if (!defaultLang) {
+      alert("Please select your default Learning Language.");
       return;
     }
     console.log({
-      primaryLang,
-      secondaryLang: secondaryLang || null,
+      defaultLang,
+      // secondaryLang: secondaryLang || null,
       difficulty,
       goals,
     });
@@ -150,16 +150,16 @@ export default function UserLearningInfo() {
 
         {/* Form */}
         <form onSubmit={onSubmit} className="space-y-6">
-          {/* Primary language (required) */}
+          {/* Default language (required) */}
           <div>
             <label className="mb-1 block text-sm font-medium">
-              Primary learning language <span className="text-red-500">* Required</span>
+              Default learning language <span className="text-red-500">* Required</span>
             </label>
             <select
               required
               className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 pr-10 outline-none focus:border-indigo-500"
-              value={primaryLang}
-              onChange={(e) => setPrimaryLang(e.target.value)}
+              value={defaultLang}
+              onChange={(e) => setdefaultLang(e.target.value)}
             >
               <option value="" disabled>
                 Select a language…
@@ -173,7 +173,7 @@ export default function UserLearningInfo() {
           </div>
 
           {/* Secondary language (optional) */}
-          <div>
+          {/* <div>
             <label className="mb-1 block text-sm font-medium">
               Second learning language (optional)
             </label>
@@ -189,7 +189,7 @@ export default function UserLearningInfo() {
                 </option>
               ))}
             </select>
-          </div>
+          </div> */}
 
           {/* Consider add + button to add extra languages */}
 
