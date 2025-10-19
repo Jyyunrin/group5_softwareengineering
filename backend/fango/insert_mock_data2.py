@@ -1,33 +1,31 @@
 import random
 from fango.models import AppUser, Language, Word, Translation, UserHistory, Quiz, QuizWord
 from django.utils import timezone
+from django.contrib.auth.hashers import make_password
 from datetime import datetime
 
+
 # NOTE: This script is meant to seed a new database.
-# NOTE: This clears ALL existing data
+# NOTE: This clears ALL existing data (except for Language table)
+# NOTE: RUN insert_mock_languages.py FIRST
 QuizWord.objects.all().delete()
 Quiz.objects.all().delete()
 UserHistory.objects.all().delete()
 Translation.objects.all().delete()
 Word.objects.all().delete()
-Language.objects.all().delete()
 AppUser.objects.all().delete()
 
+languages = list(Language.objects.all())
+lang_fr = Language.objects.get(code="fr")
+lang_zh = Language.objects.get(code="zh")
 users = [
-    AppUser(email="admin@test.com", name="Admin", role="admin", password="000"),
-    AppUser(email="john@test.com", name="John", password="123"),
-    AppUser(email="jane@test.com", name="Jane", password="123"),
+    AppUser(email="admin@test.com", name="Admin", role="admin", password=make_password("000")),
+    AppUser(email="john@test.com", name="John", default_lang_id=lang_fr, password=make_password("123")),
+    AppUser(email="jane@test.com", name="Jane", country="United States of America", default_lang_id=lang_zh, password=make_password("123")),
+    AppUser(email="banned@test.com", name="Hubert", status="banned", password=make_password("123"))
 ]
 AppUser.objects.bulk_create(users)
 users = list(AppUser.objects.all())
-
-languages = [
-    Language(code="fr", lang="French"),
-    Language(code="es", lang="Spanish"),
-    Language(code="it", lang="Italian"),
-]
-Language.objects.bulk_create(languages)
-languages = list(Language.objects.all())
 
 words = [
     Word(label_en="Apple", meaning="A common fruit that grows on trees"),

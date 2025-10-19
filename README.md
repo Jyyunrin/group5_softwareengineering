@@ -12,6 +12,10 @@ cd ../group5_softwareengineering/
 ## First time running:
 
 docker compose up --build
+
+Remember to makemigrations if schema changed with:
+docker compose run django-web python manage.py makemigrations
+
 docker compose run django-web python manage.py migrate
 
 ## Starting container after first time:
@@ -33,10 +37,14 @@ docker compose run -it django-web python manage.py shell
 
 ### Run seed script:
 Note that these scripts are normally for fresh databases. There are a few options to seed:
+
 1. Seed row
 exec(open("fango/insert_mock_data.py").read())
+
 2. Seed multiple rows
+exec(open("fango/insert_mock_languages.py").read())
 exec(open("fango/insert_mock_data2.py").read())
+
 3. Seed edge case data
 exec(open("fango/insert_test_data.py").read())
 run_edge_case_seeding()
@@ -46,9 +54,11 @@ run_edge_case_seeding()
 ### Continuing from inside Django shell
 
 1. Import models (it should have automatically imported anyway)
-from fango.models import AppUser, Word, < other table you want to check > 
+from fango.models import AppUser, Word, < other table you want to check >
+
 2. Retrieve all rows from a table in the db, in this case it's AppUser
 AppUser.objects.all()
+
 3. When you're finished:
 exit()
 
