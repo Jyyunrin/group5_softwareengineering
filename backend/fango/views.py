@@ -52,7 +52,7 @@ class LoginView(APIView):
             "role": user.role,
             "status": user.status,
             "country": user.country,
-            "default_lang_id": user.default_lang_id.id if user.default_lang_id else "",
+            "default_lang_id": user.default_lang_id_id if user.default_lang_id_id else "",
             "created_at": user.created_at.isoformat() if user.created_at else current_time.isoformat(),
             "last_login_at": current_time.isoformat()
         })
@@ -61,7 +61,7 @@ class LoginView(APIView):
 
         response = Response()
 
-        response.set_cookie(key='jwt', value=token, httponly=True, secure=True, samesite='None', path='/')
+        response.set_cookie(key='jwt', value=token, httponly=True, secure=False, samesite='Lax', path='/')
         response.data = {
             "jwt": token,
             "success": True
@@ -90,7 +90,15 @@ class UserView(APIView):
 
 class LogoutView(APIView):
     def post(self, request):
-        token = request.COOKIES.get('jwt')
+        # TODO: temp cookie fix
+        auth_header = request.META.get("HTTP_AUTHORIZATION", "")
+        token = None
+        if auth_header.startswith("Bearer "):
+            token = auth_header[7:]
+        else:
+            token = request.COOKIES.get('jwt')
+        # ---
+        # token = request.COOKIES.get('jwt')
         if not token:
             raise AuthenticationFailed('Unauthenticated')
 
