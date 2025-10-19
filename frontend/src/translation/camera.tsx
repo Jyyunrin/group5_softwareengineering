@@ -147,9 +147,7 @@ export default function CameraPage() {
       const response = await fetch("http://localhost:8000/api/image-translate/", {
         method: "POST",
         body: formData,
-        headers: {
-          "Authorization": `Bearer ${localStorage.getItem("jwt")}`,
-        }
+        credentials: 'include'
       });
       const responseData = await response.json();
       if (responseData) {
