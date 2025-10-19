@@ -1,8 +1,6 @@
 import os
 import uuid
 import jwt
-import json
-import re
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
@@ -71,9 +69,16 @@ class ImageTranslate(APIView):
 
           return Response({
                "filename": filename,
-               "db_path": db_path,
+               "dbPath": db_path,
                "url": frontend_path,
-               "translation": "Banana"
+               "translation": translation.label_target.title(),
+               "english": translation.word_id.label_en.title(),
+               "translatedSentenceEasy": translation.example_target_easy,
+               "englishSentenceEasy": translation.example_en_easy,
+               "translatedSentenceMed": translation.example_target_med,
+               "englishSentenceMed": translation.example_en_med,
+               "translatedSentenceHard": translation.example_target_hard,
+               "englishSentenceHard": translation.example_en_hard
           }, status=status.HTTP_200_OK)
     
      # Get current user id from jwt token in request header
