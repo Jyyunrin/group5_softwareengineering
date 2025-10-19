@@ -12,9 +12,10 @@ load_dotenv()
 def get_translation(image_path: str, translation_language: str):
         
        prompt = (
-            f"Identify the image and return the following in json format: The most prominent object in the image in english " 
-            f"and in {translation_language}, and example sentence in easy, medium, and hard in both english and in {translation_language}, "
-            f"set the json keys to: 'english' for the english translation, 'translated' for the translated language, english-sentence-easy "
+            f"Identify most prominent object in the image and return the following in json format: the object or thing in english " 
+            f"and in {translation_language} 'english' and 'translated' respectively, its meaning in english, and example "
+            f"sentence in easy, medium, and hard in both english and in {translation_language}, set the json keys to: 'english' for the english translation, "
+            f"'translated' for the translated language, 'meaning' for the meaning in english, english-sentence-easy "
             f"for the easy english sentence, 'translated-sentence-easy for the translated language's easy sentence, and the same key format "
             f"for medium and hard sentence but swapping 'easy' with their respective 'med' and 'hard' phrase."
        )

@@ -142,6 +142,7 @@ export default function CameraPage() {
     if (selectedLabel) {
       formData.append("target_lang", selectedLabel);
     }
+    formData.append("target_lang_code", targetLang)
 
     try {
       const response = await fetch("http://localhost:8000/api/image-translate/", {

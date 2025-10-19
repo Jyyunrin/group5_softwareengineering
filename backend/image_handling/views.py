@@ -9,7 +9,7 @@ from rest_framework.exceptions import AuthenticationFailed
 from rest_framework import status
 from django.conf import settings
 from django.http import FileResponse
-from fango.models import UserHistory, AppUser, Translation
+from fango.models import UserHistory, AppUser, Translation, Word, Language
 from .services.openai_service import get_translation
 
 class ImageTranslate(APIView):
@@ -19,7 +19,10 @@ class ImageTranslate(APIView):
           uploaded_file = request.FILES.get("file")
 
           target_lang = request.POST.get("target_lang").lower()
-          print(target_lang)
+          print("Language", target_lang)
+
+          target_lang_code = request.POST.get("target_lang_code").lower()
+          print("Code", target_lang_code)
 
           if not target_lang:
                return Response({"error":"Missing target language"}, status=status.HTTP_400_BAD_REQUEST)
@@ -31,7 +34,7 @@ class ImageTranslate(APIView):
         
           user_id = self.get_current_user(request)
 
-          print(user_id)
+          print("UserId", user_id)
         
           print("Received files:", uploaded_file.name)
           print("Content type:", uploaded_file.content_type)
@@ -56,9 +59,7 @@ class ImageTranslate(APIView):
 
           translation_data = get_translation(save_path, target_lang)
 
-          translation = self.store_word_and_translation(translation_data)
-
-          translation = Translation.objects.get(id=19)
+          translation = self.store_word_and_translation(translation_data, target_lang_code)
 
           # Save image to userhistory in database
           user_history = UserHistory.objects.create(
@@ -91,14 +92,29 @@ class ImageTranslate(APIView):
           except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
                return None
      
-     # Store 
-     def store_word_and_translation(self, data):
+     # Store word row and translation row for the data and returns the newly saved translation object
+     def store_word_and_translation(self, data, target_lang_code):
           
           print(data)
           print(type(data))
-          print("English word:", data['english'])
-          print("Translated word:", data['translated'])
-          print("Easy sentence:", data['english-sentence-easy'])
+          word = Word.objects.create(
+               label_en = data["english"],
+               meaning = data["meaning"]
+          )
+          
+          translation = Translation.objects.create(
+               label_target = data["translated"],
+               example_target_easy = data["translated-sentence-easy"],
+               example_en_easy = data["english-sentence-easy"],
+               example_target_med = data["translated-sentence-med"],
+               example_en_med = data["english-sentence-med"],
+               example_target_hard = data["translated-sentence-hard"],
+               example_en_hard = data["english-sentence-hard"],
+               target_lang_id = Language.objects.get(code=target_lang_code),
+               word_id = word
+          )
+     
+          return translation
          
     
 
