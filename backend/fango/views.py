@@ -160,8 +160,6 @@ class GetUserHistory(APIView):
 class GetUserInfo(APIView):
     def get(self, request):
         token = request.COOKIES.get('jwt')
-        language_filter = request.query_params.get('language_filter', None)
-        page = request.query_params.get('page', 1)
 
         if not token:
             raise AuthenticationFailed('Unauthenticated')

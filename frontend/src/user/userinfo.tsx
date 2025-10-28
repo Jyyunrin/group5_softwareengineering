@@ -31,7 +31,10 @@ export default function UserInfo() {
   }
 
   const request_info = async() => {
-    const response = await fetch(import.meta.env.VITE_SERVER_URL + "/get_user_info")
+    const response = await fetch(import.meta.env.VITE_SERVER_URL + "/get_user_info", {
+        credentials: 'include',
+      }
+    )
     .then(function(response) { return response.json(); })
     .then(function(json) {
       // use the json
