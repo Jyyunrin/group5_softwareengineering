@@ -7,14 +7,13 @@
  * When user clicks -> navigate ?
  */
 
-import GalleryPage from '../components/GalleryPage';
+import GalleryPage from '../../components/card/GalleryPage';
 
 export default function UserHistory() {
   return (
     <div className="min-h-screen mx-auto w-full max-w-[1080px] bg-white">
         {/* Likes / Search history */}
         <section className="mt-7">
-          {/* text-center doesn't work... */}
           <div className="mt-4">
             <GalleryPage />
           </div>

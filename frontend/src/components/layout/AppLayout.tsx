@@ -5,7 +5,7 @@
  * Add hide_nav 
  */
 import { Outlet, useLocation } from "react-router-dom";
-import BottomRadialNav from "../components/nav/BottomNav.tsx";
+import BottomRadialNav from "../../components/nav/BottomNav.tsx";
 
 // Nav should not work when
 // 1. camera is working

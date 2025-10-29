@@ -61,4 +61,4 @@ export const LANGUAGES = [
     
     
     return scored.slice(0, 6);
-    }
+}
