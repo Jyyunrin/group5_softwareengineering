@@ -10,7 +10,7 @@ import AppLayout from "./components/layout/AppLayout";
 
 // Routes 
 // Basic
-import Landing from "./Landing";
+import Landing from "./landing";
 import Login from "./pages/user/Login";
 import RegisterPage from "./pages/user/Register";
 
