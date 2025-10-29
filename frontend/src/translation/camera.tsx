@@ -43,7 +43,7 @@ export default function CameraPage() {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
-  const [targetLang, setTargetLang] = useState<string>("en"); 
+  const [targetLang, setTargetLang] = useState<string>("fr"); 
   
   // Attach stream to video when ready
   useEffect(() => {
@@ -130,7 +130,7 @@ export default function CameraPage() {
 
     const formData = new FormData();
     formData.append("file", picture.pictureAsFile);
-    const selectedLabel = LANGS.find(lang => lang.code === targetLang)?.label;
+    const selectedLabel = languages.find(lang => lang.code === targetLang)?.label;
     if (selectedLabel) {
       formData.append("target_lang", selectedLabel);
     }
