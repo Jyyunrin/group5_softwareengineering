@@ -7,6 +7,8 @@
  * TODO:
  * Implement likes, history data instead of hardcoded one
  * setSelected -> link
+ * Carousel?
+ * Arrow button renewal 
  */
 import { useState } from "react";
 import CardMenu from "./CardMenu";
@@ -16,6 +18,24 @@ const likesData = [
   { id: 1, image: "https://picsum.photos/seed/a/600/400", word: "Sunset Dune", lan: "C", details: "Warm dunes at dusk…" },
   { id: 2, image: "https://picsum.photos/seed/b/600/400", word: "River Stone", lan: "ELIXIR", details: "Smooth river stones…" },
   { id: 3, image: "https://picsum.photos/seed/c/600/400", word: "Forest Path", lan: "JAVA", details: "Shaded path through pines…" },
+  { id: 7, image: "https://picsum.photos/seed/g/600/400", word: "Golden Field", lan: "JS", details: "Grassy fields under sun…" },
+  { id: 8, image: "https://picsum.photos/seed/h/600/400", word: "Stone Bridge", lan: "RUST", details: "Bridge across small creek…" },
+  { id: 9, image: "https://picsum.photos/seed/i/600/400", word: "Lava Flow", lan: "C++", details: "Molten lava at night…" },
+  { id: 10, image: "https://picsum.photos/seed/j/600/400", word: "Aurora Sky", lan: "SWIFT", details: "Dancing lights above ice…" },
+  { id: 1, image: "https://picsum.photos/seed/a/600/400", word: "Sunset Dune", lan: "C", details: "Warm dunes at dusk…" },
+  { id: 2, image: "https://picsum.photos/seed/b/600/400", word: "River Stone", lan: "ELIXIR", details: "Smooth river stones…" },
+  { id: 3, image: "https://picsum.photos/seed/c/600/400", word: "Forest Path", lan: "JAVA", details: "Shaded path through pines…" },
+  { id: 7, image: "https://picsum.photos/seed/g/600/400", word: "Golden Field", lan: "JS", details: "Grassy fields under sun…" },
+  { id: 8, image: "https://picsum.photos/seed/h/600/400", word: "Stone Bridge", lan: "RUST", details: "Bridge across small creek…" },
+  { id: 9, image: "https://picsum.photos/seed/i/600/400", word: "Lava Flow", lan: "C++", details: "Molten lava at night…" },
+  { id: 10, image: "https://picsum.photos/seed/j/600/400", word: "Aurora Sky", lan: "SWIFT", details: "Dancing lights above ice…" },
+  { id: 1, image: "https://picsum.photos/seed/a/600/400", word: "Sunset Dune", lan: "C", details: "Warm dunes at dusk…" },
+  { id: 2, image: "https://picsum.photos/seed/b/600/400", word: "River Stone", lan: "ELIXIR", details: "Smooth river stones…" },
+  { id: 3, image: "https://picsum.photos/seed/c/600/400", word: "Forest Path", lan: "JAVA", details: "Shaded path through pines…" },
+  { id: 7, image: "https://picsum.photos/seed/g/600/400", word: "Golden Field", lan: "JS", details: "Grassy fields under sun…" },
+  { id: 8, image: "https://picsum.photos/seed/h/600/400", word: "Stone Bridge", lan: "RUST", details: "Bridge across small creek…" },
+  { id: 9, image: "https://picsum.photos/seed/i/600/400", word: "Lava Flow", lan: "C++", details: "Molten lava at night…" },
+  { id: 10, image: "https://picsum.photos/seed/j/600/400", word: "Aurora Sky", lan: "SWIFT", details: "Dancing lights above ice…" },
 ];
 
 const historyData = [
@@ -32,23 +52,94 @@ export default function GalleryPage() {
 
   const [selected, setSelected] = useState<Item | null>(null);
 
+  // Pagination settings (fixed layout)
+  const cardsPerRow = 3;
+  const maxRows = 4;
+  const cardsPerPage = cardsPerRow * maxRows; // 12 per page
+
+  const [page, setPage] = useState(0);
+
+  const totalPages = Math.ceil(data.length / cardsPerPage);
+  const start = page * cardsPerPage;
+  const end = start + cardsPerPage;
+  const pageData = data.slice(start, end);
+
+  const canPrev = page > 0;
+  const canNext = page < totalPages - 1;
+  const goFirst = () => setPage(0);
+  const goLast = () => setPage(totalPages - 1);
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 space-y-6">
+      {/* menu */}
       <div className="text-center">
-        <CardMenu tab={tab} onChange={setTab} />
+        <CardMenu
+          tab={tab}
+          onChange={(newTab) => {
+            setTab(newTab);
+            setPage(0); // reset when switching tabs
+          }}
+        />
       </div>
 
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {data.map((item) => (
-          <ImageFlipCard
-            key={item.id}
-            image={item.image}
-            word={item.word}
-            lan={item.lan}
-            details={item.details}
-            onDetails={() => setSelected(item)}
-          />
-        ))}
+      {/* gallery */}
+      <div className="relative">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {pageData.map((item, i) => (
+            <ImageFlipCard
+              // Use a stable unique key (ids repeat in your array)
+              key={`${start + i}-${item.id}`}
+              image={item.image}
+              word={item.word}
+              lan={item.lan}
+              details={item.details}
+              onDetails={() => setSelected(item)}
+            />
+          ))}
+        </div>
+
+        {/* pagination controls */}
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center gap-2 mt-6">
+            <button
+              onClick={goFirst}
+              disabled={!canPrev}
+              aria-label="First page"
+              className="rounded-full border border-gray-300 px-3 py-2 text-sm hover:bg-gray-100 disabled:opacity-40"
+            >
+              First
+            </button>
+            <button
+              onClick={() => setPage((p) => Math.max(0, p - 1))}
+              disabled={!canPrev}
+              aria-label="Previous page"
+              className="rounded-full border border-gray-300 px-3 py-2 text-sm hover:bg-gray-100 disabled:opacity-40"
+            >
+              ◀
+            </button>
+
+            <span className="mx-2 text-gray-600 text-sm">
+              Page {page + 1} of {totalPages}
+            </span>
+
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+              disabled={!canNext}
+              aria-label="Next page"
+              className="rounded-full border border-gray-300 px-3 py-2 text-sm hover:bg-gray-100 disabled:opacity-40"
+            >
+             ▶
+            </button>
+            <button
+              onClick={goLast}
+              disabled={!canNext}
+              aria-label="Last page"
+              className="rounded-full border border-gray-300 px-3 py-2 text-sm hover:bg-gray-100 disabled:opacity-40"
+            >
+              Last
+            </button>
+          </div>
+        )}
       </div>
 
       {/* modal */}
@@ -82,12 +173,9 @@ export default function GalleryPage() {
               </button>
               <button
                 className="rounded-lg px-4 py-2 text-sm bg-blue-600 text-white hover:bg-blue-700"
-                onClick={() => {
-                  // TODO: navigate 
-                  setSelected(null);
-                }}
+                onClick={() => setSelected(null)}
               >
-                Do action
+                Go to details
               </button>
             </div>
           </div>
