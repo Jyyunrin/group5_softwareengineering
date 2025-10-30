@@ -32,7 +32,6 @@ export default function Login() {
             headers: { "Content-Type": "application/json" },
             credentials: 'include',
             body: jsonData,
-            credentials: 'include'
         });
     
         const upload_response = await data.json();

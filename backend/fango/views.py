@@ -63,7 +63,7 @@ class LoginView(APIView):
 
         response = Response()
 
-        response.set_cookie(key='jwt', value=token, httponly=True, secure=False, samesite='None', path='/')
+        response.set_cookie(key='jwt', value=token, httponly=True, secure=True, samesite='None', path='/')
         # response.set_cookie(key='jwt', value=token, httponly=True)
         response.data = {
             "jwt": token,
@@ -223,35 +223,35 @@ class GetUserHistory(APIView):
 
         return response
 
-class GetUserInfo(APIView):
-    def get(self, request):
-        token = request.COOKIES.get('jwt')
+# class GetUserInfo(APIView):
+#     def get(self, request):
+#         token = request.COOKIES.get('jwt')
 
-        if not token:
-            raise AuthenticationFailed('Unauthenticated')
+#         if not token:
+#             raise AuthenticationFailed('Unauthenticated')
 
-        try:
-            payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
-            user_id = payload['id']
-        except jwt.ExpiredSignatureError:
-            pass
+#         try:
+#             payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+#             user_id = payload['id']
+#         except jwt.ExpiredSignatureError:
+#             pass
 
-        try:
-            user = AppUser.objects.get(id=user_id)
-        except AppUser.DoesNotExist:
-            print("User not found.")
+#         try:
+#             user = AppUser.objects.get(id=user_id)
+#         except AppUser.DoesNotExist:
+#             print("User not found.")
 
-        try:
-            user_history = UserHistory.objects.filter(user_id=user) 
-        except UserHistory.DoesNotExist:
-            pass
+#         try:
+#             user_history = UserHistory.objects.filter(user_id=user) 
+#         except UserHistory.DoesNotExist:
+#             pass
 
-        response = Response()
-        response.data = {
-            'email': 'TestEmail',
-            'default_language': 'SomeLang' ,
-            'country': 'Canada',
-            'name': 'Blaise'
-        }
+#         response = Response()
+#         response.data = {
+#             'email': 'TestEmail',
+#             'default_language': 'SomeLang' ,
+#             'country': 'Canada',
+#             'name': 'Blaise'
+#         }
 
-        return response
+#         return response

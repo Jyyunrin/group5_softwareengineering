@@ -16,50 +16,42 @@ import ImageFlipCard from "./ImageFlipCard";
 type Tab = "likes" | "history";
 
 const likesData = [
-  { id: 1, image: "https://picsum.photos/seed/a/600/400", word: "Sunset Dune", lan: "C", details: "Warm dunes at dusk…" },
-  { id: 2, image: "https://picsum.photos/seed/b/600/400", word: "River Stone", lan: "ELIXIR", details: "Smooth river stones…" },
-  { id: 3, image: "https://picsum.photos/seed/c/600/400", word: "Forest Path", lan: "JAVA", details: "Shaded path through pines…" },
-  { id: 7, image: "https://picsum.photos/seed/g/600/400", word: "Golden Field", lan: "JS", details: "Grassy fields under sun…" },
-  { id: 8, image: "https://picsum.photos/seed/h/600/400", word: "Stone Bridge", lan: "RUST", details: "Bridge across small creek…" },
-  { id: 9, image: "https://picsum.photos/seed/i/600/400", word: "Lava Flow", lan: "C++", details: "Molten lava at night…" },
-  { id: 10, image: "https://picsum.photos/seed/j/600/400", word: "Aurora Sky", lan: "SWIFT", details: "Dancing lights above ice…" },
-  { id: 1, image: "https://picsum.photos/seed/a/600/400", word: "Sunset Dune", lan: "C", details: "Warm dunes at dusk…" },
-  { id: 2, image: "https://picsum.photos/seed/b/600/400", word: "River Stone", lan: "ELIXIR", details: "Smooth river stones…" },
-  { id: 3, image: "https://picsum.photos/seed/c/600/400", word: "Forest Path", lan: "JAVA", details: "Shaded path through pines…" },
-  { id: 7, image: "https://picsum.photos/seed/g/600/400", word: "Golden Field", lan: "JS", details: "Grassy fields under sun…" },
-  { id: 8, image: "https://picsum.photos/seed/h/600/400", word: "Stone Bridge", lan: "RUST", details: "Bridge across small creek…" },
-  { id: 9, image: "https://picsum.photos/seed/i/600/400", word: "Lava Flow", lan: "C++", details: "Molten lava at night…" },
-  { id: 10, image: "https://picsum.photos/seed/j/600/400", word: "Aurora Sky", lan: "SWIFT", details: "Dancing lights above ice…" },
-  { id: 1, image: "https://picsum.photos/seed/a/600/400", word: "Sunset Dune", lan: "C", details: "Warm dunes at dusk…" },
-  { id: 2, image: "https://picsum.photos/seed/b/600/400", word: "River Stone", lan: "ELIXIR", details: "Smooth river stones…" },
-  { id: 3, image: "https://picsum.photos/seed/c/600/400", word: "Forest Path", lan: "JAVA", details: "Shaded path through pines…" },
-  { id: 7, image: "https://picsum.photos/seed/g/600/400", word: "Golden Field", lan: "JS", details: "Grassy fields under sun…" },
-  { id: 8, image: "https://picsum.photos/seed/h/600/400", word: "Stone Bridge", lan: "RUST", details: "Bridge across small creek…" },
-  { id: 9, image: "https://picsum.photos/seed/i/600/400", word: "Lava Flow", lan: "C++", details: "Molten lava at night…" },
-  { id: 10, image: "https://picsum.photos/seed/j/600/400", word: "Aurora Sky", lan: "SWIFT", details: "Dancing lights above ice…" },
+  { id: 1, image_url: "https://picsum.photos/seed/a/600/400", word_english: "Sunset Dune", language: "C", word_translated: "Warm dunes at dusk…" },
+  { id: 2, image_url: "https://picsum.photos/seed/b/600/400", word_english: "River Stone", language: "ELIXIR", word_translated: "Smooth river stones…" },
+  { id: 3, image_url: "https://picsum.photos/seed/c/600/400", word_english: "Forest Path", language: "JAVA", word_translated: "Shaded path through pines…" },
+  { id: 7, image_url: "https://picsum.photos/seed/g/600/400", word_english: "Golden Field", language: "JS", word_translated: "Grassy fields under sun…" },
+  { id: 8, image_url: "https://picsum.photos/seed/h/600/400", word_english: "Stone Bridge", language: "RUST", word_translated: "Bridge across small creek…" },
+  { id: 9, image_url: "https://picsum.photos/seed/i/600/400", word_english: "Lava Flow", language: "C++", word_translated: "Molten lava at night…" },
+  { id: 10, image_url: "https://picsum.photos/seed/j/600/400", word_english: "Aurora Sky", language: "SWIFT", word_translated: "Dancing lights above ice…" },
+  { id: 1, image_url: "https://picsum.photos/seed/a/600/400", word_english: "Sunset Dune", language: "C", word_translated: "Warm dunes at dusk…" },
+  { id: 2, image_url: "https://picsum.photos/seed/b/600/400", word_english: "River Stone", language: "ELIXIR", word_translated: "Smooth river stones…" },
+  { id: 3, image_url: "https://picsum.photos/seed/c/600/400", word_english: "Forest Path", language: "JAVA", word_translated: "Shaded path through pines…" },
+  { id: 7, image_url: "https://picsum.photos/seed/g/600/400", word_english: "Golden Field", language: "JS", word_translated: "Grassy fields under sun…" },
+  { id: 8, image_url: "https://picsum.photos/seed/h/600/400", word_english: "Stone Bridge", language: "RUST", word_translated: "Bridge across small creek…" },
+  { id: 9, image_url: "https://picsum.photos/seed/i/600/400", word_english: "Lava Flow", language: "C++", word_translated: "Molten lava at night…" },
+  { id: 10, image_url: "https://picsum.photos/seed/j/600/400", word_english: "Aurora Sky", language: "SWIFT", word_translated: "Dancing lights above ice…" },
+  { id: 1, image_url: "https://picsum.photos/seed/a/600/400", word_english: "Sunset Dune", language: "C", word_translated: "Warm dunes at dusk…" },
+  { id: 2, image_url: "https://picsum.photos/seed/b/600/400", word_english: "River Stone", language: "ELIXIR", word_translated: "Smooth river stones…" },
+  { id: 3, image_url: "https://picsum.photos/seed/c/600/400", word_english: "Forest Path", language: "JAVA", word_translated: "Shaded path through pines…" },
+  { id: 7, image_url: "https://picsum.photos/seed/g/600/400", word_english: "Golden Field", language: "JS", word_translated: "Grassy fields under sun…" },
+  { id: 8, image_url: "https://picsum.photos/seed/h/600/400", word_english: "Stone Bridge", language: "RUST", word_translated: "Bridge across small creek…" },
+  { id: 9, image_url: "https://picsum.photos/seed/i/600/400", word_english: "Lava Flow", language: "C++", word_translated: "Molten lava at night…" },
+  { id: 10, image_url: "https://picsum.photos/seed/j/600/400", word_english: "Aurora Sky", language: "SWIFT", word_translated: "Dancing lights above ice…" },
 ];
 
 const historyData = [
-  { id: 4, image: "https://picsum.photos/seed/d/600/400", word: "Neon City", lan: "C#", details: "Night skyline glowing…" },
-  { id: 5, image: "https://picsum.photos/seed/e/600/400", word: "Snow Ridge", lan: "PYTHON", details: "Crisp alpine ridge…" },
-  { id: 6, image: "https://picsum.photos/seed/f/600/400", word: "Sea Cliff", lan: "GO", details: "Cliff over a calm sea…" },
+  { id: 4, image_url: "https://picsum.photos/seed/d/600/400", word_english: "Neon City", language: "C#", word_translated: "Night skyline glowing…" },
+  { id: 5, image_url: "https://picsum.photos/seed/e/600/400", word_english: "Snow Ridge", language: "PYTHON", word_translated: "Crisp alpine ridge…" },
+  { id: 6, image_url: "https://picsum.photos/seed/f/600/400", word_english: "Sea Cliff", language: "GO", word_translated: "Cliff over a calm sea…" },
 ];
 
 type Item = typeof likesData[number];
 
 export default function GalleryPage() {
   const [tab, setTab] = useState<"likes" | "history">("likes");
-  const data = tab === "likes" ? likesData : historyData;
-
-
   const [history, setHistory] = useState([])
   const [data, setData] = useState(tab === "likes" ? likesData : history);
   // const data = tab ==="likes" ? likesData : historyData;
-
-  const tabMaking = (new_tab: Tab) => {
-      setTab(new_tab);
-      request_info();
-  }
 
   const request_info = async() => {
     const response = await fetch(import.meta.env.VITE_SERVER_URL + "/get_user_history?page=1", {
@@ -113,7 +105,7 @@ export default function GalleryPage() {
           onChange={(newTab) => {
             setTab(newTab);
             setPage(0); // reset when switching tabs
-            tabMaking();
+            request_info();
           }}
         />
       </div>
@@ -125,10 +117,10 @@ export default function GalleryPage() {
             <ImageFlipCard
               // Use a stable unique key (ids repeat in your array)
               key={`${start + i}-${item.id}`}
-              image={item.image}
-              word={item.word}
-              lan={item.lan}
-              details={item.details}
+              image={import.meta.env.VITE_SERVER_URL + "/media/" + item.image_url}
+              word={item.word_english}
+              lan={item.language}
+              details={item.word_translated}
               onDetails={() => setSelected(item)}
             />
           ))}
@@ -192,13 +184,13 @@ export default function GalleryPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start gap-4">
-              <img src={selected.image} alt={selected.word} className="h-20 w-28 rounded object-cover" />
+              <img src={import.meta.env.VITE_SERVER_URL + "/media/" + selected.image_url} alt={selected.word_english} className="h-20 w-28 rounded object-cover" />
               <div>
-                <h2 className="text-xl font-semibold text-gray-900">{selected.word}</h2>
-                <p className="text-sm text-gray-500">{selected.lan}</p>
+                <h2 className="text-xl font-semibold text-gray-900">{selected.word_english}</h2>
+                <p className="text-sm text-gray-500">{selected.language}</p>
               </div>
             </div>
-            <p className="mt-4 text-gray-700">{selected.details || "No additional details."}</p>
+            <p className="mt-4 text-gray-700">{selected.word_translated || "No additional details."}</p>
 
             <div className="mt-6 flex justify-end gap-2">
               <button
