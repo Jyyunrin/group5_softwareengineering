@@ -25,7 +25,7 @@ import {
   Trash2,
   Video,
 } from "lucide-react";
-import languages from "../../data/langauges.json"
+import languages from "../../../data/langauges.json"
 
 interface Picture {
   picturePreview: string;

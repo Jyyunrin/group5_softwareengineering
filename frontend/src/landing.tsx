@@ -10,6 +10,7 @@
 import './landing.css';
 import Card from './components/card/Cards';
 import GalleryPage from './components/card/GalleryPage';
+import Logout from './components/Logout';
 
 function Landing() {
   return (

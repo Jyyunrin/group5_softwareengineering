@@ -8,7 +8,7 @@
  */
 import React, { useRef, useState } from "react";
 import { Camera } from "lucide-react"; 
-import countries from "../../data/countries.json";
+import countries from "../../../data/countries.json";
 
 export default function UserInfo() {
   // Hardcoded data - need to connect with DB
