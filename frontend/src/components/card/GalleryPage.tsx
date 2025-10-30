@@ -13,6 +13,7 @@
 import { useState } from "react";
 import CardMenu from "./CardMenu";
 import ImageFlipCard from "./ImageFlipCard";
+type Tab = "likes" | "history";
 
 const likesData = [
   { id: 1, image: "https://picsum.photos/seed/a/600/400", word: "Sunset Dune", lan: "C", details: "Warm dunes at dusk…" },
@@ -50,8 +51,42 @@ export default function GalleryPage() {
   const [tab, setTab] = useState<"likes" | "history">("likes");
   const data = tab === "likes" ? likesData : historyData;
 
+
+  const [history, setHistory] = useState([])
+  const [data, setData] = useState(tab === "likes" ? likesData : history);
+  // const data = tab ==="likes" ? likesData : historyData;
+
+  const tabMaking = (new_tab: Tab) => {
+      setTab(new_tab);
+      request_info();
+  }
+
+  const request_info = async() => {
+    const response = await fetch(import.meta.env.VITE_SERVER_URL + "/get_user_history?page=1", {
+      method: "GET",
+      credentials: 'include'
+    })
+    .then(function(response) { return response.json(); })
+    .then(function(json) {
+      // use the json
+      for (let i = 0; i < json.history.length; i++){
+        json.history[i].id = i;
+      }
+
+    
+      setHistory(json.history)
+      setData(tab === "likes" ? likesData : history)
+      console.log(data);
+    });
+  }
+
   const [selected, setSelected] = useState<Item | null>(null);
 
+  // return (
+  //   <div className="mx-auto max-w-6xl px-4 py-6 space-y-6">
+  //     <div className="text-center">
+  //       <CardMenu tab={tab} onChange={tabMaking} />
+  //     </div>
   // Pagination settings (fixed layout)
   const cardsPerRow = 3;
   const maxRows = 4;
@@ -78,6 +113,7 @@ export default function GalleryPage() {
           onChange={(newTab) => {
             setTab(newTab);
             setPage(0); // reset when switching tabs
+            tabMaking();
           }}
         />
       </div>
