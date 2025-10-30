@@ -13,8 +13,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import bcrypt from "bcryptjs";
-import SpringMotionLayout from "../components/SpringMotionLayout";
-import PasswordInputStep from "../components/PasswordInputStep";
+import SpringMotionLayout from "../../components/animation/SpringMotionLayout";
+import PasswordInputStep from "../../components/utils/PasswordInputStep";
 
 
 export default function PasswordStep() {

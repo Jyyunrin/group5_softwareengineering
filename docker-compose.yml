@@ -26,6 +26,7 @@ services:
      - db
    volumes:
      - ./backend:/app
+     - img_data:/app/media/images
    environment:
      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
      DEBUG: ${DEBUG}

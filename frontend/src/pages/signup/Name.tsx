@@ -12,8 +12,8 @@
 
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import SpringMotionLayout from "../components/SpringMotionLayout";
-import TextInputStep from "../components/TextInputStep";
+import SpringMotionLayout from "../../components/animation/SpringMotionLayout";
+import TextInputStep from "../../components/utils/TextInputStep";
 
 export default function NameStep() {
   const [username, setUserName] = React.useState("");

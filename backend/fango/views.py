@@ -8,6 +8,8 @@ from django.utils import timezone
 from .models import AppUser, UserHistory, Word, Translation, Language
 from .redis_client import redis_client
 import jwt, datetime
+from django.http import JsonResponse
+from rest_framework import status
 
 SECRET_KEY = os.getenv('TOKEN_SECRET', 'secret')
 
@@ -62,7 +64,7 @@ class LoginView(APIView):
 
         response = Response()
 
-        response.set_cookie(key='jwt', value=token, httponly=True, secure=False, samesite='Lax', path='/')
+        response.set_cookie(key='jwt', value=token, httponly=True, secure=True, samesite='None', path='/')
         response.data = {
             "jwt": token,
             "success": True
@@ -91,17 +93,7 @@ class UserView(APIView):
 
 class LogoutView(APIView):
     def post(self, request):
-        # TODO: temp cookie fix
-        auth_header = request.META.get("HTTP_AUTHORIZATION", "")
-        token = None
-        if auth_header.startswith("Bearer "):
-            token = auth_header[7:]
-        else:
-            token = request.COOKIES.get('jwt')
-        # ---
-        # token = request.COOKIES.get('jwt')
-        if not token:
-            raise AuthenticationFailed('Unauthenticated')
+        token = request.COOKIES.get('jwt')
 
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
@@ -117,6 +109,72 @@ class LogoutView(APIView):
             'message': "success"
         }
         return response
+
+class UpdateUserInfo(APIView):
+    def post(self, request):
+        token = request.COOKIES.get('jwt')
+
+        if not token:
+            raise AuthenticationFailed('Unauthenticated')
+        
+        username = request.data['new_username']
+        country = request.data['new_country']
+
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+            user_id = payload['id']
+        except jwt.ExpiredSignatureError:
+            pass
+
+        try:
+            user = AppUser.objects.get(id=user_id)
+        except AppUser.DoesNotExist:
+            print("User not found.")
+
+        try:
+            user.name = username
+            user.country = country
+            user.save()
+            data = {'message': 'Successfully updated information!'}
+            return JsonResponse(data, status=status.HTTP_200_OK)
+        except:
+             data = {'message': 'Failed to update data.'}
+             return JsonResponse(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+class GetUserInfo(APIView):
+    def get(self, request):
+        token = request.COOKIES.get('jwt')
+
+        if not token:
+            raise AuthenticationFailed('Unauthenticated')
+        
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+            user_id = payload['id']
+        except jwt.ExpiredSignatureError:
+            pass
+
+        try:
+            user = AppUser.objects.get(id=user_id)
+        except AppUser.DoesNotExist:
+            print("User not found.")
+        
+        if user.default_lang_id is not None:
+            default_lang = user.default_lang_id.lang
+        else:
+            default_lang = ""
+
+        response = Response()
+        response.data = {
+            'email': user.email,
+            'default_language': default_lang,
+            'country': user.country,
+            'name': user.name,
+        }
+
+        return response
+
+        
 
 class GetUserHistory(APIView):
     def get(self, request):
