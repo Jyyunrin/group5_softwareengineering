@@ -10,7 +10,7 @@
  * Carousel?
  * Arrow button renewal 
  */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CardMenu from "./CardMenu";
 import ImageFlipCard from "./ImageFlipCard";
 type Tab = "likes" | "history";
@@ -61,16 +61,28 @@ export default function GalleryPage() {
     .then(function(response) { return response.json(); })
     .then(function(json) {
       // use the json
+      let likesHistory = []
+      let history = []
       for (let i = 0; i < json.history.length; i++){
         json.history[i].id = i;
+        if (json.history[i].is_favorite == true){
+          likesHistory.push(json.history[i])
+        }
+        if (json.history[i].is_favorite == false){
+          history.push(json.history[i])
+        }
       }
 
     
       setHistory(json.history)
-      setData(tab === "likes" ? likesData : history)
+      setData(tab === "likes" ? likesHistory  : history)
       console.log(data);
     });
   }
+
+  useEffect(() => {
+    request_info();
+  }, [tab])
 
   const [selected, setSelected] = useState<Item | null>(null);
 
@@ -105,7 +117,6 @@ export default function GalleryPage() {
           onChange={(newTab) => {
             setTab(newTab);
             setPage(0); // reset when switching tabs
-            request_info();
           }}
         />
       </div>
