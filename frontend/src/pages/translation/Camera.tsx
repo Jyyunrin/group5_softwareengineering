@@ -142,10 +142,18 @@ export default function CameraPage() {
         body: formData,
         credentials: 'include'
       });
-      const responseData = await response.json();
-      if (responseData) {
-        navigate("/translation/result", { state: { data: responseData } });
+
+      if(!response.ok) {
+        const errorData = await response.json()
+        console.error("Error uploading: ", errorData)
+        return;
       }
+
+      const responseData = await response.json();
+      const historyId = responseData.user_history_id;
+
+      window.location.href = `/user/userhistory/${historyId}`
+
     } catch (error) {
       console.error("Upload failed", error);
       setErrorMsg("Upload failed. Please try again.");
