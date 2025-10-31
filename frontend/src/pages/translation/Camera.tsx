@@ -143,6 +143,10 @@ export default function CameraPage() {
         credentials: 'include'
       });
       const responseData = await response.json();
+      if (response.status == 429) {
+        alert(`${responseData.detail}. Retry after ${responseData.retry_after} seconds.`);
+        return;
+      }
       if (responseData) {
         navigate("/translation/result", { state: { data: responseData } });
       }

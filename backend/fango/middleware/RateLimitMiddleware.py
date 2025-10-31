@@ -15,6 +15,7 @@ class RateLimitMiddleware:
         self.rate_limits = {
             "/api/register": (3, 600),   # 3/10min per IP
             "/api/login": (5, 60),       # 5/1min per IP
+            "/api/image-translate/": (3, 600),   # 3/10min per user
             "default": (100, 60)         # 100/1min per user
         }
         self.exempt_paths = ["/api/logout"]
@@ -42,9 +43,12 @@ class RateLimitMiddleware:
 
             ip = self.get_client_ip(request)
 
-            if request.path in self.rate_limits:
+            if request.path in self.rate_limits and (request.path == "/api/register" or request.path == "/api/login"):
                 limit, window = self.rate_limits[request.path]
                 key = f"ratelimit:ip:{ip}:{request.path}"
+            elif request.path in self.rate_limits and request.path == "/api/image-translate/":
+                limit, window = self.rate_limits[request.path]
+                key = f"ratelimit:user:{user_id}:{request.path}"
             elif user_id:
                 limit, window = self.rate_limits["default"]
                 key = f"ratelimit:user:{user_id}"

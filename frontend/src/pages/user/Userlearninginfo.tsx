@@ -79,6 +79,11 @@ export default function UserLearningInfo() {
 
       const data = await response.json();
 
+      if (response.status == 429) {
+        alert(`${data.detail}. Retry after ${data.retry_after} seconds.`);
+        return;
+      }
+
       setName(data.user_info.name);
       setLanguages(Object.values(data.languages));
       const defaultLangId = data.user_info.default_lang_id;
@@ -127,8 +132,14 @@ export default function UserLearningInfo() {
           body: JSON.stringify(data),
           credentials: "include"
         });
+        const response_data = await response.json();
+        if (response.status == 429) {
+          alert(`${response_data.detail}. Retry after ${response_data.retry_after} seconds.`);
+          return;
+        }
         if (!response.ok) {
           alert("Error saving user info");
+          return;
         }
         alert("Saved!");
       } catch (e) {

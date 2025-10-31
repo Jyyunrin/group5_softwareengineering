@@ -40,6 +40,10 @@ export default function Login() {
         });
     
         const upload_response = await data.json();
+        if (data.status == 429) {
+          alert(`${upload_response.detail}. Retry after ${upload_response.retry_after} seconds.`);
+          return;
+        }
         if (upload_response['success'] == true) {
             console.log("Successful login attempt");
             window.location.replace(import.meta.env.VITE_REDIRECT_URL)
