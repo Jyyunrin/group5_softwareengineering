@@ -98,7 +98,7 @@ export default function UserLearningInfo() {
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchUserLearningInfo();
-    }, 800);
+    }, 1200);
 
     return () => clearTimeout(timer);
   }, []);
