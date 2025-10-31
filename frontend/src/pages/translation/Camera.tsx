@@ -38,6 +38,7 @@ export default function CameraPage() {
   const [pendingStream, setPendingStream] = useState<MediaStream | null>(null);
   const [starting, setStarting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [uploadDisabled, setUploadDisabled] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -122,9 +123,8 @@ export default function CameraPage() {
     console.log("Clear image")
   };
 
-  const navigate = useNavigate();
-
   const handleUpload = async (e: FormEvent<HTMLFormElement>) => {
+    console.log("Clicked!")
     e.preventDefault();
     if (!picture) return;
 
@@ -136,6 +136,8 @@ export default function CameraPage() {
     }
     formData.append("target_lang_code", targetLang)
 
+    setUploadDisabled(true);
+
     try {
       const response = await fetch("http://localhost:8000/api/image-translate/", {
         method: "POST",
@@ -146,6 +148,7 @@ export default function CameraPage() {
       if(!response.ok) {
         const errorData = await response.json()
         console.error("Error uploading: ", errorData)
+        setUploadDisabled(false);
         return;
       }
 
@@ -157,6 +160,7 @@ export default function CameraPage() {
     } catch (error) {
       console.error("Upload failed", error);
       setErrorMsg("Upload failed. Please try again.");
+      setUploadDisabled(false);
     }
   };
 
@@ -294,7 +298,8 @@ export default function CameraPage() {
                 <>
                   <button
                     type="submit"
-                    className="inline-flex items-center gap-2 rounded-full bg-gray-900 px-5 py-2 text-sm font-medium text-white shadow hover:bg-gray-800"
+                    className="inline-flex items-center gap-2 rounded-full bg-gray-900 px-5 py-2 text-sm font-medium text-white shadow hover:bg-gray-800 disabled:opacity-50"
+                    disabled={uploadDisabled}
                   >
                     <Check size={16} />
                     Upload
