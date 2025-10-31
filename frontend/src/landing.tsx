@@ -8,6 +8,8 @@
  * 
  */
 import './landing.css';
+import { useNavigate } from "react-router-dom";
+import { Camera } from "lucide-react";
 import Card from './components/card/Cards';
 import GalleryPage from './components/card/GalleryPage';
 
