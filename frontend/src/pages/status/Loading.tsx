@@ -48,6 +48,10 @@ export default function Loading() {
 
         <h1 className="text-5xl font-extrabold tracking-tight">Loading</h1>
         <p className="mt-2 text-sm text-gray-400">Looking for your page...</p>
+        <img
+        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSP3PMMfXGAT6tSF8Nbik6ixCUHLRjFHOc1Og&s"
+        alt=""
+        />
       </div>
     </div>
   );
