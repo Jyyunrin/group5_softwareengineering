@@ -13,9 +13,9 @@ import SpringMotionLayout from "../../components/animation/SpringMotionLayout";
 export default function SignUpAllSet() {
   const navigate = useNavigate();
 
-
+  // Directly navigates to quick guide 
   const StartGuideLine = async (cleanValue: string) => {
-    const redirect = "http://localhost:3000/signup/guideline";
+    const redirect = "http://localhost:3000/quickguide";
     window.location.replace(redirect);
   };
 
