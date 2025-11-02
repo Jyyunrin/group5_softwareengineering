@@ -12,6 +12,7 @@
  */
 import { useState, useRef, useEffect } from "react";
 import type { ChangeEvent, FormEvent } from "react";
+import Processing from "./Processing";
 import { useNavigate } from "react-router-dom";
 import { Languages } from "lucide-react";
 import {
@@ -39,6 +40,7 @@ export default function CameraPage() {
   const [starting, setStarting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [uploadDisabled, setUploadDisabled] = useState(false);
+  const [processing, setProcessing] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -137,6 +139,7 @@ export default function CameraPage() {
     formData.append("target_lang_code", targetLang)
 
     setUploadDisabled(true);
+    setProcessing(true);
 
     try {
       const response = await fetch("http://localhost:8000/api/image-translate/", {
@@ -149,6 +152,7 @@ export default function CameraPage() {
         const errorData = await response.json()
         console.error("Error uploading: ", errorData)
         setUploadDisabled(false);
+        setProcessing(false);
         return;
       }
 
@@ -161,8 +165,13 @@ export default function CameraPage() {
       console.error("Upload failed", error);
       setErrorMsg("Upload failed. Please try again.");
       setUploadDisabled(false);
+      setProcessing(false);
     }
   };
+
+  if(processing) {
+    return <Processing />
+  }
 
   return (
     <div className="min-h-screen mx-auto w-full max-w-[1080px] bg-gradient-to-b from-indigo-50 via-white to-white py-8">
