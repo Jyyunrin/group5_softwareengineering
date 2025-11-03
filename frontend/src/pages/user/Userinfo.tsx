@@ -9,6 +9,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Camera } from "lucide-react"; 
 import countries from "../../../data/countries.json";
+import Loading from '../../pages/status/Loading';
 
 export default function UserInfo() {
   // Hardcoded data - need to connect with DB
@@ -18,6 +19,8 @@ export default function UserInfo() {
   const [avatarUrl, setAvatarUrl] = useState("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSmpCWL__69pek5fgjE8HfImGkxYXrKsLdHAg&s"); 
   const fileRef = useRef<HTMLInputElement | null>(null);
 
+  const [loading, setLoading] = useState(true);
+  
   function onAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
     if (!f) return;
@@ -57,18 +60,39 @@ export default function UserInfo() {
         credentials: 'include',
       }
     )
-    .then(function(response) { return response.json(); })
+    .then(function(response) { 
+      if (response.status == 401) {
+        window.location.href = "/login";
+        return;
+      }
+      if (response.status == 429) {
+        response.json().then(function(data) {
+          alert(`${data.detail}. Retry after ${data.retry_after} seconds.`);
+        });
+        return;
+      }
+
+      return response.json();
+    })
     .then(function(json) {
       // use the json
       setName(json.name)
       setEmail(json.email)
       setCountry(json.country)
     });
+    setLoading(false);
   }
 
   useEffect(()=>{
-    request_info();
+    const timer = setTimeout(() => {
+      request_info();
+    }, 1200);
+    return () => clearTimeout(timer);
   }, [])
+
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <div className="min-h-screen mx-auto w-full max-w-[1080px] bg-white text-gray-900">
