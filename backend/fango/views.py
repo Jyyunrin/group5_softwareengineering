@@ -184,6 +184,8 @@ class GetUserHistory(APIView):
         token = request.COOKIES.get('jwt')
         language_filter = request.query_params.get('language_filter', None)
         page = request.query_params.get('page', 1)
+        lower_bound = (int(page) - 1) * 3
+        upper_bound = lower_bound + 3
 
         if not token:
             raise AuthenticationFailed('Unauthenticated')
@@ -200,7 +202,10 @@ class GetUserHistory(APIView):
             print("User not found.")
 
         try:
-            user_history = UserHistory.objects.filter(user_id=user) 
+            if language_filter is None:
+                user_history = UserHistory.objects.filter(user_id=user)[lower_bound:upper_bound]
+            else:
+                user_history = UserHistory.objects.filter(user_id=user, translation_id__target_lang_id__lang=language_filter)[lower_bound:upper_bound]
         except UserHistory.DoesNotExist:
             pass
 
@@ -218,11 +223,17 @@ class GetUserHistory(APIView):
 
             history_list.append(history_object)
 
+        #implement edge case handling
+        next_page = int(page) + 1 
+        previous_page = int(page) - 1
+        next_page_url = f"http://localhost:8000/api/get_user_history/?language_filter=${language_filter}&page=${next_page}"
+        previous_page_url = f"http://localhost:8000/api/get_user_history/?language_filter=${language_filter}&page=${previous_page}"
+
         response = Response()
         response.data = {
             'history': history_list,
-            'next_page_url': ' ',
-            'previous_page_url': ' '
+            'next_page_url': next_page_url,
+            'previous_page_url': previous_page_url,
         }
 
         return response
