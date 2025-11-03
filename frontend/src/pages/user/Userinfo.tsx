@@ -6,7 +6,7 @@
  * Save changes -> display success message
  * 
  */
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Camera } from "lucide-react"; 
 import countries from "../../../data/countries.json";
 
@@ -25,11 +25,50 @@ export default function UserInfo() {
     setAvatarUrl(url);
   }
 
-  function onSubmit(e: React.FormEvent) {
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     // TODO: send to API
+
+        let formData = {
+            "new_username": name,
+            "new_country": country,
+        }
+        const jsonData = JSON.stringify(formData)
+    const response = await fetch(import.meta.env.VITE_SERVER_URL + "/update_user_info", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: 'include',
+        body: jsonData,
+      }
+    )
+    .then(function(response) { return response.status })
+    .then(function(status) {
+      if (status == 200){
+        window.location.reload()
+      } else {
+        window.alert("Unable to save changes")
+      }
+    })
     console.log({ name, email, country, avatarUrl });
   }
+
+  const request_info = async() => {
+    const response = await fetch(import.meta.env.VITE_SERVER_URL + "/get_user_info", {
+        credentials: 'include',
+      }
+    )
+    .then(function(response) { return response.json(); })
+    .then(function(json) {
+      // use the json
+      setName(json.name)
+      setEmail(json.email)
+      setCountry(json.country)
+    });
+  }
+
+  useEffect(()=>{
+    request_info();
+  }, [])
 
   return (
     <div className="min-h-screen mx-auto w-full max-w-[1080px] bg-white text-gray-900">

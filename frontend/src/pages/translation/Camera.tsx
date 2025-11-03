@@ -12,6 +12,7 @@
  */
 import { useState, useRef, useEffect } from "react";
 import type { ChangeEvent, FormEvent } from "react";
+import Processing from "./Processing";
 import { useNavigate } from "react-router-dom";
 import { Languages } from "lucide-react";
 import {
@@ -38,6 +39,8 @@ export default function CameraPage() {
   const [pendingStream, setPendingStream] = useState<MediaStream | null>(null);
   const [starting, setStarting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [uploadDisabled, setUploadDisabled] = useState(false);
+  const [processing, setProcessing] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -122,9 +125,8 @@ export default function CameraPage() {
     console.log("Clear image")
   };
 
-  const navigate = useNavigate();
-
   const handleUpload = async (e: FormEvent<HTMLFormElement>) => {
+    console.log("Clicked!")
     e.preventDefault();
     if (!picture) return;
 
@@ -136,25 +138,44 @@ export default function CameraPage() {
     }
     formData.append("target_lang_code", targetLang)
 
+    setUploadDisabled(true);
+    setProcessing(true);
+
     try {
       const response = await fetch("http://localhost:8000/api/image-translate/", {
         method: "POST",
         body: formData,
         credentials: 'include'
       });
+
+      if(!response.ok) {
+        const errorData = await response.json()
+        console.error("Error uploading: ", errorData)
+        setUploadDisabled(false);
+        setProcessing(false);
+        return;
+      }
+
       const responseData = await response.json();
       if (response.status == 429) {
         alert(`${responseData.detail}. Retry after ${responseData.retry_after} seconds.`);
         return;
       }
-      if (responseData) {
-        navigate("/translation/result", { state: { data: responseData } });
-      }
+      const historyId = responseData.user_history_id;
+
+      window.location.href = `/user/userhistory/${historyId}`
+
     } catch (error) {
       console.error("Upload failed", error);
       setErrorMsg("Upload failed. Please try again.");
+      setUploadDisabled(false);
+      setProcessing(false);
     }
   };
+
+  if(processing) {
+    return <Processing />
+  }
 
   return (
     <div className="min-h-screen mx-auto w-full max-w-[1080px] bg-gradient-to-b from-indigo-50 via-white to-white py-8">
@@ -290,7 +311,8 @@ export default function CameraPage() {
                 <>
                   <button
                     type="submit"
-                    className="inline-flex items-center gap-2 rounded-full bg-gray-900 px-5 py-2 text-sm font-medium text-white shadow hover:bg-gray-800"
+                    className="inline-flex items-center gap-2 rounded-full bg-gray-900 px-5 py-2 text-sm font-medium text-white shadow hover:bg-gray-800 disabled:opacity-50"
+                    disabled={uploadDisabled}
                   >
                     <Check size={16} />
                     Upload

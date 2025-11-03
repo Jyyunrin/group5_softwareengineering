@@ -35,8 +35,8 @@ function Landing() {
           Target Language
         </div>
       </div>
-      <main>
-        <section>
+        <main>
+          <section>
           <div className="mt-2 flex items-center justify-between text-sm text-gray-600">
             {/* Connect to quick guid page */}
             <button className="inline-flex items-center gap-1">

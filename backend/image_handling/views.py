@@ -68,18 +68,8 @@ class ImageTranslate(APIView):
           )
 
           return Response({
-               "filename": filename,
-               "dbPath": db_path,
-               "url": frontend_path,
-               "translation": translation.label_target.title(),
-               "english": translation.word_id.label_en.title(),
-               "translatedSentenceEasy": translation.example_target_easy,
-               "englishSentenceEasy": translation.example_en_easy,
-               "translatedSentenceMed": translation.example_target_med,
-               "englishSentenceMed": translation.example_en_med,
-               "translatedSentenceHard": translation.example_target_hard,
-               "englishSentenceHard": translation.example_en_hard
-          }, status=status.HTTP_200_OK)
+               "user_history_id": user_history.id
+          }, status=status.HTTP_201_CREATED)
     
      # Get current user id from jwt token in request header
      def get_current_user(self, request):

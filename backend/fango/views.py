@@ -3,8 +3,11 @@ from .serializers import AppUserSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.exceptions import PermissionDenied
 from rest_framework import status
+from django.conf import settings
 from django.utils import timezone
+from django.shortcuts import get_object_or_404
 from .models import AppUser, UserHistory, Word, Translation, Language
 from .redis_client import redis_client
 import jwt, datetime
@@ -204,6 +207,7 @@ class GetUserHistory(APIView):
         history_list = []
         for user_history in user_history:
             history_object = {
+                'id': user_history.id,
                 'word_english': user_history.translation_id.word_id.label_en,
                 'language': user_history.translation_id.target_lang_id.lang,
                 'word_translated': user_history.translation_id.label_target,
@@ -222,6 +226,45 @@ class GetUserHistory(APIView):
         }
 
         return response
+    
+class GetUserHistoryItem(APIView):
+
+    def get(self, request, history_id):
+        token = request.COOKIES.get('jwt')
+        if not token:
+            raise AuthenticationFailed('Unauthenticated')
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+            user_id = payload['id']
+        except jwt.ExpiredSignatureError:
+            raise AuthenticationFailed('Token expired')
+        except jwt.InvalidTokenError:
+            raise AuthenticationFailed('Invalid token')
+
+        user = get_object_or_404(AppUser, id=user_id)
+
+        user_history = get_object_or_404(UserHistory, id=history_id, user_id=user)
+        translation = user_history.translation_id
+        frontend_image_path = request.build_absolute_uri(settings.MEDIA_URL + user_history.img_path)
+        userHistoryUser = user_history.user_id
+
+        if user != userHistoryUser:
+            raise PermissionDenied("Not authorized to view this item")
+
+        data = {
+            "url": frontend_image_path,
+            "translation": translation.label_target.title(),
+            "english": translation.word_id.label_en.title(),
+            "translatedSentenceEasy": translation.example_target_easy,
+            "englishSentenceEasy": translation.example_en_easy,
+            "translatedSentenceMed": translation.example_target_med,
+            "englishSentenceMed": translation.example_en_med,
+            "translatedSentenceHard": translation.example_target_hard,
+            "englishSentenceHard": translation.example_en_hard
+        }
+
+        return Response(data)
+
     
 class UserLearningInfo(APIView):
     def get(self, request):
