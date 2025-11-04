@@ -148,6 +148,13 @@ export default function CameraPage() {
         credentials: 'include'
       });
 
+      if (response.status == 429) {
+        const responseData = await response.json();
+        setProcessing(false);
+        alert(`${responseData.detail}. Retry after ${responseData.retry_after} seconds.`);
+        return;
+      }
+
       if(!response.ok) {
         const errorData = await response.json()
         console.error("Error uploading: ", errorData)
@@ -157,6 +164,7 @@ export default function CameraPage() {
       }
 
       const responseData = await response.json();
+
       const historyId = responseData.user_history_id;
 
       window.location.href = `/user/userhistory/${historyId}`

@@ -22,6 +22,11 @@ class AppUser(AbstractBaseUser, PermissionsMixin):
         ('active', 'Active'),
         ('banned', 'Banned'),
     ]
+    DIFFICULTIES = [
+        ('easy', 'Easy'),
+        ('medium', 'Medium'),
+        ('hard', 'Hard')
+    ]
 
     email = models.EmailField(unique=True)
     name = models.CharField(max_length=50, default="Guest")
@@ -29,6 +34,7 @@ class AppUser(AbstractBaseUser, PermissionsMixin):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
     country = models.CharField(max_length=100, default="Canada")
     default_lang_id = models.ForeignKey(Language, on_delete=models.SET_NULL, null=True)  # on_delete=models.SET_NULL sets this FK to null if the referenced object is deleted.
+    difficulty = models.CharField(max_length=10, choices=DIFFICULTIES, default='medium')
     created_at = models.DateTimeField(default=timezone.now)
     last_login_at = models.DateTimeField(null=True, blank=True)
 

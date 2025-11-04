@@ -36,6 +36,10 @@ export default function RegisterPage() {
         });
 
         const upload_response = await data.json();
+        if (data.status == 429) {
+          alert(`${upload_response.detail}. Retry after ${upload_response.retry_after} seconds.`);
+          return;
+        }        
         if (upload_response) {
             console.log("Successful register attempt");
             window.location.replace(import.meta.env.VITE_REDIRECT_URL + "/login")
