@@ -15,13 +15,14 @@ class RateLimitMiddleware:
         self.rate_limits = {
             "/api/register": (3, 600),   # 3/10min per IP
             "/api/login": (5, 60),       # 5/1min per IP
+            "/api/image-translate/": (3, 600),   # 3/10min per user
             "default": (100, 60)         # 100/1min per user
         }
         self.exempt_paths = ["/api/logout"]
 
     def __call__(self, request):
         try:
-            if request.path in self.exempt_paths:
+            if request.path.startswith("/api/media") or request.path in self.exempt_paths:
                 return self.get_response(request)
 
             user_id = None
@@ -32,14 +33,22 @@ class RateLimitMiddleware:
                 try:
                     payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
                     user_id = payload['id']
-                except (jwt.ExpiredSignatureError, jwt.InvalidTokenError, jwt.DecodeError, jwt.InvalidSignatureError):
-                    return JsonResponse({"detail": "Unauthorized"}, status=401)
+                except (jwt.ExpiredSignatureError, jwt.InvalidTokenError, jwt.DecodeError, jwt.InvalidSignatureError) as e:
+                    if isinstance(e, jwt.ExpiredSignatureError):
+                        print("Token has expired")
+                        return JsonResponse({"detail": "Token expired"}, status=401)
+                    else:
+                        print(f"JWT error: {type(e).__name__} → {e}\n")
+                        return JsonResponse({"detail": "Unauthorized"}, status=401)
 
             ip = self.get_client_ip(request)
 
-            if request.path in self.rate_limits:
+            if request.path in self.rate_limits and (request.path == "/api/register" or request.path == "/api/login"):
                 limit, window = self.rate_limits[request.path]
                 key = f"ratelimit:ip:{ip}:{request.path}"
+            elif request.path in self.rate_limits and request.path == "/api/image-translate/":
+                limit, window = self.rate_limits[request.path]
+                key = f"ratelimit:user:{user_id}:{request.path}"
             elif user_id:
                 limit, window = self.rate_limits["default"]
                 key = f"ratelimit:user:{user_id}"
