@@ -62,6 +62,7 @@ export default function CameraPage() {
 
   // Cleanup on unmount
   useEffect(() => {
+    request_info()
     return () => {
       streamRef.current?.getTracks().forEach((t) => t.stop());
     };
@@ -179,6 +180,41 @@ export default function CameraPage() {
 
   if(processing) {
     return <Processing />
+  }
+
+  const request_info = async() => {
+    const response = await fetch(import.meta.env.VITE_SERVER_URL + "/get_user_info", {
+        credentials: 'include',
+      }
+    )
+    .then(function(response) { 
+      if (response.status == 401) {
+        window.location.href = "/login";
+        return;
+      }
+      if (response.status == 429) {
+        response.json().then(function(data) {
+          alert(`${data.detail}. Retry after ${data.retry_after} seconds.`);
+        });
+        return;
+      }
+
+      return response.json();
+    })
+    .then(function(json) {
+      // use the json
+      let found = languages.find(({ code, label }) => 
+        {
+          return label == json.default_language
+        }
+      )
+      // console.log(languages)
+      // console.log(found)
+      // console.log(json.default_language)
+      if (found !== undefined){
+        setTargetLang(found.code)
+      }
+    });
   }
 
   return (
