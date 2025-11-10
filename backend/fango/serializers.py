@@ -15,4 +15,3 @@ class AppUserSerializer(serializers.HyperlinkedModelSerializer):
             password=validated_data['password']
         )
         return user
-    
