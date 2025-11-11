@@ -14,27 +14,7 @@ import Logout from './components/Logout';
 
 function Landing() {
   return (
-  <div className="flex flex-col h-screen">
-    {/* Col1. Greetings */}
-    <div className="bg-red-400 h-20">
-      Ola, <br></br>
-      Username!
-      
-      <div className="flex flex-row h-screen justify-between">
-        {/* Row1. Quick guide */}
-        <div className="flex">
-          Quick Guide
-        </div>
-      
-        <div className="absolute top-4 right-4 z-50">
-          <Logout />
-        </div>
 
-        {/* Row2. Target language */}
-        <div className="flex">
-          Target Language
-        </div>
-      </div>
         <main>
           <section>
           <div className="mt-2 flex items-center justify-between text-sm text-gray-600">
@@ -42,6 +22,10 @@ function Landing() {
             <button className="inline-flex items-center gap-1">
               Quick Guide <span aria-hidden>→</span>
             </button>
+
+            <div className="absolute top-4 right-4 z-50">
+              <Logout />
+            </div>
 
             {/* Dynamic data needed */}
             <button className="inline-flex items-center gap-2">
@@ -77,8 +61,7 @@ function Landing() {
           </div>
         </section>
       </main>
-    </div>
-  </div>
+   
 
   )
 }
