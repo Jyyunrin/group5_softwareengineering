@@ -64,7 +64,9 @@ export default function GalleryPage() {
       method: "GET",
       credentials: 'include'
     })
-    .then(function(response) { return response.json(); })
+    .then(function(response) { return response.json(); },
+      function(reason) { window.alert("An issue occured when attempting to connect to the server"); console.log(reason)}
+    )
     .then(function(json) {
       // use the json
       let likesHistory = []
@@ -83,7 +85,11 @@ export default function GalleryPage() {
       setData(tab === "likes" ? likesHistory  : history)
       console.log("DATA")
       console.log(data);
-    });
+    },
+    function() {
+      return
+    }
+  );
   }
 
   useEffect(() => {
