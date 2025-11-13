@@ -78,31 +78,10 @@ const router = createBrowserRouter([
   { path: "/login", element: <Login /> },
   { path: "/register", element: <RegisterPage /> },
   { path: "/translation/processing", element: <Processing /> },
-  // { path: "/signup/name", element: <SignUpName /> },
-  // { path: "/signup/email", element: <SignUpEmail /> },
-  // { path: "/signup/password", element: <SignUpPassword /> },
-  // { path: "/signup/targetlan", element: <SignUpTargetLan /> },
-  // { path: "/signup/goal", element: <SignUpGoal /> },
-  // { path: "/signup/difficulty", element: <SignUpDifficulty /> },
-  // { path: "/signup/allset", element: <SignUpAllSet /> },
   { path: "/404", element: <CannotFindPage /> },
   { path: "/pageloading", element: <Loading /> },
   { path: "/quickguide", element: <QuickGuide /> },
 
-  //   {
-  //   path: "/signup",
-  //   element: <SignupLayout />,
-  //   children: [
-  //     { index: true, element: <NameStep /> },
-  //     { path: "email", element: <EmailStep /> },
-  //     { path: "password", element: <PasswordStep /> },
-  //     { path: "targetlan", element: <SetUpTargetLan /> },
-  //     { path: "goal", element: <SignUpGoal /> },
-  //     { path: "difficulty", element: <SignUpDifficulty /> },
-  //     { path: "allset", element: <SignUpAllSet /> },
-  //   ],
-  // },
-  // App.jsx or routes config
 {
   path: "/signup",
     element: (
