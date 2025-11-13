@@ -1,0 +1,26 @@
+name: Django Backend Tests
+
+on:
+  push:
+    branches: [main, dev, joe-continuous-integration-and-testing]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build and start containers
+        run: docker compose up -d --build
+
+      - name: Wait for backend to start
+        run: sleep 10
+
+      - name: Run Django Tests
+        run: docker compose exec -T backend python manage.py test
+
+      - name: Close containers
+        if: always()
+        run: docker compose down
