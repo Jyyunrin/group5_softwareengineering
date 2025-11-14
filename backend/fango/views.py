@@ -8,12 +8,12 @@ from rest_framework import status
 from django.conf import settings
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
-from .models import AppUser, UserHistory, Word, Translation, Language
+from .models import AppUser, UserHistory, Language
 from .redis_client import redis_client
 import jwt, datetime
 from django.http import JsonResponse
 from rest_framework import status
-from .utils import get_user_id_from_token, get_user_by_id, authenticate_user
+from .utils import authenticate_user
 
 SECRET_KEY = os.getenv('TOKEN_SECRET', 'secret')
 
@@ -93,22 +93,6 @@ class LoginView(APIView):
         # updating last time logged in
         user.last_login_at = timezone.now()
         user.save(update_fields=["last_login_at"])
-    
-class UserView(APIView):
-    def get(self, request):
-        if not getattr(request, "user_id", None):
-            raise AuthenticationFailed("Unauthenticated")
-
-        # if getattr(request, "user_info", None):
-            # return Response(request.user_info)
-        # TODO: Above 2 lines working and returns a response of the current user's info, which was fetched from redis
-        user = AppUser.objects.filter(id=request.user_id).first()
-        if not user:
-            raise AuthenticationFailed("User not found")
-
-        serializer = AppUserSerializer(user)
-
-        return Response(serializer.data)
 
 class LogoutView(APIView):
     def post(self, request):
@@ -211,9 +195,9 @@ class GetUserHistory(APIView):
         page = request.query_params.get('page', 1)
 
         queryset = UserHistory.objects.filter(user_id=user) # gets all userhistory items for that user
-        paginated_data, next_page_url, previous_page_url = self.paginate_history_item(queryset, page, language_filter)
+        paginated_data, next_page_url, previous_page_url, max_page = self.paginate_history_item(queryset, page, language_filter)
 
-        response = self.create_user_history_response(paginated_data, next_page_url, previous_page_url)
+        response = self.create_user_history_response(paginated_data, next_page_url, previous_page_url, max_page)
         return response
     
     def serialize_history(self, user_history):
@@ -248,32 +232,22 @@ class GetUserHistory(APIView):
         next_page_url = f"{self.base_url}?language_filter={language_filter}&page={next_page}"
         previous_page_url = f"{self.base_url}?language_filter={language_filter}&page={previous_page}"
 
-        return history_list, next_page_url, previous_page_url
+        return history_list, next_page_url, previous_page_url, max_page
     
-    def create_user_history_response(self, paginated_data, next_page_url, previous_page_url):
+    def create_user_history_response(self, paginated_data, next_page_url, previous_page_url, max_page):
         response = Response()
         response.data = {
             'history': paginated_data,
             'next_page_url': next_page_url,
             'previous_page_url': previous_page_url,
+            'max_page': max_page,
         }
         return response
     
 class GetUserHistoryItem(APIView):
-
     def get(self, request, history_id):
         token = request.COOKIES.get('jwt')
-        if not token:
-            raise AuthenticationFailed('Unauthenticated')
-        try:
-            payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
-            user_id = payload['id']
-        except jwt.ExpiredSignatureError:
-            raise AuthenticationFailed('Token expired')
-        except jwt.InvalidTokenError:
-            raise AuthenticationFailed('Invalid token')
-
-        user = get_object_or_404(AppUser, id=user_id)
+        user = authenticate_user(token)
 
         user_history = get_object_or_404(UserHistory, id=history_id, user_id=user)
         translation = user_history.translation_id
@@ -294,44 +268,61 @@ class GetUserHistoryItem(APIView):
             "translatedSentenceHard": translation.example_target_hard,
             "englishSentenceHard": translation.example_en_hard
         }
-
         return Response(data)
 
     
 class UserLearningInfo(APIView):
     def get(self, request):
-        languages = Language.objects.all()
-        lang_dict = {lang.code: lang.lang for lang in languages}
+        lang_dict = self.get_all_languages()
         response = Response()
         response.data = {"languages": lang_dict}
+
         if getattr(request, "user_info", None):
             response.data["user_info"] = request.user_info
+    
         return response
+    
+    def get_all_languages(self):
+        languages = Language.objects.all()
+        return {lang.code: lang.lang for lang in languages}
+
     def post(self, request):
-        user_id = request.user_id
-
-        response = Response()
-        user = None
-        try:
-            if getattr(request, "user_info", None):
-                user = AppUser.objects.get(id=user_id)
-        except AppUser.DoesNotExist:
-            print("User not found.")
-            return JsonResponse({"detail": "Unauthorized"}, status=401)
+        token = request.COOKIES.get('jwt')
+        user = authenticate_user(token)
         
-        user.default_lang_id_id = (Language.objects.get(lang=request.data.get("defaultLang"))).pk
-        user.difficulty = request.data.get("difficulty")
-        user.save(update_fields=["default_lang_id_id", "difficulty"])
+        # parse request
+        default_lang_name = request.data.get("defaultLang")
+        default_lang = Language.objects.get(lang=default_lang_name)
+        difficulty = request.data.get("difficulty")
 
+        self.update_user_settings(user, default_lang, difficulty)
+
+        self.update_redis_info(user)
+
+        response = self.build_learning_info_response()
+        return response
+    
+    def build_learning_info_response(self):
+        response = Response()
+        response.data = {
+            'message': "success"
+        }
+        return response
+    
+    def update_redis_info(self, user):
         redis_client.hset(
-            f"user:{user_id}:session",
+            f"user:{user.id}:session",
             mapping={
                 "default_lang_id": user.default_lang_id_id if user.default_lang_id_id else "",
                 "difficulty": user.difficulty,
             }
         )
+    
+    def update_user_settings(self, user, default_lang, difficulty):
+        if default_lang:
+            user.default_lang_id_id = default_lang.pk
 
-        response.data = {
-            'message': "success"
-        }
-        return response
+        if difficulty:
+            user.difficulty = difficulty
+
+        user.save(update_fields=["default_lang_id_id", "difficulty"])
