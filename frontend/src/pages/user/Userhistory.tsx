@@ -7,18 +7,9 @@
  * When user clicks -> navigate ?
  */
 
-import { useState, useEffect } from "react";
 import GalleryPage from '../../components/card/GalleryPage';
 
 export default function UserHistory() {
-  const [loading, setLoading] = useState(true);
-  useEffect(() => {
-      const timer = setTimeout(() => { setLoading(false); }, 100);
-      return () => clearTimeout(timer);
-  }, []);
-  if (loading) {
-    return <div></div>;
-  }
   return (
     <div className="min-h-screen mx-auto w-full max-w-[1080px] bg-white">
         {/* Likes / Search history */}

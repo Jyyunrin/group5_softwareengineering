@@ -11,17 +11,8 @@ import './landing.css';
 import Card from './components/card/Cards';
 import GalleryPage from './components/card/GalleryPage';
 import Logout from './components/Logout';
-import { useState, useEffect } from "react";
 
 function Landing() {
-  const [loading, setLoading] = useState(true);
-  useEffect(() => {
-      const timer = setTimeout(() => { setLoading(false); }, 100);
-      return () => clearTimeout(timer);
-  }, []);
-  if (loading) {
-    return <div></div>;
-  }
   return (
 
         <main>
