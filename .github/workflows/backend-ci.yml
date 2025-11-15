@@ -29,6 +29,9 @@ jobs:
           echo "REDIS_PORT=${{ secrets.REDIS_PORT }}" >> .env
           echo "REDIS_DB=${{ secrets.REDIS_DB }}" >> .env
 
+      - name: Move .env into backend
+        run: mv .env backend/.env
+
       - name: Build and start containers
         run: docker compose --env-file .env up -d --build
 
