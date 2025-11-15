@@ -30,7 +30,7 @@ jobs:
           echo "REDIS_DB=${{ secrets.REDIS_DB }}" >> .env
 
       - name: Build and start containers
-        run: docker compose up -d --build
+        run: docker compose --env-file .env up -d --build
 
       - name: Wait for backend to start
         run: sleep 15
