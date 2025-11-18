@@ -94,9 +94,7 @@ class ImageTranslate(APIView):
      # Get current user id from jwt token in request header
      def get_current_user(self, request):
           SECRET_KEY = os.getenv('TOKEN_SECRET', 'secret')
-          print("SECRET_KEY", SECRET_KEY)
           token = request.COOKIES.get("jwt")
-          print(token)
           if not token:
                return None
           try:
