@@ -12,6 +12,10 @@ cd ../group5_softwareengineering/
 ## First time running:
 
 docker compose up --build
+
+Remember to makemigrations if schema changed with:
+docker compose run django-web python manage.py makemigrations
+
 docker compose run django-web python manage.py migrate
 
 ## Starting container after first time:
@@ -24,6 +28,8 @@ If successful, you should see the container, group5_softwareengineering in Docke
 
 try at localhost:8000/api/persons
 
+---
+
 ## Inserting mock data:
 
 Run Django shell:
@@ -31,10 +37,14 @@ docker compose run -it django-web python manage.py shell
 
 ### Run seed script:
 Note that these scripts are normally for fresh databases. There are a few options to seed:
+
 1. Seed row
 exec(open("fango/insert_mock_data.py").read())
+
 2. Seed multiple rows
+exec(open("fango/insert_mock_languages.py").read())
 exec(open("fango/insert_mock_data2.py").read())
+
 3. Seed edge case data
 exec(open("fango/insert_test_data.py").read())
 run_edge_case_seeding()
@@ -44,9 +54,11 @@ run_edge_case_seeding()
 ### Continuing from inside Django shell
 
 1. Import models (it should have automatically imported anyway)
-from fango.models import AppUser, Word, < other table you want to check > 
+from fango.models import AppUser, Word, < other table you want to check >
+
 2. Retrieve all rows from a table in the db, in this case it's AppUser
 AppUser.objects.all()
+
 3. When you're finished:
 exit()
 
@@ -66,9 +78,33 @@ SELECT * FROM fango_appuser;
 5. When you're finished:
 exit
 
+---
 
+# Testing Redis Sessioning and Rate Limiting:
+docker exec -it fango-redis redis-cli
 
-To remove containers and volumes:
+## Show all stored keys
+KEYS *
+
+## Show all values of a session key, e.g. user:<uid>:session
+HGETALL user:<uid>:session
+We use HGETALL because this key is a hash, which is a dictionary stored in Redis 
+
+## To show number of requests made in the current period of a rate limit key, e.g. ratelimit:<ip/user>:...
+GET ratelimit:<ip/user>:...
+
+## Show the seconds until a key's expiration
+TTL <some key>
+
+---
+
+### Disable rate limiting:
+Comment out the RateLimitMiddleware under settings.py
+
+### Restarting container to load new changes:
+docker restart <container name>
+
+### To remove containers and volumes:
 docker compose down -v
 
 ### For frontend updates

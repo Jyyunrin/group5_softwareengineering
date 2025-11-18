@@ -8,7 +8,6 @@
  */
 import { motion } from "framer-motion";
 import { useState } from "react";
-import bcrypt from "bcryptjs";
 import { Eye, EyeOff } from "lucide-react";
 
 export default function Login() {
@@ -19,28 +18,29 @@ export default function Login() {
       // to backend team: please replace with auth call
       const attemptLogin = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault()
-    
-        const salt = bcrypt.genSaltSync(10)
-        
-        const hashedPassword = bcrypt.hashSync(event.currentTarget.password.value, '$2a$10$CwTycUXWue0Thq9StjUM0u'); 
         // hash created previously created upon sign up
     
         let formData = {
             "email": event.currentTarget.email.value,
-            "password": hashedPassword,
+            "password": event.currentTarget.password.value,
         }
         const jsonData = JSON.stringify(formData)
-        console.log(jsonData)
     
         // TODO: CHANGE THIS URL
         const data = await fetch(import.meta.env.VITE_SERVER_URL + "/login", {
             method: "post",
             headers: { "Content-Type": "application/json" },
+            credentials: 'include',
             body: jsonData,
         });
     
         const upload_response = await data.json();
+        if (data.status == 429) {
+          alert(`${upload_response.detail}. Retry after ${upload_response.retry_after} seconds.`);
+          return;
+        }
         if (upload_response['success'] == true) {
+            // localStorage.setItem("jwt", upload_response["jwt"]);
             console.log("Successful login attempt");
             window.location.replace(import.meta.env.VITE_REDIRECT_URL)
         } else {

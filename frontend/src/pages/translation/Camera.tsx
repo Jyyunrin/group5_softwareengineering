@@ -5,6 +5,7 @@
  */
 import { useState, useRef, useEffect } from "react";
 import type { ChangeEvent, FormEvent } from "react";
+import Processing from "./Processing";
 import { useNavigate } from "react-router-dom";
 import { Languages } from "lucide-react";
 import {
@@ -18,6 +19,7 @@ import {
   Trash2,
   Video,
 } from "lucide-react";
+import languages from "../../../data/langauges.json"
 
 interface Picture {
   picturePreview: string;
@@ -30,6 +32,8 @@ export default function CameraPage() {
   const [pendingStream, setPendingStream] = useState<MediaStream | null>(null);
   const [starting, setStarting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [uploadDisabled, setUploadDisabled] = useState(false);
+  const [processing, setProcessing] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -71,6 +75,7 @@ export default function CameraPage() {
   }, [camera, pendingStream]);
 
   useEffect(() => {
+    request_info()
     return () => {
       try {
         streamRef.current?.getTracks().forEach((t) => t.stop());
@@ -183,9 +188,8 @@ export default function CameraPage() {
     }
   };
 
-  const navigate = useNavigate();
-
   const handleUpload = async (e: FormEvent<HTMLFormElement>) => {
+    console.log("Clicked!")
     e.preventDefault();
     if (!picture) {
       setErrorMsg("Please select or capture an image first.");
@@ -215,11 +219,67 @@ export default function CameraPage() {
       } else {
         throw new Error("Empty response from server");
       }
+
+      if(!response.ok) {
+        const errorData = await response.json()
+        console.error("Error uploading: ", errorData)
+        setUploadDisabled(false);
+        setProcessing(false);
+        return;
+      }
+
+      const responseData = await response.json();
+
+      const historyId = responseData.user_history_id;
+
+      window.location.href = `/user/userhistory/${historyId}`
+
     } catch (error) {
       console.error("Upload failed", error);
       setErrorMsg("Upload failed. Please try again.");
+      setUploadDisabled(false);
+      setProcessing(false);
     }
   };
+
+  if(processing) {
+    return <Processing />
+  }
+
+  const request_info = async() => {
+    const response = await fetch(import.meta.env.VITE_SERVER_URL + "/get_user_info", {
+        credentials: 'include',
+      }
+    )
+    .then(function(response) { 
+      if (response.status == 401) {
+        window.location.href = "/login";
+        return;
+      }
+      if (response.status == 429) {
+        response.json().then(function(data) {
+          alert(`${data.detail}. Retry after ${data.retry_after} seconds.`);
+        });
+        return;
+      }
+      setLoading(false);
+      return response.json();
+    })
+    .then(function(json) {
+      let found = languages.find(({ code, label }) => 
+        {
+          return label == json.default_language
+        }
+      )
+      if (found !== undefined){
+        setTargetLang(found.code)
+      }
+    });
+  }
+
+  if (loading) {
+    return <div></div>;
+  }
 
   return (
     <div className="min-h-screen mx-auto w-full max-w-[1080px] bg-gradient-to-b from-indigo-50 via-white to-white py-8">
@@ -379,7 +439,8 @@ export default function CameraPage() {
                 <>
                   <button
                     type="submit"
-                    className="inline-flex items-center gap-2 rounded-full bg-gray-900 px-5 py-2 text-sm font-medium text-white shadow hover:bg-gray-800"
+                    className="inline-flex items-center gap-2 rounded-full bg-gray-900 px-5 py-2 text-sm font-medium text-white shadow hover:bg-gray-800 disabled:opacity-50"
+                    disabled={uploadDisabled}
                   >
                     <Check size={16} />
                     Upload

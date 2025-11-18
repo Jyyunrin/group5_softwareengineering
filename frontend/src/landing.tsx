@@ -1,10 +1,5 @@
 /**
  * Landing page(homepage) after log-in
- * 
- * Todo: 
- * Populate dynamic data for username, quiz, search history...
- * Adjust max w for various screen size (current setting: 1080px)
- * 
  */
 import './landing.css';
 import { useSearchParams, useNavigate } from "react-router-dom";
@@ -33,6 +28,8 @@ export default function Landing() {
             <span>Username!</span>
           </h1>
 
+        <main>
+          <section>
           <div className="mt-2 flex items-center justify-between text-sm text-gray-600">
             {/* DO NOT nest a button inside a button!!! */}
             <button

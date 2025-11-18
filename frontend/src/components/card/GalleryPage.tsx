@@ -10,6 +10,7 @@
 import { useState } from "react";
 import CardMenu from "./CardMenu";
 import ImageFlipCard from "./ImageFlipCard";
+type Tab = "likes" | "history";
 
 const likesData = [
   { id: 1, image: "https://picsum.photos/seed/a/600/400", word: "Sunset Dune", lan: "C", details: "Warm dunes at dusk…" },
@@ -69,10 +70,10 @@ export default function GalleryPage() {
           {pageData.map((item, i) => (
             <ImageFlipCard
               key={`${start + i}-${item.id}`}
-              image={item.image}
-              word={item.word}
-              lan={item.lan}
-              details={item.details}
+              image={import.meta.env.VITE_SERVER_URL + "/media/" + item.image_url}
+              word={item.word_english}
+              lan={item.language}
+              details={item.word_translated}
               onDetails={() => setSelected(item)}
             />
           ))}
@@ -136,13 +137,13 @@ export default function GalleryPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start gap-4">
-              <img src={selected.image} alt={selected.word} className="h-20 w-28 rounded object-cover" />
+              <img src={import.meta.env.VITE_SERVER_URL + "/media/" + selected.image_url} alt={selected.word_english} className="h-20 w-28 rounded object-cover" />
               <div>
-                <h2 className="text-xl font-semibold text-gray-900">{selected.word}</h2>
-                <p className="text-sm text-gray-500">{selected.lan}</p>
+                <h2 className="text-xl font-semibold text-gray-900">{selected.word_english}</h2>
+                <p className="text-sm text-gray-500">{selected.language}</p>
               </div>
             </div>
-            <p className="mt-4 text-gray-700">{selected.details || "No additional details."}</p>
+            <p className="mt-4 text-gray-700">{selected.word_translated || "No additional details."}</p>
 
             <div className="mt-6 flex justify-end gap-2">
               <button
@@ -153,7 +154,7 @@ export default function GalleryPage() {
               </button>
               <button
                 className="rounded-lg px-4 py-2 text-sm bg-blue-600 text-white hover:bg-blue-700"
-                onClick={() => setSelected(null)}
+                onClick={() => window.location.replace(import.meta.env.VITE_REDIRECT_URL + "/user/userhistory/" + selected.id)}
               >
                 Go to details
               </button>

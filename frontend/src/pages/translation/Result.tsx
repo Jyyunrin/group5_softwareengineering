@@ -36,13 +36,17 @@ export default function Result() {
   const subtitle = "eng. pen";
   const examples: Example[] = [
     {
-      original: "O menino escreve com lápis e caneta.",
-      translation: "The boy writes with a pencil and a pen.",
+      original: `${responseData?.translatedSentenceEasy}`|| "O menino escreve com lápis e caneta.",
+      translation: `${responseData?.englishSentenceEasy}`|| "The boy writes with a pencil and a pen.",
     },
     {
-      original: "Essa é uma caneta vermelha?",
-      translation: "Is that a red pen?",
+      original: `${responseData?.translatedSentenceMed}`|| "Essa é uma caneta vermelha?",
+      translation: `${responseData?.englishSentenceMed}`|| "Is that a red pen?",
     },
+    {
+      original: `${responseData?.translatedSentenceHard}`|| "Essa é uma caneta vermelha?",
+      translation: `${responseData?.englishSentenceHard}`|| "Is that a red pen?",
+    }
   ];
 
   const handleClose = () => {

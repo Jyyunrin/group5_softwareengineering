@@ -1,10 +1,23 @@
+import { useEffect, useState } from "react";
+
 /**
  * A page with animated dots and loading message.
  * Same layout as translation/processing
  */
 export default function Loading() {
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShow(true); // fade in after 50ms
+    }, 50);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
-    <div className="min-h-screen mx-auto w-full max-w-[1080px] grid place-items-center bg-white">
+    <div
+      className={`min-h-screen mx-auto w-full max-w-[1080px] grid place-items-center bg-white transition-opacity duration-300 ${show ? "opacity-100" : "opacity-0"}`}>
       {/* Dot frames */}
       <style>{`
         @keyframes throb {
