@@ -1,17 +1,11 @@
 /**
- * Landing page(homepage) after log-in
- * 
- * Todo: 
- * Populate dynamic data for username, quiz, search history...
- * Adjust max w for various screen size (current setting: 1080px)
- * 
+ * Landing page(homepage) after log-in.
  */
 import './landing.css';
 import { useSearchParams, useNavigate } from "react-router-dom";
 import QuickGuide from "./pages/quickguide/QuickGuide";
 import Card from './components/card/Cards';
 import GalleryPage from './components/card/GalleryPage';
-import { Camera } from "lucide-react";
 
 export default function Landing() {
   const [params, setParams] = useSearchParams();
@@ -20,7 +14,6 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* keep the guide at the top level so it overlays the whole page */}
       {showGuide && <QuickGuide />}
 
       <main className="mx-auto w-full max-w-[1080px] px-5 pb-24">
@@ -34,23 +27,12 @@ export default function Landing() {
           </h1>
 
           <div className="mt-2 flex items-center justify-between text-sm text-gray-600">
-            {/* DO NOT nest a button inside a button!!! */}
             <button
               className="inline-flex items-center gap-1"
               onClick={() => setParams({ guide: "1" })}
               data-guide="quick-guide-button"
             >
               Quick Guide <span aria-hidden>→</span>
-            </button>
-
-            <button
-              className="inline-flex items-center gap-2"
-              data-guide="target-language"
-              onClick={() => alert("open language picker")}
-            >
-              <span>Target Language:</span>
-              <span role="img" aria-label="Portuguese flag">🇵🇹</span>
-              <span aria-hidden>✎</span>
             </button>
           </div>
         </section>
@@ -75,7 +57,6 @@ export default function Landing() {
         </section>
 
         {/* Likes / Search history */}
-        {/* Prolly put only few examples on the main page */}
         <section className="mt-7" data-guide="likes-history">
           <div className="mt-4">
             <GalleryPage />
@@ -84,15 +65,11 @@ export default function Landing() {
       </main>
 
       {/* Bottom nav */}
-      <div
-        className="fixed inset-x-0 bottom-6 z-50 flex items-center justify-center"
-        data-guide="camera-fab"
-      >
+      <div className="fixed inset-x-0 bottom-6 z-50 flex items-center justify-center">
         <button
           className="grid h-24 w-24 place-items-center rounded-full"
           aria-label="Open Camera Translate"
         >
-
         </button>
       </div>
     </div>

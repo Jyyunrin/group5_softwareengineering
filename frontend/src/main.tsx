@@ -2,17 +2,12 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
-// CSS
 import "./index.css";
 
-// Layout
+// Basic Routes 
 import AppLayout from "./components/nav/AppLayout";
-
-// Routes 
-// Basic
 import Landing from "./landing";
 import Login from "./pages/user/Login";
-import RegisterPage from "./pages/user/Register";
 
 // Status
 import Loading from './pages/status/Loading';
@@ -29,24 +24,8 @@ import Userinfo from "./pages/user/Userinfo";
 import UserLearningInfo from "./pages/user/Userlearninginfo";
 
 // Sign Up
-import SignUp from "./pages/signup/Signup";
+import SignUp from "./pages/signup/SignUp";
 import { SignupProvider } from "./pages/signup/SignupContext";
-// import SignupLayout from "./pages/signup/SignupLayout";
-// import NameStep from "./pages/signup/NameStep";
-// import EmailStep from "./pages/signup/EmailStep";
-// import PasswordStep from "./pages/signup/PasswordStep";
-// import SetUpTargetLan from "./pages/signup/SetUpTargetLan";
-// import SignUpGoal from "./pages/signup/SignUpGoal";
-// import SignUpDifficulty from "./pages/signup/SignUpDifficulty";
-// import SignUpAllSet from "./pages/signup/SignUpAllSet";
-
-// import SignUpName from "./pages/signup/Name";
-// import SignUpEmail from "./pages/signup/Email";
-// import SignUpPassword from "./pages/signup/Password";
-// import SignUpGoal from "./pages/signup/Goal";
-// import SignUpTargetLan from "./pages/signup/Targetlan";
-// import SignUpDifficulty from "./pages/signup/Difficulty";
-// import SignUpAllSet from "./pages/signup/Allset";
 
 // Quick Guide
 import QuickGuide from "./pages/quickguide/QuickGuide";
@@ -76,21 +55,18 @@ const router = createBrowserRouter([
 
   // Non-bottom nav
   { path: "/login", element: <Login /> },
-  { path: "/register", element: <RegisterPage /> },
   { path: "/translation/processing", element: <Processing /> },
   { path: "/404", element: <CannotFindPage /> },
   { path: "/pageloading", element: <Loading /> },
   { path: "/quickguide", element: <QuickGuide /> },
-
-{
-  path: "/signup",
-    element: (
-    <SignupProvider>
-      <SignUp />
-    </SignupProvider>
-  ),
-}
-
+  {
+    path: "/signup",
+      element: (
+      <SignupProvider>
+        <SignUp />
+      </SignupProvider>
+    ),
+  }
 ]);
 
   ReactDOM.createRoot(document.getElementById("root")!).render(

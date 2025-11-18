@@ -1,6 +1,7 @@
 /**
  * Bottom navigation page with buttons.
  * Route controls: main.tsx 
+ * data-guide="camera-fab" calls spotlight for quick guide
  */
 
 import React from "react";
@@ -30,7 +31,7 @@ export default function BottomRadialNav() {
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       aria-hidden={false}
     >
-      <div className="relative mx-auto h-[200px] w-[360px]">
+      <div className="relative mx-auto h-[200px] w-[360px]" data-guide="camera-fab">
         <div className="absolute left-1/2 top-[60%] h-[260px] w-[260px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-b from-black/35 via-black/10 to-transparent blur-2xl" />
 
         {/* Items */}

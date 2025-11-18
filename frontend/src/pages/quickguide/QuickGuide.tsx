@@ -2,7 +2,6 @@
  * QuickGuide – interactive onboarding spotlight tour
  * Added robust error handling for DOM queries, rendering, and events.
  */
-
 import React, { useEffect, useLayoutEffect, useMemo, useState, useId } from "react";
 import { createPortal } from "react-dom";
 import { useSearchParams } from "react-router-dom";
@@ -22,10 +21,6 @@ type Step = {
 const GAP = 16;
 const DEFAULT_RECT = new DOMRect(24, 120, 280, 90);
 
-/**
- * Hook: safely measure an element’s bounding box.
- * Includes try/catch and graceful degradation if element not found.
- */
 function useElementRect(selector: string, deps: React.DependencyList = []) {
   const [rect, setRect] = useState<DOMRect | null>(null);
 
@@ -77,9 +72,6 @@ function useElementRect(selector: string, deps: React.DependencyList = []) {
   return rect;
 }
 
-/**
- * Spotlight overlay mask with safe rendering and fallback.
- */
 function SpotlightOverlay({
   rect,
   radius = 20,
@@ -145,9 +137,6 @@ function SpotlightOverlay({
   }
 }
 
-/**
- * Tooltip-like callout for text and descriptions
- */
 function Callout({
   rect,
   title,
@@ -195,9 +184,6 @@ function Callout({
   }
 }
 
-/**
- * Main QuickGuide component
- */
 export default function QuickGuide() {
   const [params, setParams] = useSearchParams();
 
@@ -211,14 +197,6 @@ export default function QuickGuide() {
         placement: "bottom",
         radius: 14,
         offset: { y: 8 },
-      },
-      {
-        id: "target-language",
-        selector: "[data-guide='target-language']",
-        title: "Pick your target language",
-        body: "Tap here anytime to change the language you’re learning.",
-        placement: "bottom",
-        radius: 12,
       },
       {
         id: "daily-quiz",
@@ -242,8 +220,8 @@ export default function QuickGuide() {
         title: "Camera Translate",
         body: "Point the camera at text to translate instantly.",
         placement: "top",
-        radius: 36,
-        offset: { y: -100 },
+        radius: 20,
+        offset: { y: -10 },
       },
     ],
     []
@@ -264,7 +242,6 @@ export default function QuickGuide() {
     }
   };
 
-  // Keyboard navigation with safety guard
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       try {

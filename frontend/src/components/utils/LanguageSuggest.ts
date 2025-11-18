@@ -2,7 +2,6 @@
  * Language suggestion content with 60 languages.
  * This page is paired with TextInputStep.tsx
  */
-
 export const LANGUAGES = [
   "English", "Korean", "Japanese", "Chinese", "French", "Spanish", "German", 
   "Italian", "Portuguese", "Russian", "Arabic", "Hindi", "Thai", "Vietnamese",
@@ -87,7 +86,6 @@ const ALIASES: Record<string, string> = {
   bn: "Bengali", bangla: "Bengali",
 };
 
-// Simple Levenshtein distance for fuzzy matching
 function lev(a: string, b: string) {
   a = a.toLowerCase();
   b = b.toLowerCase();
@@ -116,15 +114,12 @@ export function suggestLanguages(query: string) {
   const q = normalize(query);
   if (!q) return [] as { label: string; value: string }[];
 
-  // alias exact match
   if (ALIASES[q]) return [{ label: ALIASES[q], value: ALIASES[q] }];
 
-  // startsWith
   const starts = LANGUAGES.filter(l => l.toLowerCase().startsWith(q))
     .map(l => ({ label: l, value: l }));
   if (starts.length) return starts.slice(0, 6);
 
-  // fuzzy match distance <= 2
   const scored = LANGUAGES
     .map(l => ({ l, d: lev(q, normalize(l)) }))
     .sort((a, b) => a.d - b.d)

@@ -1,44 +1,9 @@
 /**
- * User learning info page that pull up user's learning goals, such as target language, difficulty..
- * 
- * TODO:
- * Connect with DB
- * Add + button for 3rd or 4th languages
- * 
+ * User learning info page that pulls up user's learning goals, such as target language, difficulty.
  */
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { Camera } from "lucide-react";
-
-// Disgusting....
-// ISO 639-1 language names 
-const LANGUAGES = [
-  "Afrikaans","Akan","Albanian","Amharic","Arabic","Armenian","Assamese","Aymara","Azerbaijani",
-  "Bambara","Basque","Belarusian","Bengali","Bosnian","Breton","Bulgarian","Burmese",
-  "Catalan","Cebuano","Chamorro","Chechen","Chinese (Mandarin)","Chuvash","Cornish","Corsican","Croatian","Czech",
-  "Danish","Dhivehi","Dutch","Dzongkha",
-  "English","Esperanto","Estonian",
-  "Faroese","Fijian","Finnish","French","Frisian (Western)",
-  "Galician","Georgian","German","Greek","Guarani","Gujarati",
-  "Haitian Creole","Hausa","Hawaiian","Hebrew","Hindi","Hmong","Hungarian",
-  "Icelandic","Igbo","Ilocano","Indonesian","Irish","Italian",
-  "Japanese","Javanese",
-  "Kannada","Kazakh","Khmer","Kinyarwanda","Korean","Kurdish (Kurmanji)","Kurdish (Sorani)","Kyrgyz",
-  "Lao","Latin","Latvian","Lingala","Lithuanian","Luganda","Luxembourgish",
-  "Macedonian","Maithili","Malagasy","Malay","Malayalam","Maltese","Maori","Marathi","Meiteilon (Manipuri)","Mongolian",
-  "Nepali","Norwegian Bokmål","Norwegian Nynorsk",
-  "Odia (Oriya)","Oromo","Ossetian",
-  "Pashto","Persian (Farsi)","Polish","Portuguese","Punjabi (Gurmukhi)","Punjabi (Shahmukhi)",
-  "Quechua",
-  "Romanian","Russian",
-  "Samoan","Sanskrit","Scots Gaelic","Serbian","Sesotho","Shona","Sindhi","Sinhala","Slovak","Slovenian","Somali","Spanish","Sundanese","Swahili","Swedish",
-  "Tagalog","Tahitian","Tajik","Tamil","Tatar","Telugu","Thai","Tibetan","Tigrinya","Tok Pisin","Turkish","Turkmen",
-  "Uighur","Ukrainian","Urdu","Uyghur","Uzbek",
-  "Vietnamese",
-  "Welsh","Wolof",
-  "Xhosa",
-  "Yiddish","Yoruba",
-  "Zulu",
-];
+import { suggestLanguages } from "../../components/utils/LanguageSuggest"; 
 
 const GOAL_OPTIONS = [
   { key: "business_travel", label: "Business travel" },
@@ -48,46 +13,125 @@ const GOAL_OPTIONS = [
   { key: "etc", label: "ETC" },
 ] as const;
 
+type Difficulty = "Easy" | "Medium" | "Hard";
+type LangOption = { label: string; value: string };
+
 export default function UserLearningInfo() {
-  // Profile header (kept simple)
+  // Fallback profile
   const [name] = useState("Melissa Peters");
   const [avatarUrl, setAvatarUrl] = useState(
     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSmpCWL__69pek5fgjE8HfImGkxYXrKsLdHAg&s"
   );
-  const fileRef = useRef<HTMLInputElement | null>(null);
-
-  // Form state
-  const [defaultLang, setdefaultLang] = useState("Portuguese"); 
-  // const [secondaryLang, setSecondaryLang] = useState("");        
-  const [difficulty, setDifficulty] = useState<"Easy" | "Medium" | "Hard">("Medium");
+  const [defaultLang, setDefaultLang] = useState("Portuguese");
+  const [langQuery, setLangQuery] = useState("Portuguese");
+  const [langSuggestions, setLangSuggestions] = useState<LangOption[]>([]);
+  const [difficulty, setDifficulty] = useState<Difficulty>("Medium");
   const [goals, setGoals] = useState<string[]>(["touristic_travel"]);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement | null>(null);
+  const currentObjectUrlRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    try {
+      const q = langQuery.trim();
+      if (!q) {
+        setLangSuggestions([]);
+        return;
+      }
+      const options = suggestLanguages(q);
+      setLangSuggestions(options);
+    } catch (err) {
+      console.error("Error generating language suggestions:", err);
+      setErrorMsg("Failed to suggest languages. You can still type manually.");
+    }
+  }, [langQuery]);
 
   function onAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const f = e.target.files?.[0];
-    if (!f) return;
-    const url = URL.createObjectURL(f);
-    setAvatarUrl(url);
+    setErrorMsg(null);
+    try {
+      const f = e.target.files?.[0];
+      if (!f) return;
+
+      if (currentObjectUrlRef.current) {
+        URL.revokeObjectURL(currentObjectUrlRef.current);
+        currentObjectUrlRef.current = null;
+      }
+
+      const url = URL.createObjectURL(f);
+      currentObjectUrlRef.current = url;
+      setAvatarUrl(url);
+    } catch (err) {
+      console.error("Error changing avatar:", err);
+      setErrorMsg("Failed to load profile picture. Please try a different file.");
+    }
+  }
+
+  function handleLangInputChange(value: string) {
+    setErrorMsg(null);
+    try {
+      setLangQuery(value);
+      setDefaultLang(value);
+    } catch (err) {
+      console.error("Error updating language input:", err);
+      setErrorMsg("Failed to update language.");
+    }
+  }
+
+  function handleLangSelect(option: LangOption) {
+    setErrorMsg(null);
+    try {
+      setDefaultLang(option.value);
+      setLangQuery(option.label);
+      setLangSuggestions([]);
+    } catch (err) {
+      console.error("Error selecting language:", err);
+      setErrorMsg("Failed to select language.");
+    }
   }
 
   function toggleGoal(key: string) {
-    setGoals((prev) =>
-      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
-    );
+    setErrorMsg(null);
+    try {
+      setGoals((prev) =>
+        prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
+      );
+    } catch (err) {
+      console.error("Error toggling goal:", err);
+      setErrorMsg("Failed to update learning goals.");
+    }
   }
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!defaultLang) {
-      alert("Please select your default Learning Language.");
-      return;
+    setErrorMsg(null);
+
+    try {
+      if (!defaultLang.trim()) {
+        setErrorMsg("Please select your default learning language.");
+        return;
+      }
+
+      console.log({
+        defaultLang,
+        difficulty,
+        goals,
+      });
+
+      alert("Saved!");
+    } catch (err) {
+      console.error("Error submitting learning info:", err);
+      setErrorMsg("Failed to save changes. Please try again.");
     }
-    console.log({
-      defaultLang,
-      // secondaryLang: secondaryLang || null,
-      difficulty,
-      goals,
-    });
-    alert("Saved!");
+  }
+
+  function handleCancel() {
+    setErrorMsg(null);
+    try {
+      window.history.back();
+    } catch (err) {
+      console.error("Error navigating back:", err);
+      setErrorMsg("Failed to go back. Please use your browser's back button.");
+    }
   }
 
   return (
@@ -125,7 +169,14 @@ export default function UserLearningInfo() {
             />
             <button
               type="button"
-              onClick={() => fileRef.current?.click()}
+              onClick={() => {
+                try {
+                  fileRef.current?.click();
+                } catch (err) {
+                  console.error("Error opening file dialog:", err);
+                  setErrorMsg("Failed to open file picker.");
+                }
+              }}
               className="absolute bottom-0 right-0 grid h-8 w-8 place-items-center rounded-full bg-indigo-600 text-white shadow hover:bg-indigo-700"
               aria-label="Change profile photo"
             >
@@ -148,50 +199,43 @@ export default function UserLearningInfo() {
           <h1 className="text-2xl font-semibold text-indigo-900">{name}</h1>
         </div>
 
+        {/* Error banner */}
+        {errorMsg && (
+          <div className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 ring-1 ring-red-200">
+            {errorMsg}
+          </div>
+        )}
+
         {/* Form */}
         <form onSubmit={onSubmit} className="space-y-6">
-          {/* Default language (required) */}
+          {/* Default language (required) with suggestions */}
           <div>
             <label className="mb-1 block text-sm font-medium">
-              Default learning language <span className="text-red-500">* Required</span>
+              Default learning language{" "}
+              <span className="text-red-500">* Required</span>
             </label>
-            <select
-              required
-              className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 pr-10 outline-none focus:border-indigo-500"
-              value={defaultLang}
-              onChange={(e) => setdefaultLang(e.target.value)}
-            >
-              <option value="" disabled>
-                Select a language…
-              </option>
-              {LANGUAGES.map((lang) => (
-                <option key={lang} value={lang}>
-                  {lang}
-                </option>
-              ))}
-            </select>
+            <div className="relative">
+              <input
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 pr-10 outline-none focus:border-indigo-500"
+                value={langQuery}
+                onChange={(e) => handleLangInputChange(e.target.value)}
+                placeholder="Start typing a language…"
+              />
+              {langSuggestions.length > 0 && (
+                <ul className="absolute z-10 mt-1 max-h-40 w-full overflow-y-auto rounded-xl border border-gray-200 bg-white text-sm shadow">
+                  {langSuggestions.map((opt) => (
+                    <li
+                      key={opt.value}
+                      className="cursor-pointer px-3 py-2 hover:bg-indigo-50"
+                      onClick={() => handleLangSelect(opt)}
+                    >
+                      {opt.label}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
-
-          {/* Secondary language (optional) */}
-          {/* <div>
-            <label className="mb-1 block text-sm font-medium">
-              Second learning language (optional)
-            </label>
-            <select
-              className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 pr-10 outline-none focus:border-indigo-500"
-              value={secondaryLang}
-              onChange={(e) => setSecondaryLang(e.target.value)}
-            >
-              <option value="">None</option>
-              {LANGUAGES.map((lang) => (
-                <option key={lang} value={lang}>
-                  {lang}
-                </option>
-              ))}
-            </select>
-          </div> */}
-
-          {/* Consider add + button to add extra languages */}
 
           {/* Difficulty */}
           <div>
@@ -211,7 +255,14 @@ export default function UserLearningInfo() {
                     name="difficulty"
                     value={lvl}
                     checked={difficulty === lvl}
-                    onChange={() => setDifficulty(lvl)}
+                    onChange={() => {
+                      try {
+                        setDifficulty(lvl);
+                      } catch (err) {
+                        console.error("Error setting difficulty:", err);
+                        setErrorMsg("Failed to update difficulty.");
+                      }
+                    }}
                     className="hidden"
                   />
                   {lvl}
@@ -247,7 +298,7 @@ export default function UserLearningInfo() {
           <div className="pt-2 flex items-center justify-between gap-3">
             <button
               type="button"
-              onClick={() => window.history.back()}
+              onClick={handleCancel}
               className="w-1/2 rounded-full border border-gray-300 bg-white px-5 py-3 font-medium text-gray-700 shadow hover:bg-gray-50 active:translate-y-[1px]"
             >
               Cancel
