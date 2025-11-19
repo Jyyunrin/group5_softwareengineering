@@ -326,3 +326,11 @@ class UserLearningInfo(APIView):
             user.difficulty = difficulty
 
         user.save(update_fields=["default_lang_id_id", "difficulty"])
+
+class AuthCheck(APIView):
+    def get(self, request):
+        response = Response()
+        response.data = {
+            'message': "success"
+        }
+        return response
