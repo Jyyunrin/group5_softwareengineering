@@ -332,3 +332,11 @@ class UserLearningInfo(APIView):
             'message': "success"
         }
         return response
+
+class AuthCheck(APIView):
+    def get(self, request):
+        response = Response()
+        response.data = {
+            'message': "success"
+        }
+        return response

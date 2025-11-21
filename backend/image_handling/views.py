@@ -17,10 +17,10 @@ class ImageTranslate(APIView):
           uploaded_file = request.FILES.get("file")
 
           target_lang = request.POST.get("target_lang").lower()
-          print("Language", target_lang)
+          # print("Language", target_lang)
 
           target_lang_code = request.POST.get("target_lang_code").lower()
-          print("Code", target_lang_code)
+          # print("Code", target_lang_code)
 
           if not target_lang:
                return Response({"error":"Missing target language"}, status=status.HTTP_400_BAD_REQUEST)
@@ -31,41 +31,61 @@ class ImageTranslate(APIView):
                return Response({"error":"Uploaded file is not an image"}, status=status.HTTP_400_BAD_REQUEST)
         
           user_id = self.get_current_user(request)
+          if not user_id:
+               return Response({"error":"Invalid or missing authentication token"}, status=status.HTTP_401_UNAUTHORIZED)
 
-          print("UserId", user_id)
-        
-          print("Received files:", uploaded_file.name)
-          print("Content type:", uploaded_file.content_type)
-          print("Size:", uploaded_file.size, "bytes")
+          # print("UserId", user_id)
+          # print("Received files:", uploaded_file.name)
+          # print("Content type:", uploaded_file.content_type)
+          # print("Size:", uploaded_file.size, "bytes")
 
           # Get folder path
           save_folder = os.path.join(settings.MEDIA_ROOT, "images")
-          os.makedirs(save_folder, exist_ok=True)
 
-          # Save picture to volume
-          filename = f"{uuid.uuid4().hex}_{uploaded_file.name}"
-          save_path = os.path.join(save_folder, filename)
-          with open(save_path, 'wb+') as destination:
-               for chunk in uploaded_file.chunks():
-                    destination.write(chunk)
+          try:
+               os.makedirs(save_folder, exist_ok=True)
+
+               # Save picture to volume
+               filename = f"{uuid.uuid4().hex}_{uploaded_file.name}"
+               save_path = os.path.join(save_folder, filename)
+               with open(save_path, 'wb+') as destination:
+                    for chunk in uploaded_file.chunks():
+                         destination.write(chunk)
+          
+          except OSError as e:
+               return Response({"error": f"Failed to save file: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
           db_path = os.path.join("images", filename)
-          frontend_path = request.build_absolute_uri(settings.MEDIA_URL + db_path)
 
           # Get user and translation
-          user = AppUser.objects.get(id=user_id)
+          try:
+               user = AppUser.objects.get(id=user_id)
+          except AppUser.DoesNotExist:
+               return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
-          translation_data = get_translation(save_path, target_lang)
+          try:
+               translation_data = get_translation(save_path, target_lang)
+          except Exception as e:
+               return Response({"error":f"Failed to get translation: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+          
+          if not translation_data:
+               return Response({"error":"No translation returned"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-          translation = self.store_word_and_translation(translation_data, target_lang_code)
+          try:
+               translation = self.store_word_and_translation(translation_data, target_lang_code)
+          except Exception as e:
+               return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
           # Save image to userhistory in database
-          user_history = UserHistory.objects.create(
-               img_name = uploaded_file.name,
-               img_path = db_path,
-               translation_id = translation,
-               user_id = user
-          )
+          try:
+               user_history = UserHistory.objects.create(
+                    img_name = uploaded_file.name,
+                    img_path = db_path,
+                    translation_id = translation,
+                    user_id = user
+               )
+          except Exception as e:
+               return Response({"error": "Failed to save user history"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
           return Response({
                "user_history_id": user_history.id
@@ -74,9 +94,7 @@ class ImageTranslate(APIView):
      # Get current user id from jwt token in request header
      def get_current_user(self, request):
           SECRET_KEY = os.getenv('TOKEN_SECRET', 'secret')
-          print("SECRET_KEY", SECRET_KEY)
           token = request.COOKIES.get("jwt")
-          print(token)
           if not token:
                return None
           try:
@@ -89,26 +107,38 @@ class ImageTranslate(APIView):
      
      # Store word row and translation row for the data and returns the newly saved translation object
      def store_word_and_translation(self, data, target_lang_code):
+
+          # Check to see if all translations present
+          data_keys = [
+               "english", "meaning", "translated", "translated-sentence-easy", "english-sentence-easy",
+               "translated-sentence-med", "english-sentence-med","translated-sentence-hard", "english-sentence-hard"
+          ]
+
+          missing_keys = [keys for keys in data_keys if keys not in data]
+          if missing_keys:
+               raise ValueError("Missing data keys")
+
+
+          try: 
+               word = Word.objects.create(
+                    label_en = data["english"],
+                    meaning = data["meaning"]
+               )
+               
+               translation = Translation.objects.create(
+                    label_target = data["translated"],
+                    example_target_easy = data["translated-sentence-easy"],
+                    example_en_easy = data["english-sentence-easy"],
+                    example_target_med = data["translated-sentence-med"],
+                    example_en_med = data["english-sentence-med"],
+                    example_target_hard = data["translated-sentence-hard"],
+                    example_en_hard = data["english-sentence-hard"],
+                    target_lang_id = Language.objects.get(code=target_lang_code),
+                    word_id = word
+               )
+          except Exception as e:
+               raise ValueError("Failed to save translation")
           
-          print(data)
-          print(type(data))
-          word = Word.objects.create(
-               label_en = data["english"],
-               meaning = data["meaning"]
-          )
-          
-          translation = Translation.objects.create(
-               label_target = data["translated"],
-               example_target_easy = data["translated-sentence-easy"],
-               example_en_easy = data["english-sentence-easy"],
-               example_target_med = data["translated-sentence-med"],
-               example_en_med = data["english-sentence-med"],
-               example_target_hard = data["translated-sentence-hard"],
-               example_en_hard = data["english-sentence-hard"],
-               target_lang_id = Language.objects.get(code=target_lang_code),
-               word_id = word
-          )
-     
           return translation
          
     
