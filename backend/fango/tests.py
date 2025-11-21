@@ -1,10 +1,9 @@
 import os
 from django.test import TestCase
-from .views import LoginView, LogoutView
-from .models import AppUser, UserHistory, Language, Word, Translation, UserHistory, Quiz, QuizWord
+from .views import LoginView
+from .models import AppUser, UserHistory, Language, Word, Translation, UserHistory
 from rest_framework.exceptions import AuthenticationFailed
-import jwt, datetime
-from django.utils import timezone
+import jwt
 from django.urls import reverse
 from unittest.mock import patch
 from .redis_client import redis_client
@@ -53,7 +52,6 @@ class TestLoginUser(TestCase):
     def test_banned_user(self):
         with self.assertRaisesMessage(AuthenticationFailed, "User account inactive or banned"):
              self.service.authenticate_user("banned@example.com", "somepassword")
-
 
 class LogoutViewTest(TestCase):
     def setUp(self):
@@ -133,7 +131,6 @@ class UserHistoryTestCase(TestCase):
         )
 
         self.lang = Language.objects.create(code="fr", lang="French")
-
         self.word = Word.objects.create(label_en="Apple", meaning="A fruit")
 
         self.translation = Translation.objects.create(
@@ -150,17 +147,6 @@ class UserHistoryTestCase(TestCase):
             is_favorite=True
         )
 
-        self.quiz = Quiz.objects.create(
-            user_id=self.user,
-            target_lang_id=self.lang,
-            quiz_name="French Fruits",
-            created_at=timezone.now()
-        )
-        self.quiz_word = QuizWord.objects.create(
-            quiz_id=self.quiz,
-            translation_id=self.translation
-        )
-
         self.get_info_url = reverse('get_user_history')
         self.login_url = reverse('login')
 
@@ -175,6 +161,43 @@ class UserHistoryTestCase(TestCase):
 
         self.token = login_response.cookies['jwt'].value
         self.client.cookies['jwt'] = self.token
+
+    def test_paginate_history(self):
+        for i in range(9):
+            UserHistory.objects.create(
+                user_id=self.user,
+                translation_id=self.translation,
+                img_name=f"img{i}.png",
+                img_path=f"/app/images/img{i}.png",
+                is_favorite=False
+            )
+
+        response = self.client.get(self.get_info_url + "?page=1")
+        self.assertEqual(response.status_code, 200)
+        
+        data = response.json()
+        history_list = data["history"]
+        next_page_url = data["next_page_url"]
+        previous_page_url = data["previous_page_url"]
+        max_page = data["max_page"]
+        
+        self.assertEqual(len(history_list), 6) # just this page has 5 
+        self.assertEqual(max_page, 2)
+
+        self.assertIn("page=2", next_page_url)
+        self.assertIn("page=1", previous_page_url)
+
+        response = self.client.get(self.get_info_url + "?page=2")
+        self.assertEqual(response.status_code, 200)
+
+        data = response.json()
+        history_list = data["history"]
+        next_page_url = data["next_page_url"]
+        previous_page_url = data["previous_page_url"]
+
+        self.assertEqual(len(history_list), 4)
+        self.assertIn("page=1", previous_page_url)
+        self.assertIn("page=None", next_page_url)
 
     def test_get_user_history(self):
         response = self.client.get(self.get_info_url)
