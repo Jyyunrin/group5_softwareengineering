@@ -3,7 +3,12 @@
 ## 1. Introduction 
 
 ### What is FANGO?
+`FANGO` is a just-in-time language companion designed for travellers, learners, and curious explorers. Instead of studying lessons, you learn from the world around you—by snapping a photo of real-world objects. 
+
+`FANGO` instantly identifies the object, translates it into your chosen language, pronounces it aloud, and gives you practical phrases you can use immediately.
+
 ### Who is this guide for?
+Anyone using the `FANGO` mobile or web app to translate objects, learn vocabulary on the go, or personalize their language-learning experience.
 
 ## 2. Getting Started
 ### Creating an Account
