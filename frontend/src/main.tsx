@@ -46,10 +46,12 @@ import DailyQuizDefault from "./pages/quiz/DailyQuizDefault";
 import DailyQuizResult from "./pages/quiz/DailyQuizResult"
 import FavWords from "./pages/quiz/FavWords";
 
+import AuthGuard from "./components/utils/AuthRoute"
+
 const router = createBrowserRouter([
   // For Bottom Nav
   {
-    element: <AppLayout />,
+    element: <AuthGuard><AppLayout /></AuthGuard>,
     children: [
       { index: true, element: <Landing /> },      
       { path: "*", element: <Landing /> },                  

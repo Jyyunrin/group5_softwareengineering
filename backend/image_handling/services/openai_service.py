@@ -22,14 +22,11 @@ def get_translation(image_path: str, translation_language: str):
 
        with Image.open(image_path) as img:
               image_type = img.format.lower()
-
-       print(image_type)
     
        OPENAI_API_KEY=os.getenv("OPENAI_API_KEY")
 
        # Checks if no open api key, if none then returns previously generated mock response
        if not OPENAI_API_KEY:
-              #   raise ValueError("OPEN_API_KEY not found in env variables")
               print("Using mock data content")
               current_dir = os.path.dirname(os.path.abspath(__file__))
               file_path = os.path.join(current_dir, "mock_response.json")
@@ -61,9 +58,7 @@ def get_translation(image_path: str, translation_language: str):
                      }]
               )
 
-              print(response)
               content = response.choices[0].message.content
-              print(content)
               data = json.loads(content)
 
        return data

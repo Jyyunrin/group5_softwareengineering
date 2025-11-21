@@ -1,0 +1,53 @@
+name: Django Backend Tests
+
+on:
+  push:
+    branches: [main, dev, joe-continuous-integration-and-testing]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    environment: Testing
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create temporary .env file
+        run: |
+          echo "DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}" >> .env
+          echo "DEBUG=True" >> .env
+          echo "DJANGO_LOGLEVEL=${{ vars.DJANGO_LOGLEVEL }}" >> .env
+          echo "DJANGO_ALLOWED_HOSTS=${{ vars.DJANGO_ALLOWED_HOSTS }}" >> .env
+          echo "DATABASE_ENGINE=${{ vars.DATABASE_ENGINE }}" >> .env
+          echo "DATABASE_NAME=${{ vars.DATABASE_NAME }}" >> .env
+          echo "DATABASE_USERNAME=${{ vars.DATABASE_USERNAME }}" >> .env
+          echo "DATABASE_PASSWORD=${{ vars.DATABASE_PASSWORD }}" >> .env
+          echo "DATABASE_HOST=${{ vars.DATABASE_HOST }}" >> .env
+          echo "DATABASE_PORT=${{ vars.DATABASE_PORT }}" >> .env
+          echo "DATABASE_URL=${{ vars.DATABASE_URL }}" >> .env
+          echo "REDIS_HOST=${{ vars.REDIS_HOST }}" >> .env
+          echo "REDIS_PORT=${{ vars.REDIS_PORT }}" >> .env
+          echo "REDIS_DB=${{ vars.REDIS_DB }}" >> .env
+          echo "OPEN_API_KEY=${{ secrets.OPENAI_API_KEY}}" >> .env
+
+      - name: Verify secret exists
+        run: |
+          echo "DJANGO_ALLOWED_HOSTS=${{ vars.DJANGO_ALLOWED_HOSTS }}"
+
+      - name: Build and start containers
+        run: docker compose --env-file .env up -d --build
+
+      - name: Wait for backend to start
+        run: sleep 15
+
+      - name: Backend Logs
+        if: always()
+        run: docker compose logs django-web
+
+      - name: Run Django Tests
+        run: docker compose exec -T django-web python manage.py test fango --verbosity=2
+
+      - name: Stop containers
+        if: always()
+        run: docker compose down
