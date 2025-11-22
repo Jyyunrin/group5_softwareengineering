@@ -27,7 +27,7 @@ export default function Landing() {
           >
             Olá,<br />
             <span>Username!</span>
-          </h1>
+          </h1> */}
 
         <main>
           <section>

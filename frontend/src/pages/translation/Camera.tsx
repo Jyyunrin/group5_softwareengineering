@@ -228,11 +228,11 @@ export default function CameraPage() {
         return;
       }
 
-      const responseData = await response.json();
+      // const responseData = await response.json();
 
-      const historyId = responseData.user_history_id;
+      // const historyId = responseData.user_history_id;
 
-      window.location.href = `/user/userhistory/${historyId}`
+      // window.location.href = `/user/userhistory/${historyId}`
 
     } catch (error) {
       console.error("Upload failed", error);
