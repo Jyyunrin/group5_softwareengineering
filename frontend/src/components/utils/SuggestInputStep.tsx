@@ -1,3 +1,8 @@
+/**
+ * Reusable layout for input suggestion. 
+ * For examole, this page can be used with LanguageSuggest.ts
+ */
+
 import React from "react";
 
 export type Suggestion = { label: string; value: string };
@@ -14,8 +19,8 @@ type SuggestInputStepProps = {
   onSubmit: (cleanValue: string) => Promise<void> | void;
   validate?: (v: string) => string | null;
   allowEmpty?: boolean;
-  suggestions: (query: string) => Suggestion[]; // provider
-  onPick?: (s: Suggestion) => void; // optional callback when picked
+  suggestions: (query: string) => Suggestion[]; 
+  onPick?: (s: Suggestion) => void; 
 };
 
 export default function SuggestInputStep({

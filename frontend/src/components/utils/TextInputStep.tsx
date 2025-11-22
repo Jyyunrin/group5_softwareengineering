@@ -1,9 +1,10 @@
 /**
  * A component for taking text input from log in / sign up.
+ * 
  * For password, use PasswordInputStep.tsx
  * Paired with SpringMotionLayout.tsx & JasonPost.tsx
- * 
  */
+
 import React from "react";
 
 type TextInputStepProps = {
@@ -15,11 +16,10 @@ type TextInputStepProps = {
     submitLabel?: string;
     prevLabel?: string;
     onPrevious?: () => void;
-    onSubmit: (cleanValue: string) => Promise<void> | void; // caller handles fetch/side effects
-    validate?: (v: string) => string | null; // return error message or null
-    allowEmpty?: boolean; // default false
+    onSubmit: (cleanValue: string) => Promise<void> | void; 
+    validate?: (v: string) => string | null; 
+    allowEmpty?: boolean;
 };
-
 
 export default function TextInputStep({
     value,
@@ -61,7 +61,6 @@ export default function TextInputStep({
             setBusy(false);
         }};
 
-
         return (
             <form onSubmit={handleSubmit} className="w-full space-y-3">
                 <label className="block">
@@ -82,13 +81,11 @@ export default function TextInputStep({
                     />
                 </label>
 
-
                 {error && (
                     <p className="text-sm text-red-600" role="alert">
                         {error}
                     </p>
                 )}
-
 
                 <div className="pt-2 flex justify-between items-center">
                     <button
@@ -99,7 +96,6 @@ export default function TextInputStep({
                     >
                     {prevLabel}
                 </button>
-
 
                 <button
                     type="submit"

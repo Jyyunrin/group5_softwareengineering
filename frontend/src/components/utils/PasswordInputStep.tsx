@@ -1,9 +1,10 @@
 /**
  * A component for taking text input from log in / sign up.
+ * 
  * For regular inputs, use TextInputStep.tsx
  * Paired with SpringMotionLayout.tsx & JasonPost.tsx
- * 
  */
+
 import React from "react";
 import { Eye, EyeOff } from "lucide-react";
 
@@ -21,12 +22,10 @@ type PasswordInputStepProps = {
     allowEmpty?: boolean; 
 };
 
-
 export default function PasswordInputStep({
     value,
     onChange,
     inputName,
-    placeholder = "password",
     autoComplete,
     submitLabel = "Next →",
     prevLabel = "← Previous",

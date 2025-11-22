@@ -3,8 +3,8 @@
  * When a user clicks a card image, the card will be fliped and shows corresponding letters.
  * 
  * Paried with GalleryPage.tsx
- * 
  */
+
 import { useState, type KeyboardEvent } from "react";
 
 type Props = {
@@ -67,7 +67,7 @@ export default function ImageFlipCard({ image, lan, word, details, onDetails }: 
           <button
             type="button"
             onClick={(e) => {
-              e.stopPropagation(); // prevent auto flips
+              e.stopPropagation(); 
               onDetails();
             }}
             className="

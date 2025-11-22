@@ -1,19 +1,13 @@
 /**
- * Likes / History Menu container for the row 3, the landing page(homepage).
- * 
+ * Likes / History menu container the landing page(homepage).
  */
 
 type Tab = "likes" | "history";
 
-export default function CardMenu({
-  tab,
-  onChange,
-}: {
-  tab: Tab;
-  onChange: (t: Tab) => void;
-}) {
+export default function CardMenu({tab, onChange,}: {tab: Tab; onChange: (t: Tab) => void;}) {
   return (
     <div className="w-full">
+      {/* Likes | History Tab */}
       <div className="flex justify-center gap-6 px-4 py-3">
         <button
           className={`text-sm font-medium ${
