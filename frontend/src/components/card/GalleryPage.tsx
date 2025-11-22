@@ -32,24 +32,77 @@ type Item = typeof likesData[number];
 
 export default function GalleryPage() {
   const [tab, setTab] = useState<"likes" | "history">("likes");
-  const [selected, setSelected] = useState<Item | null>(null);
-
-  const data = tab === "likes" ? likesData : historyData;
-
-  // Pagination (Maximum 12 items per page)
-  const [page, setPage] = useState(0);
+  const [history, setHistory] = useState([])
+  const [data, setData] = useState(tab === "likes" ? likesData : history);
+  // const data = tab ==="likes" ? likesData : historyData;
 
   const cardsPerRow = 3;
-  const maxRows = 4;
-  const cardsPerPage = cardsPerRow * maxRows; 
-  const totalPages = Math.ceil(data.length / cardsPerPage);
-  const start = page * cardsPerPage;
-  const end = start + cardsPerPage;
-  const pageData = data.slice(start, end);
-  const canPrev = page > 0;
-  const canNext = page < totalPages - 1;
-  const goFirst = () => setPage(0);
-  const goLast = () => setPage(totalPages - 1);
+  const maxRows = 2;
+  const cardsPerPage = cardsPerRow * maxRows; // 6 per page
+  const [selected, setSelected] = useState<Item | null>(null);
+  const [page, setPage] = useState(1);
+  const [canNext, setNext] = useState(true);
+  const [canPrev, setPrev] = useState(true);
+  const [totalPages, setTotalPages] = useState(1)
+
+  const request_info = async() => {
+    const response = await fetch(import.meta.env.VITE_SERVER_URL + "/get_user_history?page=" + page, {
+      method: "GET",
+      credentials: 'include'
+    })
+    .then(function(response) { return response.json(); },
+      function(reason) { window.alert("An issue occured when attempting to connect to the server"); console.log(reason)}
+    )
+    .then(function(json) {
+      // use the json
+      let likesHistory = []
+      let history = []
+      for (let i = 0; i < json.history.length; i++){
+        json.history[i].key = i;
+        if (json.history[i].is_favorite == true){
+          likesHistory.push(json.history[i])
+        }
+        if (json.history[i].is_favorite == false){
+          history.push(json.history[i])
+        }
+      }
+    
+      setHistory(json.history)
+      setData(tab === "likes" ? likesHistory  : history)
+      setNext(json.next_page_url.length > 0)
+      setPrev(json.previous_page_url.length > 0)
+      setTotalPages(json.max_page) 
+      // console.log("DATA")
+      // console.log(data);
+    },
+    function() {
+      return
+    }
+  );
+  }
+
+  useEffect(() => {
+    request_info();
+  }, [tab, page])
+
+
+  // return (
+  //   <div className="mx-auto max-w-6xl px-4 py-6 space-y-6">
+  //     <div className="text-center">
+  //       <CardMenu tab={tab} onChange={tabMaking} />
+  //     </div>
+  // Pagination settings (fixed layout)
+
+  // const totalPages = Math.ceil(data.length / cardsPerPage);
+  // const start = page * cardsPerPage;
+  // const end = start + cardsPerPage;
+  // const pageData = data.slice(start, end);
+  const pageData = data
+
+  // const canPrev = page > 1;
+  // const canNext = page < totalPages - 1;
+  const goFirst = () => setPage(1);
+  const goLast = () => setPage(totalPages);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 space-y-6">
@@ -59,7 +112,7 @@ export default function GalleryPage() {
           tab={tab}
           onChange={(newTab) => {
             setTab(newTab);
-            setPage(0); 
+            setPage(1); // reset when switching tabs
           }}
         />
       </div>
@@ -69,7 +122,9 @@ export default function GalleryPage() {
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {pageData.map((item, i) => (
             <ImageFlipCard
-              key={`${start + i}-${item.id}`}
+              // Use a stable unique key (ids repeat in your array)
+              // key={`${start + i}-${item.id}`}
+              key={`${i}-${item.id}`}
               image={import.meta.env.VITE_SERVER_URL + "/media/" + item.image_url}
               word={item.word_english}
               lan={item.language}
@@ -91,7 +146,7 @@ export default function GalleryPage() {
               First
             </button>
             <button
-              onClick={() => setPage((p) => Math.max(0, p - 1))}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={!canPrev}
               aria-label="Previous page"
               className="rounded-full border border-gray-300 px-3 py-2 text-sm hover:bg-gray-100 disabled:opacity-40"
@@ -100,11 +155,11 @@ export default function GalleryPage() {
             </button>
 
             <span className="mx-2 text-gray-600 text-sm">
-              Page {page + 1} of {totalPages}
+              Page {page} of {totalPages}
             </span>
 
             <button
-              onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={!canNext}
               aria-label="Next page"
               className="rounded-full border border-gray-300 px-3 py-2 text-sm hover:bg-gray-100 disabled:opacity-40"
