@@ -7,7 +7,7 @@ from fango.redis_client import redis_client
 from fango.models import AppUser
 from django.http import JsonResponse
 from rest_framework.exceptions import Throttled
-
+# This will be reviewed by Joe
 SECRET_KEY = os.getenv("TOKEN_SECRET", "secret")
 class RateLimitMiddleware:
     def __init__(self, get_response):

@@ -6,8 +6,7 @@ from jwt import DecodeError
 from fango.redis_client import redis_client
 from fango.models import AppUser
 from django.http import JsonResponse
-from rest_framework.exceptions import AuthenticationFailed
-
+# This will be reviewed by Joe
 SECRET_KEY = os.getenv("TOKEN_SECRET", "secret")
 class JWTRedisMiddleware:
     def __init__(self, get_response):
@@ -41,7 +40,7 @@ class JWTRedisMiddleware:
             else:
                 return JsonResponse({"detail": "Unauthorized"}, status=401)
             
-        except (jwt.ExpiredSignatureError, jwt.InvalidTokenError, jwt.DecodeError, jwt.InvalidSignatureError):
+        except (jwt.ExpiredSignatureError, jwt.InvalidTokenError, jwt.DecodeError, jwt.InvalidSignatureError) as e:
             if isinstance(e, jwt.ExpiredSignatureError):
                 print("Token has expired")
                 return JsonResponse({"detail": "Token expired"}, status=401)
