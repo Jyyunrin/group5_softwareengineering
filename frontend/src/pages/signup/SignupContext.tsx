@@ -1,3 +1,6 @@
+/**
+ * This page contains data type for sign up and handle data.
+ */
 import React, {
   createContext,
   useContext,
@@ -9,7 +12,7 @@ import React, {
 export type SignupData = {
   name?: string;
   email?: string;
-  password?: string;     
+  password?: string;
   targetLan?: string;
   goals?: string[];
   difficulty?: string;
@@ -27,22 +30,66 @@ const LS_KEY = "signup_wizard_draft_v1";
 export function SignupProvider({ children }: { children: React.ReactNode }) {
   const [data, setData] = useState<SignupData>(() => {
     try {
-      return JSON.parse(localStorage.getItem(LS_KEY) || "{}");
-    } catch {
+      const raw = localStorage.getItem(LS_KEY);
+      if (!raw) return {};
+
+      const parsed = JSON.parse(raw);
+      if (typeof parsed !== "object" || Array.isArray(parsed)) {
+        console.warn("SignupProvider: Invalid localStorage format, resetting");
+        return {};
+      }
+
+      return parsed;
+    } catch (err) {
+      console.error("SignupProvider: Failed to parse localStorage", err);
       return {};
     }
   });
 
-  // Persist draft between steps/refresh
   useEffect(() => {
-    localStorage.setItem(LS_KEY, JSON.stringify(data));
+    try {
+      localStorage.setItem(LS_KEY, JSON.stringify(data));
+    } catch (err) {
+      console.error("SignupProvider: Failed to write to localStorage", err);
+    }
   }, [data]);
 
   const value = useMemo<SignupCtx>(
     () => ({
       data,
-      update: (patch) => setData((d) => ({ ...d, ...patch })),
-      reset: () => setData({}),
+
+      update: (patch) => {
+        try {
+          if (!patch || typeof patch !== "object") {
+            console.error("SignupProvider.update: Invalid patch", patch);
+            return;
+          }
+
+          setData((d) => {
+            const next = { ...d, ...patch };
+
+            // basic corruption guard
+            if (Array.isArray(next) || typeof next !== "object") {
+              console.error("SignupProvider.update: Produced invalid state", next);
+              return d;
+            }
+
+            return next;
+          });
+        } catch (err) {
+          console.error("SignupProvider.update: Failed", err);
+        }
+      },
+
+      reset: () => {
+        try {
+          setData({});
+          localStorage.removeItem(LS_KEY);
+        } catch (err) {
+          console.error("SignupProvider.reset: Failed to clear", err);
+          setData({});
+        }
+      },
     }),
     [data]
   );

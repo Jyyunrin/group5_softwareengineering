@@ -3,9 +3,6 @@ import { useEffect, useState } from "react";
 /**
  * A page with animated dots and loading message.
  * Same layout as translation/processing
- * 
- * TODO:
- * Add a mascot
  */
 export default function Loading() {
   const [show, setShow] = useState(false);

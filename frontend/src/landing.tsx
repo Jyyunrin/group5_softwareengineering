@@ -1,10 +1,5 @@
 /**
  * Landing page(homepage) after log-in
- * 
- * Todo: 
- * Populate dynamic data for username, quiz, search history...
- * Adjust max w for various screen size (current setting: 1080px)
- * 
  */
 import './landing.css';
 import { useSearchParams, useNavigate } from "react-router-dom";
@@ -32,7 +27,7 @@ export default function Landing() {
           >
             Olá,<br />
             <span>Username!</span>
-          </h1> */}
+          </h1>
 
         <main>
           <section>
@@ -45,13 +40,17 @@ export default function Landing() {
             >
               Quick Guide <span aria-hidden>→</span>
             </button>
-
             <div className="absolute top-4 right-4 z-50">
               <Logout />
-            </div>
+            </div>  
+            <button
+              className="inline-flex items-center gap-2"
+              data-guide="target-language"
+              onClick={() => alert("open language picker")}
+            >
+            
 
             {/* Dynamic data needed */}
-            <button className="inline-flex items-center gap-2">
               <span>Target Language:</span>
               <span role="img" aria-label="Portuguese flag">🇵🇹</span>
               <span aria-hidden>✎</span>

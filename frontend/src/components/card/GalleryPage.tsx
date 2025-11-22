@@ -125,7 +125,7 @@ export default function GalleryPage() {
           tab={tab}
           onChange={(newTab) => {
             setTab(newTab);
-            setPage(0); // reset when switching tabs
+            setPage(1); // reset when switching tabs
           }}
         />
       </div>

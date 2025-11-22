@@ -1,15 +1,16 @@
-import React, { useEffect } from "react";
+/**
+ * This page is the end of sign up.
+ */
+import { useEffect } from "react";
 import SpringMotionLayout from "../../components/animation/SpringMotionLayout";
 import { useSignup } from "../signup/SignupContext";
-import type { StepProps } from "./Types";
 
-export default function SignUpAllSet({ onNext }: StepProps) {
+export default function SignUpAllSet() {
   const { data, reset } = useSignup();
 
   useEffect(() => {
     let cancelled = false;
 
-    // Connect with backend
     const submitAll = async () => {
       // let jsonData = JSON.stringify(data);
       // let filtering = JSON.parse(jsonData)
@@ -17,25 +18,23 @@ export default function SignUpAllSet({ onNext }: StepProps) {
       // jsonData = JSON.stringify(filtering)
       try {
         const res = await fetch(import.meta.env.VITE_SERVER_URL + "/register", {
-          method: "post",
+          method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data), // { username, email, password, targetLan, goals, difficulty }
+          body: JSON.stringify(data), 
+          credentials: "include",
         });
-
-        // test
-        console.log("data", res.body);
 
         if (!res.ok) throw new Error("Signup failed");
         await res.json().catch(() => ({}));
 
         if (!cancelled) {
-          reset(); // clear draft storage
+          reset(); 
 
           window.location.href = "http://localhost:3000/?guide=1";
         }
       } catch (e) {
         console.error(e);
-        // console.error("Could not complete signup. Please try again.");
+        console.error("Could not complete signup. Please try again.");
       }
     };
 

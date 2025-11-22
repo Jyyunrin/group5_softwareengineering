@@ -1,3 +1,6 @@
+/**
+ * This page is a part of sign up.
+ */
 import React from "react";
 import SpringMotionLayout from "../../components/animation/SpringMotionLayout";
 import MultiCheckbox from "../../components/checkbox/MultiCheckbox";
@@ -6,10 +9,21 @@ import type { StepProps } from "./Types";
 
 export default function SignUpGoal({ onNext, onPrev }: StepProps) {
   const { update, data } = useSignup();
-  const [goals, setGoals] = React.useState<string[]>(data?.goals ?? []);
+  const [goals, setGoals] = React.useState<string[]>(() => {
+    try {
+      return data?.goals ?? [];
+    } catch (err) {
+      console.error("SignUpGoal: Failed initial goals state:", err);
+      return [];
+    }
+  });
 
   React.useEffect(() => {
-    if (data?.goals) setGoals(data.goals);
+    try {
+      if (data?.goals) setGoals(data.goals);
+    } catch (err) {
+      console.error("SignUpGoal useEffect error:", err);
+    }
   }, [data?.goals]);
 
   const options = [
@@ -20,12 +34,22 @@ export default function SignUpGoal({ onNext, onPrev }: StepProps) {
     { label: "Etc(s)", value: "etc" },
   ];
 
-  const validate = (vals: string[]) =>
-    vals.length === 0 ? "Please select at least one goal." : null;
+  const validate = (vals: string[]) => {
+    try {
+      return vals.length === 0 ? "Please select at least one goal." : null;
+    } catch (err) {
+      console.error("SignUpGoal validation error:", err);
+      return "Unexpected validation error.";
+    }
+  };
 
   const submitGoal = async (cleanValues: string[]) => {
-    update({ goals: cleanValues });
-    onNext(); 
+    try {
+      update({ goals: cleanValues });
+      onNext();
+    } catch (err) {
+      console.error("SignUpGoal: Failed to submit goals:", err);
+    }
   };
 
   return (
@@ -35,7 +59,13 @@ export default function SignUpGoal({ onNext, onPrev }: StepProps) {
     >
       <MultiCheckbox
         values={goals}
-        onChange={setGoals}
+        onChange={(val) => {
+          try {
+            setGoals(val);
+          } catch (err) {
+            console.error("SignUpGoal: Failed to update goals state:", err);
+          }
+        }}
         options={options}
         inputName="learning-goals"
         onPrevious={onPrev}
