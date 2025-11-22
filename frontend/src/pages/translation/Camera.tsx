@@ -40,6 +40,7 @@ export default function CameraPage() {
   const streamRef = useRef<MediaStream | null>(null);
 
   const [targetLang, setTargetLang] = useState<string>("en");
+  const [loading, setLoading] = useState(true);
   const LANGS = [
     { code: "en", label: "English" },
     { code: "ko", label: "Korean" },
