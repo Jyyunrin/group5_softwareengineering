@@ -20,6 +20,7 @@ import Result from "./pages/translation/Result";
 
 // User
 import UserHistory from "./pages/user/Userhistory";
+import UserHistoryItem from "./pages/user/Userhistoryitem"
 import Userinfo from "./pages/user/Userinfo";
 import UserLearningInfo from "./pages/user/Userlearninginfo";
 
@@ -35,16 +36,19 @@ import DailyQuizDefault from "./pages/quiz/DailyQuizDefault";
 import DailyQuizResult from "./pages/quiz/DailyQuizResult"
 import FavWords from "./pages/quiz/FavWords";
 
+import AuthGuard from "./components/utils/AuthRoute"
+
 const router = createBrowserRouter([
   // For Bottom Nav
   {
-    element: <AppLayout />,
+    element: <AuthGuard><AppLayout /></AuthGuard>,
     children: [
       { index: true, element: <Landing /> },      
       { path: "*", element: <Landing /> },                  
       { path: "translation/camera", element: <Camera /> },
       { path: "translation/result", element: <Result /> },
       { path: "user/userhistory", element: <UserHistory /> },
+      { path: "user/userhistory/:history_id", element: <UserHistoryItem /> },
       { path: "user/userinfo", element: <Userinfo /> },
       { path: "user/userlearninginfo", element: <UserLearningInfo /> },
       { path: "quiz/start", element: <DailyQuizDefault /> },

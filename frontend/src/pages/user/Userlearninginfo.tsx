@@ -101,7 +101,7 @@ export default function UserLearningInfo() {
     }
   }
 
-  function onSubmit(e: React.FormEvent) {
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setErrorMsg(null);
 

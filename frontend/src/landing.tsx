@@ -25,7 +25,9 @@ export default function Landing() {
             Olá,<br />
             <span>Username!</span>
           </h1>
+        </section>
 
+        <section>
           <div className="mt-2 flex items-center justify-between text-sm text-gray-600">
             <button
               className="inline-flex items-center gap-1"

@@ -178,3 +178,6 @@ cython_debug/
 # .DS_store for mac users
 .DS_store
 /frontend/.DS_store
+
+# vscode settings
+.vscode/

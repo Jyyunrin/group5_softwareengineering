@@ -56,7 +56,7 @@ export default function UserInfo() {
     }
   }
 
-  function onSubmit(e: React.FormEvent) {
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setErrorMsg(null);
 
@@ -99,6 +99,45 @@ export default function UserInfo() {
       console.error("Error navigating back:", err);
       setErrorMsg("Failed to go back. Please use your browser's back button.");
     }
+  }
+
+  const request_info = async() => {
+    const response = await fetch(import.meta.env.VITE_SERVER_URL + "/get_user_info", {
+        credentials: 'include',
+      }
+    )
+    .then(function(response) { 
+      if (response.status == 401) {
+        window.location.href = "/login";
+        return;
+      }
+      if (response.status == 429) {
+        response.json().then(function(data) {
+          alert(`${data.detail}. Retry after ${data.retry_after} seconds.`);
+        });
+        return;
+      }
+
+      return response.json();
+    })
+    .then(function(json) {
+      // use the json
+      setName(json.name)
+      setEmail(json.email)
+      setCountry(json.country)
+    });
+    setLoading(false);
+  }
+
+  useEffect(()=>{
+    const timer = setTimeout(() => {
+      request_info();
+    }, 1200);
+    return () => clearTimeout(timer);
+  }, [])
+
+  if (loading) {
+    return <Loading />;
   }
 
   return (

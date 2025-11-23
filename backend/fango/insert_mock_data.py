@@ -1,6 +1,16 @@
 from fango.models import AppUser, Language, Word, Translation, UserHistory, Quiz, QuizWord
 from django.utils import timezone
 
+# NOTE: This script is meant to seed a new database.
+# NOTE: This clears ALL existing data (except for Language table)
+QuizWord.objects.all().delete()
+Quiz.objects.all().delete()
+UserHistory.objects.all().delete()
+Translation.objects.all().delete()
+Word.objects.all().delete()
+Language.objects.all().delete()
+AppUser.objects.all().delete()
+
 user = AppUser.objects.create(
     email="test@test.com",
     name="tester",

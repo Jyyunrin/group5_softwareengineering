@@ -3,7 +3,6 @@
  */
 import { motion } from "framer-motion";
 import { useState } from "react";
-import bcrypt from "bcryptjs";
 import { Eye, EyeOff } from "lucide-react";
 
 export default function Login() {
@@ -56,6 +55,7 @@ export default function Login() {
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
+            credentials: 'include',
             body: jsonData,
           }
         );

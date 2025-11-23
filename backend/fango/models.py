@@ -3,6 +3,13 @@ from django.utils import timezone
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from .managers import CustomUserManager
 
+class Language(models.Model):
+    code = models.CharField(max_length=10, primary_key=True)  # 'en', 'fr', 'es'
+    lang = models.CharField(max_length=50)  # e.g., 'English', 'French', 'Spanish'
+
+    def __str__(self):
+        return self.lang
+        
 class AppUser(AbstractBaseUser, PermissionsMixin):
 
     username = None
@@ -15,11 +22,19 @@ class AppUser(AbstractBaseUser, PermissionsMixin):
         ('active', 'Active'),
         ('banned', 'Banned'),
     ]
+    DIFFICULTIES = [
+        ('easy', 'Easy'),
+        ('medium', 'Medium'),
+        ('hard', 'Hard')
+    ]
 
     email = models.EmailField(unique=True)
-    name = models.CharField(max_length=50, default="user")
+    name = models.CharField(max_length=50, default="Guest")
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='user')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
+    country = models.CharField(max_length=100, default="Canada")
+    default_lang_id = models.ForeignKey(Language, on_delete=models.SET_NULL, null=True)  # on_delete=models.SET_NULL sets this FK to null if the referenced object is deleted.
+    difficulty = models.CharField(max_length=10, choices=DIFFICULTIES, default='medium')
     created_at = models.DateTimeField(default=timezone.now)
     last_login_at = models.DateTimeField(null=True, blank=True)
 
@@ -30,13 +45,6 @@ class AppUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.name
-
-class Language(models.Model):
-    code = models.CharField(max_length=10, primary_key=True)  # 'en', 'fr', 'es'
-    lang = models.CharField(max_length=50)  # e.g., 'English', 'French', 'Spanish'
-
-    def __str__(self):
-        return self.lang
 
 class Word(models.Model):
     label_en = models.CharField(max_length=255)

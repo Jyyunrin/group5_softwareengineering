@@ -59,6 +59,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'fango.middleware.RateLimitMiddleware.RateLimitMiddleware',
+    'fango.middleware.JWTRedisMiddleware.JWTRedisMiddleware',
 ]
 
 ROOT_URLCONF = 'fango.urls'
@@ -106,6 +108,15 @@ DATABASES = {
 
 print("Connection details: ", DATABASES)
 
+
+# Redis
+
+
+REDIS_HOST = os.getenv('REDIS_HOST')
+REDIS_PORT = int(os.getenv('REDIS_PORT'))
+REDIS_DB = int(os.getenv('REDIS_DB'))
+
+
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
@@ -141,6 +152,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+
+# Media files (uploads)
+MEDIA_ROOT = '/app/media/'
+MEDIA_URL = '/api/media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
