@@ -40,17 +40,6 @@ export default function CameraPage() {
   const streamRef = useRef<MediaStream | null>(null);
 
   const [targetLang, setTargetLang] = useState<string>("en");
-  const [loading, setLoading] = useState(true);
-  const LANGS = [
-    { code: "en", label: "English" },
-    { code: "ko", label: "Korean" },
-    { code: "ja", label: "Japanese" },
-    { code: "zh", label: "Chinese (Simplified)" },
-    { code: "fr", label: "French" },
-    { code: "es", label: "Spanish" },
-    { code: "de", label: "German" },
-    { code: "it", label: "Italian" },
-  ];
 
   useEffect(() => {
     if (camera && pendingStream && videoRef.current) {
@@ -206,6 +195,9 @@ export default function CameraPage() {
       }
       formData.append("target_lang_code", targetLang)
 
+      setUploadDisabled(true);
+      setProcessing(true);
+
       const response = await fetch(
         "http://localhost:8000/api/image-translate/",
         {
@@ -268,7 +260,6 @@ export default function CameraPage() {
         });
         return;
       }
-      setLoading(false);
       return response.json();
     })
     .then(function(json) {
@@ -281,10 +272,6 @@ export default function CameraPage() {
         setTargetLang(found.code)
       }
     });
-  }
-
-  if (loading) {
-    return <div></div>;
   }
 
   return (
@@ -508,7 +495,7 @@ export default function CameraPage() {
                 }}
                 className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
               >
-                {LANGS.map(({ code, label }) => (
+                {languages.map(({ code, label }) => (
                   <option key={code} value={code}>
                     {label}
                   </option>
