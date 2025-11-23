@@ -10,7 +10,7 @@ import React, {
 } from "react";
 
 export type SignupData = {
-  username?: string;
+  name?: string;
   email?: string;
   password?: string;
   targetLan?: string;

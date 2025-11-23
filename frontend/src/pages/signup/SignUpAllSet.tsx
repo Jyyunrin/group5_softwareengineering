@@ -12,6 +12,10 @@ export default function SignUpAllSet() {
     let cancelled = false;
 
     const submitAll = async () => {
+      // let jsonData = JSON.stringify(data);
+      // let filtering = JSON.parse(jsonData)
+      // delete filtering['goals']
+      // jsonData = JSON.stringify(filtering)
       try {
         const res = await fetch(import.meta.env.VITE_SERVER_URL + "/register", {
           method: "POST",
@@ -42,7 +46,7 @@ export default function SignUpAllSet() {
 
   return (
     <SpringMotionLayout
-      titleLines={[`${data.username || "User"},`, "You're", "All Set!"]}
+      titleLines={[`${data.name || "User"},`, "You're", "All Set!"]}
       imageSrc="https://preview.redd.it/what-is-your-opinion-on-pingu-v0-tmg61ucmri3d1.png?auto=webp&s=bd2b54bbba31c4d3d0bb459bced615e594a5c1ff"
     >
       <p>Finishing your account…</p>

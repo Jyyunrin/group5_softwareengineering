@@ -13,11 +13,11 @@ export default function NameStep({ onNext, onPrev }: StepProps) {
 
   React.useEffect(() => {
     try {
-      if (data?.username) setUserName(data.username);
+      if (data?.name) setUserName(data.name);
     } catch (err) {
       console.error("[NameStep] Failed to initialize username:", err);
     }
-  }, [data?.username]);
+  }, [data?.name]);
 
   const validateName = (s: string) => {
     if (!s) return "Please enter your name.";
@@ -36,8 +36,8 @@ export default function NameStep({ onNext, onPrev }: StepProps) {
         alert("Signup system not ready. Please refresh and try again.");
         return;
       }
-
-      await Promise.resolve(update({ username: cleanName.trim() }));
+      let name = cleanName.trim()
+      await Promise.resolve(update({ name: name }));
       onNext?.();
     } catch (err) {
       console.error("[NameStep] Failed to submit name:", err);

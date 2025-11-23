@@ -19,6 +19,9 @@ SECRET_KEY = os.getenv('TOKEN_SECRET', 'secret')
 
 class RegisterView(APIView):
     def post(self, request):
+        # request.data.pop('goals')
+        request.data['default_lang_id'] = (Language.objects.get(lang=request.data["targetLan"])).pk
+
         serializer = AppUserSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()

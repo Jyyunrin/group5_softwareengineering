@@ -30,7 +30,7 @@ import Userinfo from "./pages/user/Userinfo";
 import UserLearningInfo from "./pages/user/Userlearninginfo";
 
 // Sign Up
-import SignUp from "./pages/signup/Signup";
+import SignUp from "./pages/signup/SignUp";
 import { SignupProvider } from "./pages/signup/SignupContext";
 // import SignupLayout from "./pages/signup/SignupLayout";
 // import NameStep from "./pages/signup/NameStep";

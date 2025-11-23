@@ -6,26 +6,39 @@
  * 
  * Paired with ImageFlipCard.tsx
  */
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CardMenu from "./CardMenu";
 import ImageFlipCard from "./ImageFlipCard";
 type Tab = "likes" | "history";
 
 const likesData = [
-  { id: 1, image: "https://picsum.photos/seed/a/600/400", word: "Sunset Dune", lan: "C", details: "Warm dunes at dusk…" },
-  { id: 2, image: "https://picsum.photos/seed/b/600/400", word: "River Stone", lan: "ELIXIR", details: "Smooth river stones…" },
-  { id: 3, image: "https://picsum.photos/seed/c/600/400", word: "Forest Path", lan: "JAVA", details: "Shaded path through pines…" },
-  { id: 4, image: "https://picsum.photos/seed/g/600/400", word: "Golden Field", lan: "JS", details: "Grassy fields under sun…" },
-  { id: 5, image: "https://picsum.photos/seed/h/600/400", word: "Stone Bridge", lan: "RUST", details: "Bridge across small creek…" },
-  { id: 6, image: "https://picsum.photos/seed/i/600/400", word: "Lava Flow", lan: "C++", details: "Molten lava at night…" },
-  { id: 7, image: "https://picsum.photos/seed/j/600/400", word: "Aurora Sky", lan: "SWIFT", details: "Dancing lights above ice…" },
+  { id: 1, image_url: "https://picsum.photos/seed/a/600/400", word_english: "Sunset Dune", language: "C", word_translated: "Warm dunes at dusk…" },
+  { id: 2, image_url: "https://picsum.photos/seed/b/600/400", word_english: "River Stone", language: "ELIXIR", word_translated: "Smooth river stones…" },
+  { id: 3, image_url: "https://picsum.photos/seed/c/600/400", word_english: "Forest Path", language: "JAVA", word_translated: "Shaded path through pines…" },
+  { id: 7, image_url: "https://picsum.photos/seed/g/600/400", word_english: "Golden Field", language: "JS", word_translated: "Grassy fields under sun…" },
+  { id: 8, image_url: "https://picsum.photos/seed/h/600/400", word_english: "Stone Bridge", language: "RUST", word_translated: "Bridge across small creek…" },
+  { id: 9, image_url: "https://picsum.photos/seed/i/600/400", word_english: "Lava Flow", language: "C++", word_translated: "Molten lava at night…" },
+  { id: 10, image_url: "https://picsum.photos/seed/j/600/400", word_english: "Aurora Sky", language: "SWIFT", word_translated: "Dancing lights above ice…" },
+  { id: 1, image_url: "https://picsum.photos/seed/a/600/400", word_english: "Sunset Dune", language: "C", word_translated: "Warm dunes at dusk…" },
+  { id: 2, image_url: "https://picsum.photos/seed/b/600/400", word_english: "River Stone", language: "ELIXIR", word_translated: "Smooth river stones…" },
+  { id: 3, image_url: "https://picsum.photos/seed/c/600/400", word_english: "Forest Path", language: "JAVA", word_translated: "Shaded path through pines…" },
+  { id: 7, image_url: "https://picsum.photos/seed/g/600/400", word_english: "Golden Field", language: "JS", word_translated: "Grassy fields under sun…" },
+  { id: 8, image_url: "https://picsum.photos/seed/h/600/400", word_english: "Stone Bridge", language: "RUST", word_translated: "Bridge across small creek…" },
+  { id: 9, image_url: "https://picsum.photos/seed/i/600/400", word_english: "Lava Flow", language: "C++", word_translated: "Molten lava at night…" },
+  { id: 10, image_url: "https://picsum.photos/seed/j/600/400", word_english: "Aurora Sky", language: "SWIFT", word_translated: "Dancing lights above ice…" },
+  { id: 1, image_url: "https://picsum.photos/seed/a/600/400", word_english: "Sunset Dune", language: "C", word_translated: "Warm dunes at dusk…" },
+  { id: 2, image_url: "https://picsum.photos/seed/b/600/400", word_english: "River Stone", language: "ELIXIR", word_translated: "Smooth river stones…" },
+  { id: 3, image_url: "https://picsum.photos/seed/c/600/400", word_english: "Forest Path", language: "JAVA", word_translated: "Shaded path through pines…" },
+  { id: 7, image_url: "https://picsum.photos/seed/g/600/400", word_english: "Golden Field", language: "JS", word_translated: "Grassy fields under sun…" },
+  { id: 8, image_url: "https://picsum.photos/seed/h/600/400", word_english: "Stone Bridge", language: "RUST", word_translated: "Bridge across small creek…" },
+  { id: 9, image_url: "https://picsum.photos/seed/i/600/400", word_english: "Lava Flow", language: "C++", word_translated: "Molten lava at night…" },
+  { id: 10, image_url: "https://picsum.photos/seed/j/600/400", word_english: "Aurora Sky", language: "SWIFT", word_translated: "Dancing lights above ice…" },
 ];
 
 const historyData = [
-  { id: 8, image: "https://picsum.photos/seed/d/600/400", word: "Neon City", lan: "C#", details: "Night skyline glowing…" },
-  { id: 9, image: "https://picsum.photos/seed/e/600/400", word: "Snow Ridge", lan: "PYTHON", details: "Crisp alpine ridge…" },
-  { id: 10, image: "https://picsum.photos/seed/f/600/400", word: "Sea Cliff", lan: "GO", details: "Cliff over a calm sea…" },
+  { id: 4, image_url: "https://picsum.photos/seed/d/600/400", word_english: "Neon City", language: "C#", word_translated: "Night skyline glowing…" },
+  { id: 5, image_url: "https://picsum.photos/seed/e/600/400", word_english: "Snow Ridge", language: "PYTHON", word_translated: "Crisp alpine ridge…" },
+  { id: 6, image_url: "https://picsum.photos/seed/f/600/400", word_english: "Sea Cliff", language: "GO", word_translated: "Cliff over a calm sea…" },
 ];
 
 type Item = typeof likesData[number];
