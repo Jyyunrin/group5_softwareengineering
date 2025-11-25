@@ -28,10 +28,10 @@ export default function SignUpGoal({ onNext, onPrev }: StepProps) {
 
   const options = [
     { label: "Image Translation", value: "image-translation" },
-    { label: "Travel", value: "travel" },
-    { label: "Work", value: "work" },
-    { label: "Study", value: "study" },
-    { label: "Etc(s)", value: "etc" },
+    { label: "Business travel", value: "Business travel" },
+    { label: "Touristic travel", value: "Touristic travel" },
+    { label: "Study", value: "Study" },
+    { label: "ETC", value: "ETC" },
   ];
 
   const validate = (vals: string[]) => {

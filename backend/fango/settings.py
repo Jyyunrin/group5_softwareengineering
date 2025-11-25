@@ -59,7 +59,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'fango.middleware.RateLimitMiddleware.RateLimitMiddleware',
+    # 'fango.middleware.RateLimitMiddleware.RateLimitMiddleware',
     'fango.middleware.JWTRedisMiddleware.JWTRedisMiddleware',
 ]
 
