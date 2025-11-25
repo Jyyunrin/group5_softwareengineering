@@ -222,7 +222,7 @@ export default function GalleryPage() {
               </button>
               <button
                 className="rounded-lg px-4 py-2 text-sm bg-blue-600 text-white hover:bg-blue-700"
-                onClick={() => window.location.replace(import.meta.env.VITE_REDIRECT_URL + "/user/userhistory/" + selected.id)}
+                onClick={() => window.location.replace(import.meta.env.VITE_REDIRECT_URL + "user/userhistory/" + selected.id)}
               >
                 Go to details
               </button>
