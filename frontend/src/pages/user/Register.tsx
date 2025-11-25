@@ -42,7 +42,7 @@ export default function RegisterPage() {
         }        
         if (upload_response) {
             console.log("Successful register attempt");
-            window.location.replace(import.meta.env.VITE_REDIRECT_URL + "/login")
+            window.location.replace(import.meta.env.VITE_REDIRECT_URL + "login")
         } else {
             console.log("Error Found");
             alert("Register failed")
