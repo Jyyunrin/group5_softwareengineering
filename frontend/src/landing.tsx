@@ -19,15 +19,22 @@ export default function Landing() {
       {showGuide && <QuickGuide />}
 
       <main className="mx-auto w-full max-w-[1080px] px-5 pb-24">
-        {/* <section className="pt-6"> */}
-          {/* 
-          <h1
+        <section className="flex justify-between align-text-bottom pt-10">
+          <div className="text-left">
+            <h1
             className="text-4xl font-extrabold leading-tight tracking-tight"
             data-guide="welcome-title"
-          >
-            Olá,<br />
-            <span>Username!</span>
-          </h1> */}
+            >
+              Olá,<br />
+              <span>Username!</span>
+            </h1>
+          </div>
+
+           <div className="text-right text-sm text-gray-600">
+                <Logout />
+           </div> 
+ 
+          </section>
 
         <section>
           <div className="mt-2 flex items-center justify-between text-sm text-gray-600">
@@ -38,9 +45,7 @@ export default function Landing() {
             >
               Quick Guide <span aria-hidden>→</span>
             </button>
-            <div className="absolute top-4 right-4 z-50">
-              <Logout />
-            </div>  
+  
             <button
               className="inline-flex items-center gap-2"
               data-guide="target-language"
