@@ -211,7 +211,7 @@ export default function CameraPage() {
         throw new Error(`Server responded with status ${response.status}`);
       }
 
-      // const responseData = await response.json();
+      const responseData = await response.json();
       // if (responseData) {
       //   navigate("/translation/result", { state: { data: responseData } });
       // } else {
