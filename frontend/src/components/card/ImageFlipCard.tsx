@@ -4,7 +4,6 @@
  * 
  * Paried with GalleryPage.tsx
  */
-
 import { useState, type KeyboardEvent } from "react";
 
 type Props = {

@@ -2,7 +2,6 @@
  * Layout for navigation buttons.
  * This layout is located at the bottom of the screen. (Mobile friendly)
  */
-
 import { Outlet } from "react-router-dom";
 import BottomRadialNav from "./BottomNav.tsx";
 

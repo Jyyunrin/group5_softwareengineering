@@ -1,7 +1,6 @@
 /**
  * A card component with image, description for the landing page(homepage).
  */
-
 import React from "react";
 
 type CardProps = {

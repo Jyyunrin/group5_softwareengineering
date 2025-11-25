@@ -24,7 +24,6 @@ type TextInputStepProps = {
 
 type SuggestOption = { label: string; value: string };
 
-
 export default function TextInputStep({
     value,
     onChange,
@@ -110,7 +109,6 @@ export default function TextInputStep({
                     ))}
                     </ul>
                 )}
-
 
                 {error && (
                     <p className="text-sm text-red-600" role="alert">

@@ -1,7 +1,6 @@
 /**
  * Logout logic with robust error handling
  */
-
 import React from "react";
 
 export default function Logout({ email }: { email: string }) {

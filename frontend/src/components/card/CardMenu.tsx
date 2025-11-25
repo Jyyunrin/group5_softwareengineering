@@ -1,7 +1,6 @@
 /**
  * Likes / History menu container the landing page(homepage).
  */
-
 type Tab = "likes" | "history";
 
 export default function CardMenu({tab, onChange,}: {tab: Tab; onChange: (t: Tab) => void;}) {

@@ -2,7 +2,6 @@
  * A page with a list of favorite words.
  * This page is not activated. This feature can be added in the future.
  */
-
 import { useEffect, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 

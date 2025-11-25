@@ -2,7 +2,6 @@
  * Reusable layout for input suggestion. 
  * For examole, this page can be used with LanguageSuggest.ts
  */
-
 import React from "react";
 
 export type Suggestion = { label: string; value: string };

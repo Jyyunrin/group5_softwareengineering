@@ -4,7 +4,6 @@
  * For regular inputs, use TextInputStep.tsx
  * Paired with SpringMotionLayout.tsx & JasonPost.tsx
  */
-
 import React from "react";
 import { Eye, EyeOff } from "lucide-react";
 
@@ -96,7 +95,6 @@ export default function PasswordInputStep({
                     </p>
                 )}
 
-
                 <div className="pt-2 flex justify-between items-center">
                     <button
                         type="button"
@@ -106,7 +104,6 @@ export default function PasswordInputStep({
                     >
                     {prevLabel}
                 </button>
-
 
                 <button
                     type="submit"

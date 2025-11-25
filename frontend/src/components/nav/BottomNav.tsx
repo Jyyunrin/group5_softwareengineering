@@ -3,7 +3,6 @@
  * Route controls: main.tsx 
  * data-guide="camera-fab" calls spotlight for quick guide
  */
-
 import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Camera, Home, BookOpen, UploadCloud, User, Settings } from "lucide-react";

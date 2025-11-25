@@ -6,7 +6,6 @@
  * 
  * Paired with ImageFlipCard.tsx
  */
-
 import { useState } from "react";
 import CardMenu from "./CardMenu";
 import ImageFlipCard from "./ImageFlipCard";

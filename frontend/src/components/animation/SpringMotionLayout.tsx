@@ -2,7 +2,6 @@
  * Animated page layout for login / sign up.
  * Paried with TextInputStep.tsx
  */
-
 import { motion } from "framer-motion";
 import React from "react";
 
