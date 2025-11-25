@@ -4,7 +4,6 @@
  * For password, use PasswordInputStep.tsx
  * Paired with SpringMotionLayout.tsx & JasonPost.tsx
  */
-
 import React from "react";
 
 type TextInputStepProps = {
@@ -19,7 +18,12 @@ type TextInputStepProps = {
     onSubmit: (cleanValue: string) => Promise<void> | void; 
     validate?: (v: string) => string | null; 
     allowEmpty?: boolean;
+    suggestions?: SuggestOption[];
+    onSuggestionClick?: (value: string) => void;
 };
+
+type SuggestOption = { label: string; value: string };
+
 
 export default function TextInputStep({
     value,
@@ -33,6 +37,8 @@ export default function TextInputStep({
     onSubmit,
     validate,
     allowEmpty = false,
+    suggestions = [],
+    onSuggestionClick,
     }: TextInputStepProps) {
         const [error, setError] = React.useState<string | null>(null);
         const [busy, setBusy] = React.useState(false);
@@ -61,6 +67,12 @@ export default function TextInputStep({
             setBusy(false);
         }};
 
+        const handleSuggestionClick = (val: string) => {
+            setError(null);
+            onChange(val);
+            onSuggestionClick?.(val);
+        };
+
         return (
             <form onSubmit={handleSubmit} className="w-full space-y-3">
                 <label className="block">
@@ -80,6 +92,25 @@ export default function TextInputStep({
                         required={!allowEmpty}
                     />
                 </label>
+
+                {suggestions.length > 0 && (
+                    <ul
+                    className="mt-1 max-h-40 w-full overflow-y-auto rounded-md border border-gray-200 bg-white text-sm shadow-sm"
+                    role="listbox"
+                    >
+                    {suggestions.map((opt) => (
+                        <li
+                        key={opt.value}
+                        role="option"
+                        className="cursor-pointer px-3 py-2 hover:bg-gray-100"
+                        onClick={() => handleSuggestionClick(opt.value)}
+                        >
+                        {opt.label}
+                        </li>
+                    ))}
+                    </ul>
+                )}
+
 
                 {error && (
                     <p className="text-sm text-red-600" role="alert">

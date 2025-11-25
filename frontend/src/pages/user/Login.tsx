@@ -32,7 +32,7 @@ export default function Login() {
         );
       } catch (err) {
         console.error("Password hashing failed:", err);
-        setErrorMsg("Failed to process password. Try again.");
+        setErrorMsg(`Failed to process password. Try again.`);
         return;
       }
 
@@ -182,7 +182,7 @@ export default function Login() {
               className="w-full rounded-full border border-gray-300 bg-white px-5 py-3 text-center font-medium text-gray-900 shadow hover:bg-gray-50 active:translate-y-[1px]"
               onClick={() => {
                 try {
-                  window.location.replace("http://localhost:3000/register");
+                  window.location.replace("http://localhost:3000/signup");
                 } catch (err) {
                   console.error("Error navigating to register:", err);
                   setErrorMsg("Failed to open registration page.");

@@ -2,6 +2,7 @@
  * This page is a part of sign up.
  */
 import React from "react";
+import { suggestLanguages } from "../../components/utils/LanguageSuggest";
 import SpringMotionLayout from "../../components/animation/SpringMotionLayout";
 import TextInputStep from "../../components/utils/TextInputStep";
 import { useSignup } from "../signup/SignupContext";
@@ -19,13 +20,34 @@ export default function SetUpTargetLan({ onNext, onPrev }: StepProps) {
     }
   }, [data?.targetLan]);
 
+  const suggestions = React.useMemo(
+    () => suggestLanguages(targetLan),
+    [targetLan]
+  );
+
   const validate = (s: string) => {
     const v = (s ?? "").trim();
     if (!v) return "Please choose a target language.";
+
     if (v.length < 2) return "Language must be at least 2 characters.";
     if (v.length > 64) return "Language name looks too long.";
-    return null;
+
+    const suggestions = suggestLanguages(v);
+
+    const exact = suggestions.find(
+      (opt) => opt.label.toLowerCase() === v.toLowerCase()
+    );
+    if (exact) return null;
+
+
+    if (suggestions.length > 0) {
+      const list = suggestions.map((s) => s.label).join(", ");
+      return `I don't recognize "${v}" as a supported language.\nDid you mean: ${list}?`;
+    }
+
+    return `I don't recognize "${v}" as a supported language.\nTry typing the English name, e.g. "Korean" or "Japanese".`;
   };
+
 
   const submitTargetLan = async (cleanTargetLan: string) => {
     try {
@@ -75,6 +97,10 @@ export default function SetUpTargetLan({ onNext, onPrev }: StepProps) {
         validate={validate}
         submitLabel="Next →"
         prevLabel="← Previous"
+        suggestions={suggestions}
+        onSuggestionClick={(val) => {
+          setTargetLan(val);
+        }}
       />
     </SpringMotionLayout>
   );

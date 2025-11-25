@@ -1,14 +1,6 @@
 /**
- * Log-in page 
- * 
- * TODO:
- * Implement user database 
- * Center-aligned items
- * Add mascot image
- * Adjust mascot 
- * Mobile testing
+ * SignUp.tsx replaces this page
  */
-
 import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react"; 
 
