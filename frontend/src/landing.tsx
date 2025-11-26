@@ -52,7 +52,6 @@ export default function Landing() {
               onClick={() => alert("open language picker")}
             >
             
-
             {/* Dynamic data needed */}
               <span>Target Language:</span>
               <span role="img" aria-label="Portuguese flag">🇵🇹</span>
