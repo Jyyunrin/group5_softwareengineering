@@ -17,6 +17,7 @@ from .utils import authenticate_user
 
 SECRET_KEY = os.getenv('TOKEN_SECRET', 'secret')
 
+# creates new AppUser in the database
 class RegisterView(APIView):
     def post(self, request):
         # request.data.pop('goals')
@@ -27,6 +28,8 @@ class RegisterView(APIView):
         serializer.save()
         return Response(serializer.data)
 
+# login user - authenticat, generate JWT token, store session
+# info in redis, send response back to user
 class LoginView(APIView):
     def post(self, request):
         email = request.data['email']
@@ -97,6 +100,7 @@ class LoginView(APIView):
         user.last_login_at = timezone.now()
         user.save(update_fields=["last_login_at"])
 
+# revoke the session info and cookie to logout user
 class LogoutView(APIView):
     def post(self, request):
         token = request.COOKIES.get('jwt')
@@ -124,6 +128,7 @@ class LogoutView(APIView):
         }
         return response
 
+# update users username and country 
 class UpdateUserInfo(APIView):
     def post(self, request):
         token = request.COOKIES.get('jwt')
@@ -158,6 +163,7 @@ class UpdateUserInfo(APIView):
         except Exception as e:
             return False
 
+# returns all user info for the users info page
 class GetUserInfo(APIView):
     def get(self, request):
         token = request.COOKIES.get('jwt')
@@ -184,6 +190,7 @@ class GetUserInfo(APIView):
             default_lang = ""
         return default_lang
         
+# gests  all user history items from the database for that user - can be filtered by language
 class GetUserHistory(APIView):
     # subject to change
     page_size = 6
@@ -248,6 +255,7 @@ class GetUserHistory(APIView):
         }
         return response
     
+# gets a single user history item
 class GetUserHistoryItem(APIView):
     def get(self, request, history_id):
         token = request.COOKIES.get('jwt')
@@ -274,7 +282,7 @@ class GetUserHistoryItem(APIView):
         }
         return Response(data)
 
-    
+# functions for updating and getting user learning info
 class UserLearningInfo(APIView):
     def get(self, request):
         lang_dict = self.get_all_languages()
