@@ -1,12 +1,6 @@
 /**
  * A quiz page that displays a picture with a timer 
- * 
- * 
- * TODO:
- * set up timer function
- * favourite button
- * connect with DB
- * 
+ * This page is not activated. This feature can be added in the future.
  */
 import { useState, useRef } from "react";
 import { Clock, Volume2, Pause } from "lucide-react";

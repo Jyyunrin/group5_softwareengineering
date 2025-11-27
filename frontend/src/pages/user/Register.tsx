@@ -1,14 +1,6 @@
 /**
- * Log-in page 
- * 
- * TODO:
- * Implement user database 
- * Center-aligned items
- * Add mascot image
- * Adjust mascot 
- * Mobile testing
+ * SignUp.tsx replaces this page
  */
-
 import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react"; 
 
@@ -42,7 +34,7 @@ export default function RegisterPage() {
         }        
         if (upload_response) {
             console.log("Successful register attempt");
-            window.location.replace(import.meta.env.VITE_REDIRECT_URL + "/login")
+            window.location.replace(import.meta.env.VITE_REDIRECT_URL + "login")
         } else {
             console.log("Error Found");
             alert("Register failed")

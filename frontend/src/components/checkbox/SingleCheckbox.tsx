@@ -1,32 +1,21 @@
 /**
- * Reusable checkbox component.
- * Only one single choice availalbe.
- * 
- * 
+ * Reusable checkbox component for a single choice.
  */
 import React from "react";
 
 type Option = { label: string; value: string };
 
 type SingleCheckboxStepProps = {
-  /** selected value */
   value: string | null;
-
-  /** called with new selected value */
   onChange: (val: string) => void;
-
-  /** list of options to render */
   options: Option[];
-
-  /** for accessibility */
   inputName: string;
-
   submitLabel?: string;
   prevLabel?: string;
   onPrevious?: () => void;
-  onSubmit: (cleanValue: string) => Promise<void> | void; // caller handles fetch/side effects
+  onSubmit: (cleanValue: string) => Promise<void> | void; 
   validate?: (val: string) => string | null;
-  allowEmpty?: boolean; // default == false
+  allowEmpty?: boolean; 
 };
 
 export default function SingleCheckboxStep({

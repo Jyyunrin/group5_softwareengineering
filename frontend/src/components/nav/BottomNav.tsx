@@ -1,11 +1,8 @@
 /**
- * Bottom navigation page 
- * 
- * TODO:       
- * Research: open camera right away for the main camera button
- * Find make the background transparant other than from-black/n
+ * Bottom navigation page with buttons.
+ * Route controls: main.tsx 
+ * data-guide="camera-fab" calls spotlight for quick guide
  */
-
 import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Camera, Home, BookOpen, UploadCloud, User, Settings } from "lucide-react";
@@ -23,10 +20,9 @@ const items: Item[] = [
 export default function BottomRadialNav() {
   const navigate = useNavigate();
 
-  // Icons' starting & end point
   const start = 180; 
   const end = 0; 
-  const radius = 90; // px from center
+  const radius = 90; 
 
   return (
     <div
@@ -34,7 +30,7 @@ export default function BottomRadialNav() {
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       aria-hidden={false}
     >
-      <div className="relative mx-auto h-[200px] w-[360px]">
+      <div className="relative mx-auto h-[200px] w-[360px]" data-guide="camera-fab">
         <div className="absolute left-1/2 top-[60%] h-[260px] w-[260px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-b from-black/35 via-black/10 to-transparent blur-2xl" />
 
         {/* Items */}
@@ -67,7 +63,7 @@ export default function BottomRadialNav() {
           );
         })}
 
-        {/* Center Action ( open camera right away ) */}
+        {/* Center Action ( Open camera right away ) */}
         <button
           type="button"
           onClick={() => navigate("/translation/camera")}

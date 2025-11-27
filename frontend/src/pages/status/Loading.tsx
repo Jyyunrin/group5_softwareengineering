@@ -1,18 +1,14 @@
-import { useEffect, useState } from "react";
-
 /**
  * A page with animated dots and loading message.
  * Same layout as translation/processing
- * 
- * TODO:
- * Add a mascot
  */
+import { useEffect, useState } from "react";
 export default function Loading() {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setShow(true); // fade in after 50ms
+      setShow(true); 
     }, 50);
 
     return () => clearTimeout(timer);

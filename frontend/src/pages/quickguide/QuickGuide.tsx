@@ -1,15 +1,359 @@
-export default function CannotFindPage() {
+/**
+ * QuickGuide – interactive onboarding spotlight tour
+ * Added robust error handling for DOM queries, rendering, and events.
+ */
+import React, { useEffect, useLayoutEffect, useMemo, useState, useId } from "react";
+import { createPortal } from "react-dom";
+import { useSearchParams } from "react-router-dom";
+
+type Placement = "top" | "bottom" | "left" | "right";
+
+type Step = {
+  id: string;
+  selector: string;
+  title: string;
+  body?: string;
+  placement?: Placement;
+  offset?: { x?: number; y?: number };
+  radius?: number;
+};
+
+const GAP = 16;
+const DEFAULT_RECT = new DOMRect(24, 120, 280, 90);
+
+function useElementRect(selector: string, deps: React.DependencyList = []) {
+  const [rect, setRect] = useState<DOMRect | null>(null);
+
+  useLayoutEffect(() => {
+    try {
+      if (typeof window === "undefined" || typeof document === "undefined") return;
+
+      const el = document.querySelector<HTMLElement>(selector);
+      if (!el) {
+        console.warn(`[QuickGuide] Element not found for selector: ${selector}`);
+        setRect(null);
+        return;
+      }
+
+      let frame = 0;
+      const measure = () => {
+        try {
+          cancelAnimationFrame(frame);
+          frame = requestAnimationFrame(() => setRect(el.getBoundingClientRect()));
+        } catch (err) {
+          console.error("[QuickGuide] Failed to measure element:", err);
+        }
+      };
+
+      el.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+      measure();
+
+      const ro = new ResizeObserver(() => measure());
+      ro.observe(el);
+
+      const onScroll = () => measure();
+      const onResize = () => measure();
+
+      window.addEventListener("scroll", onScroll, { capture: true, passive: true });
+      window.addEventListener("resize", onResize, { passive: true });
+
+      return () => {
+        cancelAnimationFrame(frame);
+        ro.disconnect();
+        window.removeEventListener("scroll", onScroll, true);
+        window.removeEventListener("resize", onResize);
+      };
+    } catch (err) {
+      console.error("[QuickGuide] useElementRect error:", err);
+      setRect(null);
+    }
+  }, [selector, ...deps]);
+
+  return rect;
+}
+
+function SpotlightOverlay({
+  rect,
+  radius = 20,
+  children,
+}: {
+  rect: DOMRect | null;
+  radius?: number;
+  children?: React.ReactNode;
+}) {
+  const maskSuffix = useId().replace(/:/g, "");
+  const maskId = `quick-guide-mask-${maskSuffix}`;
+  const r = rect ?? DEFAULT_RECT;
+
+  try {
+    return createPortal(
+      <div className="fixed inset-0 z-[1000] pointer-events-auto" aria-hidden="true">
+        <svg className="absolute inset-0 w-full h-full">
+          <defs>
+            <mask id={maskId}>
+              <rect x="0" y="0" width="100%" height="100%" fill="white" />
+              <rect
+                x={r.x}
+                y={r.y}
+                rx={radius}
+                ry={radius}
+                width={r.width}
+                height={r.height}
+                fill="black"
+              />
+            </mask>
+          </defs>
+
+          <rect
+            x="0"
+            y="0"
+            width="100%"
+            height="100%"
+            fill="rgba(0,0,0,0.65)"
+            mask={`url(#${maskId})`}
+          />
+
+          <rect
+            x={r.x - 4}
+            y={r.y - 4}
+            width={r.width + 8}
+            height={r.height + 8}
+            rx={(radius ?? 20) + 6}
+            ry={(radius ?? 20) + 6}
+            fill="none"
+            stroke="white"
+            strokeOpacity="0.9"
+            strokeWidth="2"
+          />
+        </svg>
+
+        {children}
+      </div>,
+      document.body
+    );
+  } catch (err) {
+    console.error("[QuickGuide] SpotlightOverlay render error:", err);
+    return null;
+  }
+}
+
+function Callout({
+  rect,
+  title,
+  body,
+  placement = "bottom",
+  offset,
+}: {
+  rect: DOMRect | null;
+  title: string;
+  body?: string;
+  placement?: Placement;
+  offset?: { x?: number; y?: number };
+}) {
+  const r = rect ?? DEFAULT_RECT;
+
+  let top = r.y;
+  let left = r.x;
+
+  if (placement === "bottom") top = r.y + r.height + GAP;
+  if (placement === "top") top = r.y - GAP;
+  if (placement === "left") left = r.x - GAP;
+  if (placement === "right") left = r.x + r.width + GAP;
+
+  top = Math.max(16, top + (offset?.y ?? 0));
+  left = Math.max(16, left + (offset?.x ?? 0));
+
+  try {
+    return createPortal(
+      <div
+        className="fixed z-[1010] max-w-[min(90vw,460px)]"
+        style={{ top, left }}
+        role="dialog"
+        aria-live="polite"
+      >
+        <div className="rounded-2xl bg-white shadow-2xl p-5">
+          <div className="text-2xl font-extrabold tracking-tight mb-2">{title}</div>
+          {body && <div className="text-gray-600">{body}</div>}
+        </div>
+      </div>,
+      document.body
+    );
+  } catch (err) {
+    console.error("[QuickGuide] Callout render error:", err);
+    return null;
+  }
+}
+
+export default function QuickGuide() {
+  const [params, setParams] = useSearchParams();
+
+  const steps: Step[] = useMemo(
+    () => [
+      {
+        id: "welcome",
+        selector: "[data-guide='welcome-title']",
+        title: "Welcome to FANGO 👋",
+        body: "This is your home base. We’ll show you the fastest way to start learning and track progress.",
+        placement: "bottom",
+        radius: 14,
+        offset: { y: 8 },
+      },
+      {
+        id: "daily-quiz",
+        selector: "[data-guide='daily-quiz-card']",
+        title: "Tap here to take Daily Quiz",
+        body: "Short, focused practice. Earn streaks and build your stack.",
+        placement: "bottom",
+        radius: 24,
+      },
+      {
+        id: "likes-history",
+        selector: "[data-guide='likes-history']",
+        title: "Your Likes & Search History",
+        body: "Revisit saved words and images for quick review.",
+        placement: "top",
+        radius: 20,
+      },
+      {
+        id: "camera-fab",
+        selector: "[data-guide='camera-fab']",
+        title: "Camera Translate",
+        body: "Point the camera at text to translate instantly.",
+        placement: "top",
+        radius: 20,
+        offset: { y: -10 },
+      },
+    ],
+    []
+  );
+
+  const [index, setIndex] = useState(() => {
+    const start = Number(params.get("guideStep"));
+    return isNaN(start) ? 0 : Math.min(Math.max(start, 0), steps.length - 1);
+  });
+
+  const step = steps[index];
+  const rect = useElementRect(step.selector, [index]);
+  const finish = () => {
+    try {
+      setParams({});
+    } catch (err) {
+      console.error("[QuickGuide] Failed to finish:", err);
+    }
+  };
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      try {
+        if (e.key === "Escape") finish();
+        else if (e.key === "ArrowRight")
+          setIndex((i) => Math.min(i + 1, steps.length - 1));
+        else if (e.key === "ArrowLeft")
+          setIndex((i) => Math.max(i - 1, 0));
+      } catch (err) {
+        console.error("[QuickGuide] Keyboard handler error:", err);
+      }
+    };
+    window.addEventListener("keydown", onKey, { passive: true });
+    return () => window.removeEventListener("keydown", onKey);
+  }, [steps.length]);
+
   return (
-    <div className="min-h-screen mx-auto w-full max-w-[1080px] grid place-items-center bg-white">
-      <div className="text-center">
-        <img
-            src="data:image/jpeg;base64,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"
-            alt=""
-            className=""
+    <>
+      <SpotlightOverlay rect={rect} radius={step.radius ?? 20}>
+        <button
+          className="absolute inset-0 w-full h-full cursor-default"
+          aria-label="Background"
+          onClick={() => {
+            try {
+              setIndex((i) => Math.min(i + 1, steps.length - 1));
+            } catch (err) {
+              console.error("[QuickGuide] Button click error:", err);
+            }
+          }}
+          style={{ background: "transparent", border: "none" }}
         />
-        <h1 className="text-5xl font-extrabold tracking-tight">404</h1>
-        <p className="mt-2 text-sm text-gray-400"> This page is not for you, kiddo...</p>
-      </div>
-    </div>
+      </SpotlightOverlay>
+
+      <Callout
+        rect={rect}
+        title={step.title}
+        body={step.body}
+        placement={step.placement}
+        offset={step.offset}
+      />
+
+      {createPortal(
+        <div className="fixed z-[1020] inset-x-0 bottom-6 flex items-center justify-center">
+          <div className="flex items-center gap-3 rounded-full bg-white shadow-xl px-3 py-2">
+            <button
+              className="px-3 py-1.5 rounded-full text-sm font-medium hover:bg-gray-100 disabled:opacity-40"
+              onClick={() => {
+                try {
+                  setIndex((i) => Math.max(i - 1, 0));
+                } catch (err) {
+                  console.error("[QuickGuide] Back button error:", err);
+                }
+              }}
+              disabled={index === 0}
+            >
+              Back
+            </button>
+
+            <div className="flex items-center gap-1.5" aria-hidden="true">
+              {steps.map((_, i) => (
+                <span
+                  key={_.id}
+                  className={`h-2 w-2 rounded-full ${i === index ? "bg-gray-900" : "bg-gray-300"}`}
+                />
+              ))}
+            </div>
+
+            {index < steps.length - 1 ? (
+              <>
+                <button
+                  className="px-3 py-1.5 rounded-full text-sm font-medium hover:bg-gray-100"
+                  onClick={() => {
+                    try {
+                      finish();
+                    } catch (err) {
+                      console.error("[QuickGuide] Skip button error:", err);
+                    }
+                  }}
+                >
+                  Skip
+                </button>
+                <button
+                  className="px-4 py-1.5 rounded-full text-sm font-semibold text-white bg-gray-900 hover:opacity-90"
+                  onClick={() => {
+                    try {
+                      setIndex((i) => Math.min(i + 1, steps.length - 1));
+                    } catch (err) {
+                      console.error("[QuickGuide] Next button error:", err);
+                    }
+                  }}
+                >
+                  Next
+                </button>
+              </>
+            ) : (
+              <button
+                className="px-4 py-1.5 rounded-full text-sm font-semibold text-white bg-gray-900 hover:opacity-90"
+                onClick={() => {
+                  try {
+                    finish();
+                  } catch (err) {
+                    console.error("[QuickGuide] Done button error:", err);
+                  }
+                }}
+              >
+                Done
+              </button>
+            )}
+          </div>
+        </div>,
+        document.body
+      )}
+    </>
   );
 }

@@ -1,7 +1,6 @@
 /**
  * Animated page layout for login / sign up.
  * Paried with TextInputStep.tsx
- * 
  */
 import { motion } from "framer-motion";
 import React from "react";
@@ -23,7 +22,6 @@ export default function SpringMotionLayout({ titleLines, imageSrc, children }: S
                 />
             )}
 
-
             {/* Animated Text */}
             <motion.h1
                 initial={{ y: 0, scale: 1, opacity: 1 }}
@@ -38,7 +36,6 @@ export default function SpringMotionLayout({ titleLines, imageSrc, children }: S
                 ))}
             </motion.h1>
 
-
             {/* Content Area */}
             <motion.div
                 initial={{ opacity: 0, y: 14 }}
@@ -48,7 +45,6 @@ export default function SpringMotionLayout({ titleLines, imageSrc, children }: S
                 >
 
                 {children}
-
             </motion.div>
         </div>
     );

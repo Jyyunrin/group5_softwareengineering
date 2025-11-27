@@ -1,63 +1,105 @@
 /**
- * The very first page that user will see
- * 
- * TODO:
- * Implement user database 
- * Find a proper mascot image
- * Adjust input form a bit higher
+ * The very first page that user visit the webste.
  */
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 
 export default function Login() {
-      const [id, setId] = useState("");
-      const [pw, setPw] = useState("");
-      const [showPw, setShowPw] = useState(false);
-    
-      // to backend team: please replace with auth call
-      const attemptLogin = async (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault()
-        // hash created previously created upon sign up
-    
-        let formData = {
-            "email": event.currentTarget.email.value,
-            "password": event.currentTarget.password.value,
-        }
-        const jsonData = JSON.stringify(formData)
-    
-        // TODO: CHANGE THIS URL
-        const data = await fetch(import.meta.env.VITE_SERVER_URL + "/login", {
-            method: "post",
+  const [id, setId] = useState("");
+  const [pw, setPw] = useState("");
+  const [showPw, setShowPw] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const attemptLogin = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setErrorMsg(null);
+
+    try {
+      const email = event.currentTarget.email?.value;
+      const password = event.currentTarget.password?.value;
+
+      if (!email || !password) {
+        setErrorMsg("Email and password are required.");
+        return;
+      }
+
+      // let hashedPassword = "";
+      // try {
+      //   hashedPassword = bcrypt.hashSync(
+      //     password,
+      //     "$2a$10$CwTycUXWue0Thq9StjUM0u"
+      //   );
+      // } catch (err) {
+      //   console.error("Password hashing failed:", err);
+      //   setErrorMsg(`Failed to process password. Try again.`);
+      //   return;
+      // }
+
+      let jsonData = "";
+      try {
+        jsonData = JSON.stringify({
+          email,
+          password: password,
+        });
+      } catch (err) {
+        console.error("JSON stringify failed:", err);
+        setErrorMsg("Failed to process login data.");
+        return;
+      }
+
+      let response: Response;
+      try {
+        response = await fetch(
+          import.meta.env.VITE_SERVER_URL + "/login",
+          {
+            method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: 'include',
             body: jsonData,
-        });
-    
-        const upload_response = await data.json();
-        if (data.status == 429) {
-          alert(`${upload_response.detail}. Retry after ${upload_response.retry_after} seconds.`);
-          return;
-        }
-        if (upload_response['success'] == true) {
-            // localStorage.setItem("jwt", upload_response["jwt"]);
-            console.log("Successful login attempt");
-            window.location.replace(import.meta.env.VITE_REDIRECT_URL)
-        } else {
-            console.log("Error Found");
-            alert("Login failed");
-        }
+          }
+        );
+      } catch (err) {
+        console.error("Network error:", err);
+        setErrorMsg("Unable to reach server. Check your network.");
+        return;
       }
-      
+
+      let upload_response: any;
+      try {
+        upload_response = await response.json();
+      } catch (err) {
+        console.error("Error parsing server response:", err);
+        setErrorMsg("Invalid response from server.");
+        return;
+      }
+
+      if (upload_response?.success === true) {
+        try {
+          window.location.replace(import.meta.env.VITE_REDIRECT_URL);
+        } catch (err) {
+          console.error("Navigation error:", err);
+          setErrorMsg("Login succeeded, but redirect failed.");
+        }
+      } else {
+        console.error("Login failed:", upload_response);
+        setErrorMsg("Invalid email or password.");
+      }
+    } catch (err) {
+      console.error("Unexpected login error:", err);
+      setErrorMsg("Unexpected error occurred. Please try again.");
+    }
+  };
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-white">
       <img
-        src="https://preview.redd.it/what-is-your-opinion-on-pingu-v0-tmg61ucmri3d1.png?auto=webp&s=bd2b54bbba31c4d3d0bb459bced615e594a5c1ff" 
+        src="https://preview.redd.it/what-is-your-opinion-on-pingu-v0-tmg61ucmri3d1.png?auto=webp&s=bd2b54bbba31c4d3d0bb459bced615e594a5c1ff"
         alt=""
         className="pointer-events-none select-none absolute -bottom-8 -left-8 w-[65vw] max-w-sm object-cover opacity-90"
       />
 
-      {/* LOGO — starts centered, springs to top */}
+      {/* LOGO */}
       <motion.h1
         initial={{ y: 0, scale: 1, opacity: 1 }}
         animate={{ y: "-32vh", scale: 0.88, opacity: 1 }}
@@ -67,14 +109,20 @@ export default function Login() {
         FANGO
       </motion.h1>
 
-      {/* Buttons — fade/slide in after the logo moves */}
+      {/* Form */}
       <motion.div
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.55, duration: 0.45, ease: "easeOut" }}
         className="absolute left-1/2 top-1/2 -translate-x-1/2 flex w-64 flex-col items-center gap-4"
       >
-        {/* Form */}
+        {/* ERROR MESSAGE */}
+        {errorMsg && (
+          <div className="w-full rounded-md bg-red-50 px-3 py-2 text-center text-sm text-red-700 ring-1 ring-red-200">
+            {errorMsg}
+          </div>
+        )}
+
         <form onSubmit={attemptLogin} className="space-y-4">
           {/* ID */}
           <label className="block">
@@ -90,7 +138,7 @@ export default function Login() {
             />
           </label>
 
-          {/* Password with show/hide */}
+          {/* Password */}
           <label className="block relative">
             <span className="sr-only">Password</span>
             <input
@@ -103,9 +151,16 @@ export default function Login() {
               name="password"
               required
             />
+
             <button
               type="button"
-              onClick={() => setShowPw((v) => !v)}
+              onClick={() => {
+                try {
+                  setShowPw((v) => !v);
+                } catch (err) {
+                  console.error("Error toggling password visibility:", err);
+                }
+              }}
               className="absolute inset-y-0 right-3 my-auto inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100"
               aria-label={showPw ? "Hide password" : "Show password"}
             >
@@ -113,7 +168,7 @@ export default function Login() {
             </button>
           </label>
 
-          {/* Sign In & Sign Up Buttons*/}
+          {/* Sign In & Sign Up */}
           <div className="mt-4 items-center">
             <button
               type="submit"
@@ -125,7 +180,14 @@ export default function Login() {
             <button
               type="button"
               className="w-full rounded-full border border-gray-300 bg-white px-5 py-3 text-center font-medium text-gray-900 shadow hover:bg-gray-50 active:translate-y-[1px]"
-              onClick={() => window.location.replace("http://localhost:3000/register")} 
+              onClick={() => {
+                try {
+                  window.location.replace(import.meta.env.VITE_REDIRECT_URL + "signup")
+                } catch (err) {
+                  console.error("Error navigating to register:", err);
+                  setErrorMsg("Failed to open registration page.");
+                }
+              }}
             >
               Sign Up
             </button>

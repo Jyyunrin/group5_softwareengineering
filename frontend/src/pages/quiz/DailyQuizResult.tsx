@@ -1,14 +1,11 @@
 /**
  * The quiz result page that displays scores and suggests to practice or save
+ * This page is not activated. This feature can be added in the future.
  * 
- * TODO:
- * connect with DB
- * stub actions
  */
 import { useMemo } from "react";
 import { ArrowRight, Star, Settings, BookmarkPlus } from "lucide-react";
 import { addFavourite } from "./FavWords";
-
 
 export default function DailyQuizResult() {
   // hardcoded

@@ -2,13 +2,6 @@
  * Camera rendering page.
  * Users are able to take a picture with their basic device camera feature or
  * Users are able to pull up their gallery
- * 
- * 
- * TODO:
- * Connect with database
- * Test with backend
- * Find the best file image size
- * Fetch openAI 
  */
 import { useState, useRef, useEffect } from "react";
 import type { ChangeEvent, FormEvent } from "react";
@@ -46,27 +39,39 @@ export default function CameraPage() {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
-  const [targetLang, setTargetLang] = useState<string>("fr"); 
-  
-  const [loading, setLoading] = useState(true);
+  const [targetLang, setTargetLang] = useState<string>("en");
 
-  // Attach stream to video when ready
   useEffect(() => {
     if (camera && pendingStream && videoRef.current) {
-      videoRef.current.srcObject = pendingStream;
-      streamRef.current = pendingStream;
-      videoRef.current.onloadedmetadata = () => {
-        videoRef.current?.play();
+      try {
+        videoRef.current.srcObject = pendingStream;
+        streamRef.current = pendingStream;
+        videoRef.current.onloadedmetadata = () => {
+          try {
+            videoRef.current?.play();
+          } catch (err) {
+            console.error("Error playing camera stream", err);
+            setErrorMsg("Failed to start camera preview.");
+          } finally {
+            setStarting(false);
+          }
+        };
+      } catch (err) {
+        console.error("Error attaching camera stream", err);
+        setErrorMsg("Failed to attach camera stream.");
         setStarting(false);
-      };
+      }
     }
   }, [camera, pendingStream]);
 
-  // Cleanup on unmount
   useEffect(() => {
     request_info()
     return () => {
-      streamRef.current?.getTracks().forEach((t) => t.stop());
+      try {
+        streamRef.current?.getTracks().forEach((t) => t.stop());
+      } catch (err) {
+        console.error("Error cleaning up camera stream", err);
+      }
     };
   }, []);
 
@@ -74,89 +79,144 @@ export default function CameraPage() {
     setErrorMsg(null);
     setStarting(true);
     try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error("Camera API not supported in this browser.");
+      }
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
       setPendingStream(stream);
       setCamera(true);
     } catch (error) {
       console.error("Error accessing camera", error);
-      setErrorMsg("Unable to access camera. Please allow camera permission.");
+      setErrorMsg(
+        "Unable to access camera. Please allow camera permission or check your device."
+      );
       setStarting(false);
       setCamera(false);
     }
   };
 
   const stopCamera = () => {
-    streamRef.current?.getTracks().forEach((track) => track.stop());
-    setCamera(false);
-    setPendingStream(null);
-    setStarting(false);
+    try {
+      streamRef.current?.getTracks().forEach((track) => track.stop());
+    } catch (err) {
+      console.error("Error stopping camera", err);
+    } finally {
+      setCamera(false);
+      setPendingStream(null);
+      setStarting(false);
+    }
   };
 
   const takePhoto = () => {
-    if (!videoRef.current) return;
-    const video = videoRef.current;
+    try {
+      if (!videoRef.current) return;
+      const video = videoRef.current;
 
-    const canvas = document.createElement("canvas");
-    canvas.width = video.videoWidth || 1280;
-    canvas.height = video.videoHeight || 720;
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth || 1280;
+      canvas.height = video.videoHeight || 720;
 
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        throw new Error("2D canvas context not available.");
+      }
 
-    ctx.drawImage(video, 0, 0);
-    canvas.toBlob((blob) => {
-      if (!blob) return;
-      const file = new File([blob], "captured_image.png", { type: "image/png" });
-      const preview = URL.createObjectURL(blob);
-      setPicture({ picturePreview: preview, pictureAsFile: file });
-      stopCamera();
-    }, "image/png");
+      ctx.drawImage(video, 0, 0);
+      canvas.toBlob(
+        (blob) => {
+          try {
+            if (!blob) {
+              throw new Error("Failed to create image blob.");
+            }
+            const file = new File([blob], "captured_image.png", {
+              type: "image/png",
+            });
+            const preview = URL.createObjectURL(blob);
+            setPicture({ picturePreview: preview, pictureAsFile: file });
+            stopCamera();
+          } catch (err) {
+            console.error("Error handling captured photo", err);
+            setErrorMsg("Failed to capture photo. Please try again.");
+          }
+        },
+        "image/png"
+      );
+    } catch (err) {
+      console.error("Error capturing photo", err);
+      setErrorMsg("Failed to capture photo. Please try again.");
+    }
   };
 
   const uploadPicture = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setPicture({
-        picturePreview: URL.createObjectURL(e.target.files[0]),
-        pictureAsFile: e.target.files[0],
-      });
+    try {
+      if (e.target.files && e.target.files[0]) {
+        const file = e.target.files[0];
+        const preview = URL.createObjectURL(file);
+        setPicture({
+          picturePreview: preview,
+          pictureAsFile: file,
+        });
+        setErrorMsg(null);
+      }
+    } catch (err) {
+      console.error("Error loading image file", err);
+      setErrorMsg("Failed to load image. Please try another file.");
     }
   };
 
   const clearImage = () => {
-    setPicture(null);
-    if (inputRef.current) inputRef.current.value = "";
-    console.log("Clear image")
+    try {
+      if (picture?.picturePreview) {
+        URL.revokeObjectURL(picture.picturePreview);
+      }
+      setPicture(null);
+      if (inputRef.current) inputRef.current.value = "";
+      console.log("Clear image");
+    } catch (err) {
+      console.error("Error clearing image", err);
+      setErrorMsg("Failed to clear image.");
+    }
   };
 
   const handleUpload = async (e: FormEvent<HTMLFormElement>) => {
     console.log("Clicked!")
     e.preventDefault();
-    if (!picture) return;
-
-    const formData = new FormData();
-    formData.append("file", picture.pictureAsFile);
-    const selectedLabel = languages.find(lang => lang.code === targetLang)?.label;
-    if (selectedLabel) {
-      formData.append("target_lang", selectedLabel);
+    if (!picture) {
+      setErrorMsg("Please select or capture an image first.");
+      return;
     }
-    formData.append("target_lang_code", targetLang)
-
-    setUploadDisabled(true);
-    setProcessing(true);
 
     try {
-      const response = await fetch("http://localhost:8000/api/image-translate/", {
-        method: "POST",
-        body: formData,
-        credentials: 'include'
-      });
-
-      if (response.status == 429) {
-        const responseData = await response.json();
-        setProcessing(false);
-        alert(`${responseData.detail}. Retry after ${responseData.retry_after} seconds.`);
-        return;
+      const formData = new FormData();
+      formData.append("file", picture.pictureAsFile);
+      const selectedLabel = languages.find(lang => lang.code === targetLang)?.label;
+      if (selectedLabel) {
+        formData.append("target_lang", selectedLabel);
       }
+      formData.append("target_lang_code", targetLang)
+
+      setUploadDisabled(true);
+      setProcessing(true);
+
+      const response = await fetch(
+        "http://localhost:8000/api/image-translate/",
+        {
+          method: "POST",
+          body: formData,
+          credentials: "include"
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Server responded with status ${response.status}`);
+      }
+
+      const responseData = await response.json();
+      // if (responseData) {
+      //   navigate("/translation/result", { state: { data: responseData } });
+      // } else {
+      //   throw new Error("Empty response from server");
+      // }
 
       if(!response.ok) {
         const errorData = await response.json()
@@ -166,7 +226,7 @@ export default function CameraPage() {
         return;
       }
 
-      const responseData = await response.json();
+      // const responseData = await response.json();
 
       const historyId = responseData.user_history_id;
 
@@ -200,27 +260,18 @@ export default function CameraPage() {
         });
         return;
       }
-      setLoading(false);
       return response.json();
     })
     .then(function(json) {
-      // use the json
       let found = languages.find(({ code, label }) => 
         {
           return label == json.default_language
         }
       )
-      // console.log(languages)
-      // console.log(found)
-      // console.log(json.default_language)
       if (found !== undefined){
         setTargetLang(found.code)
       }
     });
-  }
-
-  if (loading) {
-    return <div></div>;
   }
 
   return (
@@ -232,8 +283,12 @@ export default function CameraPage() {
             <Camera size={18} />
           </div>
           <div>
-            <h1 className="text-xl font-semibold text-gray-900">Camera & Image Translate</h1>
-            <p className="text-sm text-gray-500">Snap a photo or upload from your library.</p>
+            <h1 className="text-xl font-semibold text-gray-900">
+              Camera & Image Translate
+            </h1>
+            <p className="text-sm text-gray-500">
+              Snap a photo or upload from your library.
+            </p>
           </div>
         </div>
 
@@ -259,7 +314,11 @@ export default function CameraPage() {
                   viewBox="0 0 100 100"
                   preserveAspectRatio="none"
                 >
-                  <path d="M33.33 0v100M66.66 0v100M0 33.33h100M0 66.66h100" stroke="white" strokeWidth="0.5" />
+                  <path
+                    d="M33.33 0v100M66.66 0v100M0 33.33h100M0 66.66h100"
+                    stroke="white"
+                    strokeWidth="0.5"
+                  />
                 </svg>
 
                 {/* Bottom controls */}
@@ -310,14 +369,23 @@ export default function CameraPage() {
                   Drag & drop an image here, or
                   <button
                     type="button"
-                    onClick={() => inputRef.current?.click()}
+                    onClick={() => {
+                      try {
+                        inputRef.current?.click();
+                      } catch (err) {
+                        console.error("Error opening file picker", err);
+                        setErrorMsg("Failed to open file picker.");
+                      }
+                    }}
                     className="ml-1 font-medium text-indigo-600 underline-offset-2 hover:underline"
                   >
                     browse your files
                   </button>
                   .
                 </p>
-                <p className="mt-1 text-xs text-gray-500">PNG, JPG up to ~10MB</p>
+                <p className="mt-1 text-xs text-gray-500">
+                  PNG, JPG up to ~10MB
+                </p>
               </div>
             )}
 
@@ -335,7 +403,14 @@ export default function CameraPage() {
               {!camera && !picture && (
                 <>
                   <button
-                    onClick={() => inputRef.current?.click()}
+                    onClick={() => {
+                      try {
+                        inputRef.current?.click();
+                      } catch (err) {
+                        console.error("Error opening file picker", err);
+                        setErrorMsg("Failed to open file picker.");
+                      }
+                    }}
                     type="button"
                     className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-gray-900 shadow ring-1 ring-gray-200 hover:bg-gray-50"
                   >
@@ -372,7 +447,14 @@ export default function CameraPage() {
                     Retake
                   </button>
                   <button
-                    onClick={() => inputRef.current?.click()}
+                    onClick={() => {
+                      try {
+                        inputRef.current?.click();
+                      } catch (err) {
+                        console.error("Error opening file picker", err);
+                        setErrorMsg("Failed to open file picker.");
+                      }
+                    }}
                     type="button"
                     className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-gray-900 shadow ring-1 ring-gray-200 hover:bg-gray-50"
                   >
@@ -393,21 +475,35 @@ export default function CameraPage() {
 
             {/* Choose a language translate to */}
             <div className="grid gap-2">
-                <label htmlFor="targetLang" className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                  <Languages size={16} />
-                  Translate to
-                </label>
-                <select
-                  id="targetLang"
-                  value={targetLang}
-                  onChange={(e) => setTargetLang(e.target.value)}
-                  className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                >
-                  {languages.map(({ code, label }) => (
-                    <option key={code} value={code}>{label}</option>
-                  ))}
-                </select>
-                <p className="text-xs text-gray-500">Choose the output language for the translation.</p>
+              <label
+                htmlFor="targetLang"
+                className="text-sm font-medium text-gray-700 flex items-center gap-2"
+              >
+                <Languages size={16} />
+                Translate to
+              </label>
+              <select
+                id="targetLang"
+                value={targetLang}
+                onChange={(e) => {
+                  try {
+                    setTargetLang(e.target.value);
+                  } catch (err) {
+                    console.error("Error setting target language", err);
+                    setErrorMsg("Failed to change target language.");
+                  }
+                }}
+                className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                {languages.map(({ code, label }) => (
+                  <option key={code} value={code}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-500">
+                Choose the output language for the translation.
+              </p>
             </div>
 
             {/* Error message */}
