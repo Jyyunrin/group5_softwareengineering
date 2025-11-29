@@ -6,6 +6,7 @@ import SpringMotionLayout from "../../components/animation/SpringMotionLayout";
 import MultiCheckbox from "../../components/checkbox/MultiCheckbox";
 import { useSignup } from "../signup/SignupContext";
 import type { StepProps } from "./Types";
+import { options } from "../../components/goals/options"
 
 export default function SignUpGoal({ onNext, onPrev }: StepProps) {
   const { update, data } = useSignup();
@@ -26,13 +27,6 @@ export default function SignUpGoal({ onNext, onPrev }: StepProps) {
     }
   }, [data?.goals]);
 
-  const options = [
-    { label: "Image Translation", value: "image-translation" },
-    { label: "Travel", value: "travel" },
-    { label: "Work", value: "work" },
-    { label: "Study", value: "study" },
-    { label: "Etc(s)", value: "etc" },
-  ];
 
   const validate = (vals: string[]) => {
     try {

@@ -30,9 +30,7 @@ export default function SpringMotionLayout({ titleLines, imageSrc, children }: S
                 className="absolute left-1/2 top-1/2 -translate-x-1/2 text-6xl font-extrabold tracking-tight text-gray-900"
                 >
                 {titleLines.map((line, idx) => (
-                
                     <span key={idx} className="block">{line}</span>
-                
                 ))}
             </motion.h1>
 
@@ -43,7 +41,6 @@ export default function SpringMotionLayout({ titleLines, imageSrc, children }: S
                 transition={{ delay: 0.55, duration: 0.45, ease: "easeOut" }}
                 className="absolute left-1/2 top-1/2 -translate-x-1/2 flex w-72 sm:w-80 flex-col items-center gap-4"
                 >
-
                 {children}
             </motion.div>
         </div>

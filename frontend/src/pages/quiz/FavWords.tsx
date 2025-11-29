@@ -47,8 +47,8 @@ export default function FavouriteWords() {
   const [items, setItems] = useState<FavWord[]>([]);
 
   useEffect(() => {
-    // seed demo if empty 
     const existing = loadFavourites();
+    // Fallback
     if (existing.length === 0) {
       const seed: FavWord[] = [
         { id: "port:caneta__eng:pen", srcLang: "Port", srcText: "Caneta", tgtLang: "Eng", tgtText: "Pen", addedAt: Date.now() - 5000 },

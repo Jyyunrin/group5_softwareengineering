@@ -1,100 +1,133 @@
 /**
- * User learning info page that pull up user's learning goals, such as target language, difficulty..
- * 
- * TODO:
- * Connect with DB
- * Add + button for 3rd or 4th languages
- * 
+ * Page for showing and updating user's learning preferences
  */
-import Loading from '../../pages/status/Loading';
+import Loading from "../../pages/status/Loading";
 import React, { useEffect, useRef, useState } from "react";
 import { Camera } from "lucide-react";
+import {
+  LANGUAGES,
+  getLanguageMeta,
+} from "../../components/utils/LanguageSuggest";
+import { options } from "../../components/goals/options";
 
-// Disgusting....
-// ISO 639-1 language names 
-const LANGUAGES = [
-  "Afrikaans","Akan","Albanian","Amharic","Arabic","Armenian","Assamese","Aymara","Azerbaijani",
-  "Bambara","Basque","Belarusian","Bengali","Bosnian","Breton","Bulgarian","Burmese",
-  "Catalan","Cebuano","Chamorro","Chechen","Chinese (Mandarin)","Chuvash","Cornish","Corsican","Croatian","Czech",
-  "Danish","Dhivehi","Dutch","Dzongkha",
-  "English","Esperanto","Estonian",
-  "Faroese","Fijian","Finnish","French","Frisian (Western)",
-  "Galician","Georgian","German","Greek","Guarani","Gujarati",
-  "Haitian Creole","Hausa","Hawaiian","Hebrew","Hindi","Hmong","Hungarian",
-  "Icelandic","Igbo","Ilocano","Indonesian","Irish","Italian",
-  "Japanese","Javanese",
-  "Kannada","Kazakh","Khmer","Kinyarwanda","Korean","Kurdish (Kurmanji)","Kurdish (Sorani)","Kyrgyz",
-  "Lao","Latin","Latvian","Lingala","Lithuanian","Luganda","Luxembourgish",
-  "Macedonian","Maithili","Malagasy","Malay","Malayalam","Maltese","Maori","Marathi","Meiteilon (Manipuri)","Mongolian",
-  "Nepali","Norwegian Bokmål","Norwegian Nynorsk",
-  "Odia (Oriya)","Oromo","Ossetian",
-  "Pashto","Persian (Farsi)","Polish","Portuguese","Punjabi (Gurmukhi)","Punjabi (Shahmukhi)",
-  "Quechua",
-  "Romanian","Russian",
-  "Samoan","Sanskrit","Scots Gaelic","Serbian","Sesotho","Shona","Sindhi","Sinhala","Slovak","Slovenian","Somali","Spanish","Sundanese","Swahili","Swedish",
-  "Tagalog","Tahitian","Tajik","Tamil","Tatar","Telugu","Thai","Tibetan","Tigrinya","Tok Pisin","Turkish","Turkmen",
-  "Uighur","Ukrainian","Urdu","Uyghur","Uzbek",
-  "Vietnamese",
-  "Welsh","Wolof",
-  "Xhosa",
-  "Yiddish","Yoruba",
-  "Zulu",
-];
 
-const GOAL_OPTIONS = [
-  { key: "business_travel", label: "Business travel" },
-  { key: "touristic_travel", label: "Touristic travel" },
-  { key: "image_translation", label: "Image translation" },
-  { key: "study", label: "Study" },
-  { key: "etc", label: "ETC" },
-] as const;
+type Difficulty = "Easy" | "Medium" | "Hard";
+type LangOption = {
+  id: string;    // e.g. "EN", "KO"
+  label: string; // e.g. "English"
+};
+
+// build full static list of languages from LANGUAGES
+const ALL_LANGUAGE_OPTIONS: LangOption[] = LANGUAGES.map((label) => {
+  const meta = getLanguageMeta(label);
+  return {
+    id: meta?.code ?? label.toLowerCase(),
+    label,
+  };
+});
 
 export default function UserLearningInfo() {
-  // Profile header (kept simple)
   const [name, setName] = useState("");
   const [avatarUrl, setAvatarUrl] = useState(
     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSmpCWL__69pek5fgjE8HfImGkxYXrKsLdHAg&s"
   );
   const fileRef = useRef<HTMLInputElement | null>(null);
 
-  // Form state
-  const [defaultLangId, setdefaultLangId] = useState(""); 
-  const [defaultLang, setdefaultLang] = useState(""); 
-  const [languages, setLanguages] = useState([]);
-  const [difficulty, setDifficulty] = useState<"Easy" | "Medium" | "Hard">("Easy");
-
+  // language selection state
+  const [defaultLangId, setDefaultLangId] = useState(""); 
+  const [defaultLang, setDefaultLang] = useState("");    
+  const [languages, setLanguages] = useState<LangOption[]>(ALL_LANGUAGE_OPTIONS);
+  const [difficulty, setDifficulty] = useState<Difficulty>("Easy");
+  const [goals, setGoals] = useState<string[]>(["touristic_travel"]);
   const [loading, setLoading] = useState(true);
 
+  // fetch user learning info from backend
   const fetchUserLearningInfo = async () => {
-    let response = await fetch(import.meta.env.VITE_SERVER_URL + "/userlearninginfo", {
-      method: "get",
-      headers: {"Content-Type": "application/json"},
-      credentials: "include"
-    });
+    try {
+      const response = await fetch(
+        import.meta.env.VITE_SERVER_URL + "/userlearninginfo",
+        {
+          method: "get",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+        }
+      );
 
-    if (response.status == 401) {
-      window.location.href = "/login";
-      return;
+      if (response.status === 401) {
+        window.location.href = "/login";
+        return;
+      }
+
+      const data = await response.json();
+      console.log(data);
+
+      // too many requests, show rate limit message
+      if (response.status === 429) {
+        alert(`${data.detail}. Retry after ${data.retry_after} seconds.`);
+        return;
+      }
+
+      setName(data.user_info.name);
+
+      // start from full static languages list
+      let mergedLanguages: LangOption[] = [...ALL_LANGUAGE_OPTIONS];
+
+      // merge backend languages if provided
+      if (data.languages && typeof data.languages === "object") {
+        // expected shape: { "FR": "French", "KO": "Korean", ... }
+        for (const [id, label] of Object.entries<string>(data.languages)) {
+          const idx = mergedLanguages.findIndex((l) => l.id === id);
+          if (idx >= 0) {
+            // override label if id already exists
+            mergedLanguages[idx] = { id, label };
+          } else {
+            // add new entry if not found
+            mergedLanguages.push({ id, label });
+          }
+        }
+      }
+      
+      setLanguages(mergedLanguages);
+
+      // default language id from server
+      const langIdFromServer: string | undefined =
+        data.user_info?.default_lang_id;
+
+      if (langIdFromServer) {
+        setDefaultLangId(langIdFromServer);
+
+        // find label from merged languages
+        const found = mergedLanguages.find((l) => l.id === langIdFromServer);
+        if (found) {
+          setDefaultLang(found.label);
+        } else {
+          const meta = getLanguageMeta(langIdFromServer);
+          setDefaultLang(meta?.label ?? langIdFromServer);
+        }
+      }
+
+      // difficulty from backend, map to "Easy" | "Medium" | "Hard"
+      if (data.user_info?.difficulty) {
+        const d = data.user_info.difficulty.toLowerCase();
+        let mapped: Difficulty = "Easy";
+        if (d === "medium") mapped = "Medium";
+        if (d === "hard") mapped = "Hard";
+        setDifficulty(mapped);
+      }
+
+      // goals from backend, if array
+      if (Array.isArray(data.user_info?.goals)) {
+        setGoals(data.user_info.goals);
+      }
+    } catch (err) {
+      console.error("Error fetching user learning info:", err);
+      alert("Error loading user info");
+    } finally {
+      setLoading(false);
     }
-
-    const data = await response.json();
-
-    if (response.status == 429) {
-      alert(`${data.detail}. Retry after ${data.retry_after} seconds.`);
-      return;
-    }
-
-    setName(data.user_info.name);
-    setLanguages(Object.values(data.languages));
-    const defaultLangId = data.user_info.default_lang_id;
-    setdefaultLangId(defaultLangId)
-    if (defaultLangId && data.languages) {
-      setdefaultLang(data.languages[defaultLangId]);
-    }
-    setDifficulty(data.user_info?.difficulty ? data.user_info.difficulty.toLowerCase().replace(/(?:^|[^a-zA-Z0-9]+)(.)/g, (_: string, c: string) => c.toUpperCase()) : "");
-
-    setLoading(false);
   };
+
+  // run fetch once on mount with small delay
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchUserLearningInfo();
@@ -103,9 +136,7 @@ export default function UserLearningInfo() {
     return () => clearTimeout(timer);
   }, []);
 
-  // const [secondaryLang, setSecondaryLang] = useState("");        
-  const [goals, setGoals] = useState<string[]>(["touristic_travel"]);
-
+  // handle avatar file change
   function onAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
     if (!f) return;
@@ -113,53 +144,92 @@ export default function UserLearningInfo() {
     setAvatarUrl(url);
   }
 
+  // toggle goal selection on/off
   function toggleGoal(key: string) {
     setGoals((prev) =>
       prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
     );
   }
 
+  // submit updated learning info to backend
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!defaultLang) {
-      alert("Please select your default Learning Language.");
+
+    // ensure language is selected
+    if (!defaultLangId || !defaultLang) {
+      alert("Please select your default learning language.");
       return;
     }
-    let data = {
-      "defaultLang": defaultLang,
-      "difficulty": difficulty.toLowerCase(),
-      "goals": goals
+
+    const payload = {
+      defaultLangId, // e.g. "EN"
+      defaultLang, // e.g. "English"
+      difficulty: difficulty.toLowerCase(), // "easy" | "medium" | "hard"
+      goals,
     };
+
     try {
-        let response = await fetch(import.meta.env.VITE_SERVER_URL + "/userlearninginfo", {
+      const response = await fetch(
+        import.meta.env.VITE_SERVER_URL + "/userlearninginfo",
+        {
           method: "post",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify(data),
-          credentials: "include"
-        });
-        const response_data = await response.json();
-        if (response.status == 429) {
-          alert(`${response_data.detail}. Retry after ${response_data.retry_after} seconds.`);
-          return;
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+          credentials: "include",
         }
-        if (!response.ok) {
-          alert("Error saving user info");
-          return;
+      );
+
+      const contentType = response.headers.get("content-type") || "";
+      let response_data: any = null;
+
+      // try to parse JSON response if available
+      if (contentType.includes("application/json")) {
+        try {
+          response_data = await response.json();
+        } catch (parseErr) {
+          console.warn("Failed to parse JSON response:", parseErr);
         }
-        alert("Saved!");
-      } catch (e) {
-        console.error(e)
-        alert("Error saving data")
+      } else {
+        const text = await response.text();
+        console.warn("Non-JSON response from server:", text);
       }
+
+      // handle unauthorized
+      if (response.status === 401) {
+        window.location.href = "/login";
+        return;
+      }
+
+      // handle rate limit
+      if (response.status === 429 && response_data) {
+        alert(
+          `${response_data.detail}. Retry after ${response_data.retry_after} seconds.`
+        );
+        return;
+      }
+
+      // generic error
+      if (!response.ok) {
+        alert("Error saving user info");
+        return;
+      }
+
+      // success
+      alert("Saved!");
+    } catch (e) {
+      console.error(e);
+      alert("Error saving data");
+    }
   }
 
+  // show loading spinner while fetching data
   if (loading) {
     return <Loading />;
   }
 
   return (
     <div className="min-h-screen mx-auto w-full max-w-[1080px] bg-white text-gray-900">
-      {/* Top banner */}
+      {/* top banner with background image */}
       <div className="relative h-36 w-full overflow-visible">
         <div
           className="absolute inset-0 bg-cover bg-center"
@@ -182,7 +252,7 @@ export default function UserLearningInfo() {
           />
         </svg>
 
-        {/* Avatar */}
+        {/* avatar over banner */}
         <div className="absolute left-1/2 bottom-0 -translate-x-1/2 translate-y-1/2 z-10">
           <div className="relative">
             <img
@@ -190,6 +260,7 @@ export default function UserLearningInfo() {
               alt="Profile"
               className="h-28 w-28 rounded-full object-cover ring-4 ring-white shadow-md"
             />
+            {/* change avatar button */}
             <button
               type="button"
               onClick={() => fileRef.current?.click()}
@@ -198,6 +269,7 @@ export default function UserLearningInfo() {
             >
               <Camera size={16} />
             </button>
+            {/* hidden file input for avatar */}
             <input
               ref={fileRef}
               type="file"
@@ -209,60 +281,46 @@ export default function UserLearningInfo() {
         </div>
       </div>
 
-      {/* Content */}
+      {/* main content */}
       <div className="mx-auto max-w-sm px-5 pt-20 pb-20">
+        {/* user name heading */}
         <div className="mb-6 flex items-center justify-center">
           <h1 className="text-2xl font-semibold text-indigo-900">{name}</h1>
         </div>
 
-        {/* Form */}
+        {/* form for learning preferences */}
         <form onSubmit={onSubmit} className="space-y-6">
-          {/* Default language (required) */}
+          {/* default language select */}
           <div>
             <label className="mb-1 block text-sm font-medium">
-              Default learning language <span className="text-red-500">* Required</span>
+              Default learning language{" "}
+              <span className="text-red-500">* Required</span>
             </label>
             <select
               required
               className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 pr-10 outline-none focus:border-indigo-500"
-              value={defaultLang}
+              value={defaultLangId}
               onChange={(e) => {
-                setdefaultLang(e.target.value)}
-              }
+                const newId = e.target.value;
+                setDefaultLangId(newId);
+
+                const found = languages.find((l) => l.id === newId);
+                setDefaultLang(found?.label ?? "");
+              }}
             >
               <option value="" disabled>
                 Select a language…
               </option>
+
               {languages.map((lang) => (
-                <option key={lang} value={lang}>
-                  {lang}
+                <option key={lang.id} value={lang.id}>
+                  {lang.label}
                 </option>
               ))}
             </select>
           </div>
 
-          {/* Secondary language (optional) */}
-          {/* <div>
-            <label className="mb-1 block text-sm font-medium">
-              Second learning language (optional)
-            </label>
-            <select
-              className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 pr-10 outline-none focus:border-indigo-500"
-              value={secondaryLang}
-              onChange={(e) => setSecondaryLang(e.target.value)}
-            >
-              <option value="">None</option>
-              {LANGUAGES.map((lang) => (
-                <option key={lang} value={lang}>
-                  {lang}
-                </option>
-              ))}
-            </select>
-          </div> */}
-
-          {/* Consider add + button to add extra languages */}
-
-          {/* Difficulty */}
+          {/* difficulty radio buttons */}
           <div>
             <label className="mb-2 block text-sm font-medium">Difficulty</label>
             <div className="grid grid-cols-3 gap-2">
@@ -289,13 +347,13 @@ export default function UserLearningInfo() {
             </div>
           </div>
 
-          {/* Learning goals */}
+          {/* learning goals checkboxes */}
           <div>
             <label className="mb-2 block text-sm font-medium">
               Learning goals (choose any)
             </label>
             <div className="space-y-2">
-              {GOAL_OPTIONS.map((g) => (
+              {options.map((g) => (
                 <label
                   key={g.key}
                   className="flex items-center gap-3 rounded-xl border border-gray-200 px-4 py-3 hover:bg-gray-50"
@@ -312,7 +370,7 @@ export default function UserLearningInfo() {
             </div>
           </div>
 
-          {/* Buttons */}
+          {/* footer buttons */}
           <div className="pt-2 flex items-center justify-between gap-3">
             <button
               type="button"

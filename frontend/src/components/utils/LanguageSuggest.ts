@@ -3,15 +3,69 @@
  * This page is paired with TextInputStep.tsx
  */
 export const LANGUAGES = [
-  "English", "Korean", "Japanese", "Chinese", "French", "Spanish", "German", 
-  "Italian", "Portuguese", "Russian", "Arabic", "Hindi", "Thai", "Vietnamese",
-  "Tagalog", "Indonesian", "Turkish", "Dutch", "Polish", "Swedish", "Greek",
-  "Hebrew", "Malay", "Bengali", "Urdu", "Tamil", "Telugu", "Marathi", "Punjabi",
-  "Gujarati", "Kannada", "Malayalam", "Sinhala", "Nepali", "Burmese", "Khmer",
-  "Lao", "Mongolian", "Persian", "Pashto", "Kurdish", "Ukrainian", "Czech",
-  "Slovak", "Hungarian", "Romanian", "Bulgarian", "Serbian", "Croatian", "Bosnian",
-  "Finnish", "Danish", "Norwegian", "Icelandic", "Swahili", "Zulu", "Xhosa",
-  "Afrikaans", "Hausa", "Amharic", "Somali", "Yoruba", "Igbo"
+  "Afrikaans",
+  "Amharic",
+  "Arabic",
+  "Bengali",
+  "Bosnian",
+  "Bulgarian",
+  "Burmese",
+  "Chinese",
+  "Croatian",
+  "Czech",
+  "Danish",
+  "Dutch",
+  "English",
+  "Finnish",
+  "French",
+  "German",
+  "Greek",
+  "Gujarati",
+  "Hausa",
+  "Hebrew",
+  "Hindi",
+  "Hungarian",
+  "Icelandic",
+  "Igbo",
+  "Indonesian",
+  "Italian",
+  "Japanese",
+  "Kannada",
+  "Khmer",
+  "Korean",
+  "Kurdish",
+  "Lao",
+  "Malay",
+  "Malayalam",
+  "Marathi",
+  "Mongolian",
+  "Nepali",
+  "Norwegian",
+  "Pashto",
+  "Persian",
+  "Polish",
+  "Portuguese",
+  "Punjabi",
+  "Romanian",
+  "Russian",
+  "Serbian",
+  "Sinhala",
+  "Slovak",
+  "Somali",
+  "Spanish",
+  "Swahili",
+  "Swedish",
+  "Tagalog",
+  "Tamil",
+  "Telugu",
+  "Thai",
+  "Turkish",
+  "Ukrainian",
+  "Urdu",
+  "Vietnamese",
+  "Xhosa",
+  "Yoruba",
+  "Zulu"
 ];
 
 // Extended aliases & common names
@@ -86,6 +140,83 @@ const ALIASES: Record<string, string> = {
   bn: "Bengali", bangla: "Bengali",
 };
 
+const LANGUAGE_FLAGS: Record<
+  string,
+  { flag: string; code: string }
+> = {
+  English:    { flag: "🇺🇸", code: "EN" },
+  Korean:     { flag: "🇰🇷", code: "KO" },
+  Japanese:   { flag: "🇯🇵", code: "JA" },
+  Chinese:    { flag: "🇨🇳", code: "ZH" },
+  French:     { flag: "🇫🇷", code: "FR" },
+  Spanish:    { flag: "🇪🇸", code: "ES" },
+  German:     { flag: "🇩🇪", code: "DE" },
+  Italian:    { flag: "🇮🇹", code: "IT" },
+  Portuguese: { flag: "🇵🇹", code: "PT" },
+  Russian:    { flag: "🇷🇺", code: "RU" },
+  Arabic:     { flag: "🇸🇦", code: "AR" },
+  Hindi:      { flag: "🇮🇳", code: "HI" },
+  Thai:       { flag: "🇹🇭", code: "TH" },
+  Vietnamese: { flag: "🇻🇳", code: "VI" },
+  Indonesian: { flag: "🇮🇩", code: "ID" },
+  Dutch:      { flag: "🇳🇱", code: "NL" },
+  Polish:     { flag: "🇵🇱", code: "PL" },
+  Swedish:    { flag: "🇸🇪", code: "SV" },
+  Greek:      { flag: "🇬🇷", code: "EL" },
+  Hebrew:     { flag: "🇮🇱", code: "HE" },
+  Malay:      { flag: "🇲🇾", code: "MS" },
+  Bengali:    { flag: "🇧🇩", code: "BN" },
+  Urdu:       { flag: "🇵🇰", code: "UR" },
+  Turkish:    { flag: "🇹🇷", code: "TR" },
+};
+
+export type LanguageMeta = {
+  label: string; 
+  code: string; 
+  flag: string;  
+};
+
+export function getLanguageMeta(raw: string | null | undefined): LanguageMeta | null {
+  if (!raw) return null;
+
+  const q = normalize(raw);
+
+  let label: string | undefined = ALIASES[q];
+  if (!label) {
+    label = LANGUAGES.find(l => normalize(l) === q) || undefined;
+  }
+  if (!label && q.length <= 3) {
+    const codeMap: Record<string, string> = {
+      en: "English",
+      fr: "French",
+      pt: "Portuguese",
+      es: "Spanish",
+      de: "German",
+      it: "Italian",
+      ko: "Korean",
+      ja: "Japanese",
+      zh: "Chinese",
+      ru: "Russian",
+      ar: "Arabic",
+      hi: "Hindi",
+    };
+    label = codeMap[q];
+  }
+
+  if (!label) return null;
+
+  const meta = LANGUAGE_FLAGS[label] || {
+    flag: "🏳️", // fallback generic flag
+    code: raw.toString().toUpperCase(),
+  };
+
+  return {
+    label,
+    code: meta.code,
+    flag: meta.flag,
+  };
+}
+
 function lev(a: string, b: string) {
   a = a.toLowerCase();
   b = b.toLowerCase();
@@ -128,3 +259,4 @@ export function suggestLanguages(query: string) {
 
   return scored.slice(0, 6);
 }
+

@@ -1,8 +1,13 @@
 /**
  * QuickGuide – interactive onboarding spotlight tour
- * Added robust error handling for DOM queries, rendering, and events.
  */
-import React, { useEffect, useLayoutEffect, useMemo, useState, useId } from "react";
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useState,
+  useId,
+} from "react";
 import { createPortal } from "react-dom";
 import { useSearchParams } from "react-router-dom";
 
@@ -21,12 +26,14 @@ type Step = {
 const GAP = 16;
 const DEFAULT_RECT = new DOMRect(24, 120, 280, 90);
 
+// hook to measure DOM element rect by CSS selector
 function useElementRect(selector: string, deps: React.DependencyList = []) {
   const [rect, setRect] = useState<DOMRect | null>(null);
 
   useLayoutEffect(() => {
     try {
-      if (typeof window === "undefined" || typeof document === "undefined") return;
+      if (typeof window === "undefined" || typeof document === "undefined")
+        return;
 
       const el = document.querySelector<HTMLElement>(selector);
       if (!el) {
@@ -36,16 +43,25 @@ function useElementRect(selector: string, deps: React.DependencyList = []) {
       }
 
       let frame = 0;
+
       const measure = () => {
         try {
           cancelAnimationFrame(frame);
-          frame = requestAnimationFrame(() => setRect(el.getBoundingClientRect()));
+          frame = requestAnimationFrame(() =>
+            setRect(el.getBoundingClientRect())
+          );
         } catch (err) {
           console.error("[QuickGuide] Failed to measure element:", err);
         }
       };
 
-      el.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+      // scroll target into view
+      el.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+        inline: "nearest",
+      });
+
       measure();
 
       const ro = new ResizeObserver(() => measure());
@@ -54,7 +70,10 @@ function useElementRect(selector: string, deps: React.DependencyList = []) {
       const onScroll = () => measure();
       const onResize = () => measure();
 
-      window.addEventListener("scroll", onScroll, { capture: true, passive: true });
+      window.addEventListener("scroll", onScroll, {
+        capture: true,
+        passive: true,
+      });
       window.addEventListener("resize", onResize, { passive: true });
 
       return () => {
@@ -72,6 +91,7 @@ function useElementRect(selector: string, deps: React.DependencyList = []) {
   return rect;
 }
 
+// dark overlay with a spotlight cutout
 function SpotlightOverlay({
   rect,
   radius = 20,
@@ -137,6 +157,7 @@ function SpotlightOverlay({
   }
 }
 
+// callout card positioned near the spotlight target
 function Callout({
   rect,
   title,
@@ -172,7 +193,9 @@ function Callout({
         aria-live="polite"
       >
         <div className="rounded-2xl bg-white shadow-2xl p-5">
-          <div className="text-2xl font-extrabold tracking-tight mb-2">{title}</div>
+          <div className="text-2xl font-extrabold tracking-tight mb-2">
+            {title}
+          </div>
           {body && <div className="text-gray-600">{body}</div>}
         </div>
       </div>,
@@ -184,9 +207,12 @@ function Callout({
   }
 }
 
+// main QuickGuide component
 export default function QuickGuide() {
+  // URL params used to control guide state
   const [params, setParams] = useSearchParams();
 
+  // definition of all guide steps
   const steps: Step[] = useMemo(
     () => [
       {
@@ -227,13 +253,17 @@ export default function QuickGuide() {
     []
   );
 
+  // current step index
   const [index, setIndex] = useState(() => {
     const start = Number(params.get("guideStep"));
     return isNaN(start) ? 0 : Math.min(Math.max(start, 0), steps.length - 1);
   });
 
+  // current step and its target rect
   const step = steps[index];
   const rect = useElementRect(step.selector, [index]);
+
+  // end the guide and clear URL params
   const finish = () => {
     try {
       setParams({});
@@ -242,6 +272,7 @@ export default function QuickGuide() {
     }
   };
 
+  // keyboard shortcuts for navigation and exit
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       try {
@@ -260,6 +291,7 @@ export default function QuickGuide() {
 
   return (
     <>
+      {/* spotlight overlay that follows the target rect */}
       <SpotlightOverlay rect={rect} radius={step.radius ?? 20}>
         <button
           className="absolute inset-0 w-full h-full cursor-default"
@@ -275,6 +307,7 @@ export default function QuickGuide() {
         />
       </SpotlightOverlay>
 
+      {/* callout with title and body for current step */}
       <Callout
         rect={rect}
         title={step.title}
@@ -283,6 +316,7 @@ export default function QuickGuide() {
         offset={step.offset}
       />
 
+      {/* bottom controls: back, dots, skip/next/done */}
       {createPortal(
         <div className="fixed z-[1020] inset-x-0 bottom-6 flex items-center justify-center">
           <div className="flex items-center gap-3 rounded-full bg-white shadow-xl px-3 py-2">
@@ -301,10 +335,12 @@ export default function QuickGuide() {
             </button>
 
             <div className="flex items-center gap-1.5" aria-hidden="true">
-              {steps.map((_, i) => (
+              {steps.map((s, i) => (
                 <span
-                  key={_.id}
-                  className={`h-2 w-2 rounded-full ${i === index ? "bg-gray-900" : "bg-gray-300"}`}
+                  key={s.id}
+                  className={`h-2 w-2 rounded-full ${
+                    i === index ? "bg-gray-900" : "bg-gray-300"
+                  }`}
                 />
               ))}
             </div>

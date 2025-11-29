@@ -1,6 +1,5 @@
 /**
  * Country suggestion content with ~70 countries.
- * Maybe duplicated with data/contries.json
  */
 export const COUNTRIES = [
   // Americas

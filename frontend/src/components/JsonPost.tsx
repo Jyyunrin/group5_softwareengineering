@@ -1,8 +1,5 @@
 /**
- * This component is for Json-Post, which is used for user input take?
- * Currently debugging this page.
- * Paired with TextInputStep.tsx
- * 
+ * This component offers a safe post method with callback.
 */
 import React from "react";
 

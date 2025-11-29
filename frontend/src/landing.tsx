@@ -1,34 +1,108 @@
-/**
- * Landing page(homepage) after log-in.
- */
-import './landing.css';
+// Landing page (homepage) after login
+import "./landing.css";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { getLanguageMeta } from "../src/components/utils/LanguageSuggest";
 import QuickGuide from "./pages/quickguide/QuickGuide";
-import Card from './components/card/Cards';
-import GalleryPage from './components/card/GalleryPage';
-import { Camera } from "lucide-react";
-import Logout from './components/Logout';
+import Loading from "../src/pages/status/Loading";
+import GalleryPage from "./components/card/GalleryPage";
+import Card from "./components/card/Cards";
+import Logout from "./components/Logout";
 
 export default function Landing() {
   const [params, setParams] = useSearchParams();
+  const [name, setName] = useState("Language Learner");
+  const [lang, setLang] = useState("FR");
+  const [loading, setLoading] = useState(true);
+
+  // show quick guide if ?guide=1
   const showGuide = params.get("guide") === "1";
   const navigate = useNavigate();
+  
+  // language metadata 
+  const langMeta = getLanguageMeta(lang);
+  const displayFlag = langMeta?.flag ?? "🏳️";
+  const displayCode = langMeta?.code ?? lang.toUpperCase();
+  const displayName = langMeta?.label ?? "Unknown";
+
+  // fetch user info / learning info from backend
+  const requestInfo = async () => {
+    try {
+      const response = await fetch(
+        import.meta.env.VITE_SERVER_URL + "/userlearninginfo",
+        {
+          method: "get",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+        }
+      );
+
+      // not logged in, redirect to login
+      if (response.status === 401) {
+        window.location.href = "/login";
+        return;
+      }
+
+      // rate limited, show message
+      if (response.status === 429) {
+        const data = await response.json();
+        alert(`${data.detail}. Retry after ${data.retry_after} seconds.`);
+        return;
+      }
+
+      const json = await response.json();
+
+      // set name and default target language
+      setName(json.user_info.name);
+      setLang(json.user_info.default_lang_id);
+    } catch (err) {
+      console.error("Error loading user info", err);
+      alert("Error loading user info");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // call requestInfo on mount with small delay
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      requestInfo();
+    }, 1200);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // show loading spinner while fetching user info
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <div className="min-h-screen bg-white">
+      {/* quick guide overlay (optional) */}
       {showGuide && <QuickGuide />}
 
+      {/* main content container */}
       <main className="mx-auto w-full max-w-[1080px] px-5 pb-24">
-        {/* <section className="pt-6"> */}
-          {/* 
-          <h1
-            className="text-4xl font-extrabold leading-tight tracking-tight"
-            data-guide="welcome-title"
-          >
-            Olá,<br />
-            <span>Username!</span>
-          </h1> */}
+        {/* greeting + logout */}
+        <section className="flex justify-between align-text-bottom pt-10">
+          <div className="text-left">
+            <h1
+              className="text-4xl font-extrabd leading-tight tracking-tight"
+              data-guide="welcome-title"
+            >
+              Hello,
+              <br />
+              {name}!
+            </h1>
+          </div>
 
+          <div className="text-right text-sm text-gray-600">
+            <Logout />
+          </div>
+        </section>
+
+        {/* quick guide button + target language edit */}
         <section>
           <div className="mt-2 flex items-center justify-between text-sm text-gray-600">
             <button
@@ -38,25 +112,23 @@ export default function Landing() {
             >
               Quick Guide <span aria-hidden>→</span>
             </button>
-            <div className="absolute top-4 right-4 z-50">
-              <Logout />
-            </div>  
+
             <button
               className="inline-flex items-center gap-2"
               data-guide="target-language"
-              onClick={() => alert("open language picker")}
+              onClick={() => navigate("/user/userlearninginfo")}
             >
-            
-
-            {/* Dynamic data needed */}
               <span>Target Language:</span>
-              <span role="img" aria-label="Portuguese flag">🇵🇹</span>
+              <span role="img" aria-label={`${displayName} flag`}>
+                {" "}
+                {displayFlag} {displayCode}{" "}
+              </span>
               <span aria-hidden>✎</span>
             </button>
           </div>
         </section>
 
-        {/* Quiz Card */}
+        {/* daily quiz card */}
         <section className="mt-6" data-guide="daily-quiz-card">
           <div className="overflow-hidden rounded-3xl bg-gray-100 shadow">
             <Card
@@ -75,22 +147,13 @@ export default function Landing() {
           </div>
         </section>
 
-        {/* Likes / Search history */}
+        {/* likes / search history gallery */}
         <section className="mt-7" data-guide="likes-history">
           <div className="mt-4">
             <GalleryPage />
           </div>
         </section>
       </main>
-
-      {/* Bottom nav */}
-      <div className="fixed inset-x-0 bottom-6 z-50 flex items-center justify-center">
-        <button
-          className="grid h-24 w-24 place-items-center rounded-full"
-          aria-label="Open Camera Translate"
-        >
-        </button>
-      </div>
     </div>
   );
 }

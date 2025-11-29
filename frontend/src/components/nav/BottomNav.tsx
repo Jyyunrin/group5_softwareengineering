@@ -1,7 +1,7 @@
 /**
  * Bottom navigation page with buttons.
- * Route controls: main.tsx 
- * data-guide="camera-fab" calls spotlight for quick guide
+ * Route controls: main.tsx
+ * data-guide="camera-fab" is used by QuickGuide for spotlight
  */
 import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -9,10 +9,11 @@ import { Camera, Home, BookOpen, UploadCloud, User, Settings } from "lucide-reac
 
 type Item = { to: string; label: string; icon: React.ReactNode };
 
+// bottom nav items
 const items: Item[] = [
   { to: "/user/userinfo", label: "Profile", icon: <User size={18} /> },
   { to: "/translation/camera", label: "Upload", icon: <UploadCloud size={18} /> },
-  { to: "/", label: "Home", icon: <Home size={18} /> }, 
+  { to: "/", label: "Home", icon: <Home size={18} /> },
   { to: "/user/userhistory", label: "History", icon: <BookOpen size={18} /> },
   { to: "/user/userlearninginfo", label: "Settings", icon: <Settings size={18} /> },
 ];
@@ -20,9 +21,10 @@ const items: Item[] = [
 export default function BottomRadialNav() {
   const navigate = useNavigate();
 
-  const start = 180; 
-  const end = 0; 
-  const radius = 90; 
+  // angle configuration for item layout
+  const start = 180; // left
+  const end = 0;     // right
+  const radius = 90; // distance from center
 
   return (
     <div
@@ -30,13 +32,20 @@ export default function BottomRadialNav() {
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       aria-hidden={false}
     >
+      {/* container for arc layout */}
       <div className="relative mx-auto h-[200px] w-[360px]" data-guide="camera-fab">
-        <div className="absolute left-1/2 top-[60%] h-[260px] w-[260px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-b from-black/35 via-black/10 to-transparent blur-2xl" />
+        {/* blurred glow background */}
+        <div
+          className="absolute left-1/2 top-[60%] h-[260px] w-[260px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-b from-black/35 via-black/10 to-transparent blur-2xl"
+        />
 
-        {/* Items */}
+        {/* navigation items placed on arc */}
         {items.map((it, i) => {
+          // compute angle for each item
           const angle =
             items.length === 1 ? 0 : start + (i * (end - start)) / (items.length - 1);
+
+          // convert polar to cartesian coordinates
           const x = Math.cos((angle * Math.PI) / 180) * radius;
           const y = Math.sin((angle * Math.PI) / 180) * radius;
 
@@ -63,7 +72,7 @@ export default function BottomRadialNav() {
           );
         })}
 
-        {/* Center Action ( Open camera right away ) */}
+        {/* main center button to open camera immediately */}
         <button
           type="button"
           onClick={() => navigate("/translation/camera")}
