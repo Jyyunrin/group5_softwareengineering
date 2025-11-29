@@ -1,3 +1,6 @@
+/**
+ * Basic goal options.
+ */
 export const options = [
     { label: "Image Translation", value: "image-translation" },
     { label: "Business travel", value: "Business travel" },

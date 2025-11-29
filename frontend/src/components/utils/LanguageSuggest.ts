@@ -181,7 +181,7 @@ export function getLanguageMeta(raw: string | null | undefined): LanguageMeta | 
 
   const q = normalize(raw);
 
-  let label = ALIASES[q];
+  let label: string | undefined = ALIASES[q];
   if (!label) {
     label = LANGUAGES.find(l => normalize(l) === q) || undefined;
   }

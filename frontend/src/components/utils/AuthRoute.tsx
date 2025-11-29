@@ -1,4 +1,7 @@
-import React, { useEffect, useState } from "react";
+/** 
+ * Authentication route for safe log-in environment.
+ */
+import { useEffect, useState } from "react";
 import type { ReactElement } from "react";
 import { Navigate } from "react-router-dom";
 
