@@ -1,12 +1,9 @@
 /**
- * Camera rendering page.
- * Users are able to take a picture with their basic device camera feature or
- * Users are able to pull up their gallery
+ * Camera page for capturing or uploading an image and sending it for translation.
  */
 import { useState, useRef, useEffect } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import Processing from "./Processing";
-import { useNavigate } from "react-router-dom";
 import { Languages } from "lucide-react";
 import {
   Camera,
@@ -19,7 +16,7 @@ import {
   Trash2,
   Video,
 } from "lucide-react";
-import languages from "../../../data/langauges.json"
+import languages from "../../../data/langauges.json";
 
 interface Picture {
   picturePreview: string;
@@ -34,18 +31,20 @@ export default function CameraPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [uploadDisabled, setUploadDisabled] = useState(false);
   const [processing, setProcessing] = useState(false);
+  const [targetLang, setTargetLang] = useState<string>("en");
 
+  // DOM refs
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
-  const [targetLang, setTargetLang] = useState<string>("en");
-
+  // Attach camera stream to video when camera is enabled
   useEffect(() => {
     if (camera && pendingStream && videoRef.current) {
       try {
         videoRef.current.srcObject = pendingStream;
         streamRef.current = pendingStream;
+
         videoRef.current.onloadedmetadata = () => {
           try {
             videoRef.current?.play();
@@ -64,8 +63,10 @@ export default function CameraPage() {
     }
   }, [camera, pendingStream]);
 
+  // Fetch user info on mount and clean up camera on unmount
   useEffect(() => {
-    request_info()
+    requestInfo();
+
     return () => {
       try {
         streamRef.current?.getTracks().forEach((t) => t.stop());
@@ -75,13 +76,16 @@ export default function CameraPage() {
     };
   }, []);
 
+  // Start camera and request permission
   const startCamera = async () => {
     setErrorMsg(null);
     setStarting(true);
+
     try {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         throw new Error("Camera API not supported in this browser.");
       }
+
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
       setPendingStream(stream);
       setCamera(true);
@@ -95,6 +99,7 @@ export default function CameraPage() {
     }
   };
 
+  // Stop camera and release stream
   const stopCamera = () => {
     try {
       streamRef.current?.getTracks().forEach((track) => track.stop());
@@ -107,6 +112,7 @@ export default function CameraPage() {
     }
   };
 
+  // Capture a frame from the video as an image file
   const takePhoto = () => {
     try {
       if (!videoRef.current) return;
@@ -128,10 +134,12 @@ export default function CameraPage() {
             if (!blob) {
               throw new Error("Failed to create image blob.");
             }
+
             const file = new File([blob], "captured_image.png", {
               type: "image/png",
             });
             const preview = URL.createObjectURL(blob);
+
             setPicture({ picturePreview: preview, pictureAsFile: file });
             stopCamera();
           } catch (err) {
@@ -147,11 +155,13 @@ export default function CameraPage() {
     }
   };
 
+  // Handle file selection from device
   const uploadPicture = (e: ChangeEvent<HTMLInputElement>) => {
     try {
       if (e.target.files && e.target.files[0]) {
         const file = e.target.files[0];
         const preview = URL.createObjectURL(file);
+
         setPicture({
           picturePreview: preview,
           pictureAsFile: file,
@@ -164,6 +174,7 @@ export default function CameraPage() {
     }
   };
 
+  // Clear current image and reset input
   const clearImage = () => {
     try {
       if (picture?.picturePreview) {
@@ -171,16 +182,16 @@ export default function CameraPage() {
       }
       setPicture(null);
       if (inputRef.current) inputRef.current.value = "";
-      console.log("Clear image");
     } catch (err) {
       console.error("Error clearing image", err);
       setErrorMsg("Failed to clear image.");
     }
   };
 
+  // Submit image to backend for translation
   const handleUpload = async (e: FormEvent<HTMLFormElement>) => {
-    console.log("Clicked!")
     e.preventDefault();
+
     if (!picture) {
       setErrorMsg("Please select or capture an image first.");
       return;
@@ -189,11 +200,17 @@ export default function CameraPage() {
     try {
       const formData = new FormData();
       formData.append("file", picture.pictureAsFile);
-      const selectedLabel = languages.find(lang => lang.code === targetLang)?.label;
+
+      // Find label for selected target language
+      const selectedLabel = languages.find(
+        (lang: { code: string; label: string }) => lang.code === targetLang
+      )?.label;
+
       if (selectedLabel) {
         formData.append("target_lang", selectedLabel);
       }
-      formData.append("target_lang_code", targetLang)
+
+      formData.append("target_lang_code", targetLang);
 
       setUploadDisabled(true);
       setProcessing(true);
@@ -203,35 +220,22 @@ export default function CameraPage() {
         {
           method: "POST",
           body: formData,
-          credentials: "include"
+          credentials: "include",
         }
       );
 
-      if (!response.ok) {
-        throw new Error(`Server responded with status ${response.status}`);
-      }
-
       const responseData = await response.json();
-      // if (responseData) {
-      //   navigate("/translation/result", { state: { data: responseData } });
-      // } else {
-      //   throw new Error("Empty response from server");
-      // }
 
-      if(!response.ok) {
-        const errorData = await response.json()
-        console.error("Error uploading: ", errorData)
+      if (!response.ok) {
+        console.error("Error uploading: ", responseData);
         setUploadDisabled(false);
         setProcessing(false);
+        setErrorMsg("Upload failed. Please try again.");
         return;
       }
 
-      // const responseData = await response.json();
-
       const historyId = responseData.user_history_id;
-
-      window.location.href = `/user/userhistory/${historyId}`
-
+      window.location.href = `/user/userhistory/${historyId}`;
     } catch (error) {
       console.error("Upload failed", error);
       setErrorMsg("Upload failed. Please try again.");
@@ -240,44 +244,51 @@ export default function CameraPage() {
     }
   };
 
-  if(processing) {
-    return <Processing />
-  }
+  // Fetch user info to set default target language
+  const requestInfo = async () => {
+    try {
+      const response = await fetch(
+        import.meta.env.VITE_SERVER_URL + "/get_user_info",
+        {
+          credentials: "include",
+        }
+      );
 
-  const request_info = async() => {
-    const response = await fetch(import.meta.env.VITE_SERVER_URL + "/get_user_info", {
-        credentials: 'include',
-      }
-    )
-    .then(function(response) { 
-      if (response.status == 401) {
+      if (response.status === 401) {
         window.location.href = "/login";
         return;
       }
-      if (response.status == 429) {
-        response.json().then(function(data) {
-          alert(`${data.detail}. Retry after ${data.retry_after} seconds.`);
-        });
+
+      if (response.status === 429) {
+        const data = await response.json();
+        alert(`${data.detail}. Retry after ${data.retry_after} seconds.`);
         return;
       }
-      return response.json();
-    })
-    .then(function(json) {
-      let found = languages.find(({ code, label }) => 
-        {
-          return label == json.default_language
-        }
-      )
-      if (found !== undefined){
-        setTargetLang(found.code)
+
+      const json = await response.json();
+
+      // Find language matching user's default_language label
+      const found = languages.find(
+        (lang: { code: string; label: string }) => lang.label === json.default_language
+      );
+
+      if (found) {
+        setTargetLang(found.code);
       }
-    });
+    } catch (err) {
+      console.error("Error fetching user info", err);
+    }
+  };
+
+  // Show processing screen if translation is in progress
+  if (processing) {
+    return <Processing />;
   }
 
   return (
     <div className="min-h-screen mx-auto w-full max-w-[1080px] bg-gradient-to-b from-indigo-50 via-white to-white py-8">
       <main className="mx-auto w-full max-w-md px-4">
-        {/* Header */}
+        {/* header */}
         <div className="mb-5 flex items-center gap-3">
           <div className="grid h-10 w-10 place-items-center rounded-2xl bg-indigo-600 text-white shadow">
             <Camera size={18} />
@@ -292,10 +303,10 @@ export default function CameraPage() {
           </div>
         </div>
 
-        {/* Card */}
+        {/* card */}
         <div className="rounded-3xl bg-white p-4 shadow-xl ring-1 ring-black/5">
           <form onSubmit={handleUpload} className="space-y-5">
-            {/* Video / Preview area */}
+            {/* video / preview area */}
             {camera ? (
               <div className="relative overflow-hidden rounded-2xl bg-black shadow-lg">
                 <div className="aspect-video w-full">
@@ -308,7 +319,7 @@ export default function CameraPage() {
                   />
                 </div>
 
-                {/* Subtle overlay grid */}
+                {/* overlay grid */}
                 <svg
                   className="pointer-events-none absolute inset-0 h-full w-full opacity-20"
                   viewBox="0 0 100 100"
@@ -321,7 +332,7 @@ export default function CameraPage() {
                   />
                 </svg>
 
-                {/* Bottom controls */}
+                {/* camera controls */}
                 <div className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-4 bg-gradient-to-t from-black/60 to-transparent p-4">
                   <button
                     type="button"
@@ -341,7 +352,7 @@ export default function CameraPage() {
                   </button>
                 </div>
 
-                {/* Starting overlay */}
+                {/* starting overlay */}
                 {starting && (
                   <div className="absolute inset-0 grid place-items-center bg-black/50">
                     <div className="flex items-center gap-2 rounded-full bg-white px-3 py-2 text-sm font-medium shadow">
@@ -352,6 +363,7 @@ export default function CameraPage() {
                 )}
               </div>
             ) : picture?.picturePreview ? (
+              // image preview
               <div className="overflow-hidden rounded-2xl ring-1 ring-gray-200">
                 <img
                   src={picture.picturePreview}
@@ -360,7 +372,7 @@ export default function CameraPage() {
                 />
               </div>
             ) : (
-              // Upload dropzone
+              // upload dropzone
               <div className="rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 p-6 text-center">
                 <div className="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-xl bg-white shadow">
                   <ImageIcon size={20} className="text-gray-600" />
@@ -389,7 +401,7 @@ export default function CameraPage() {
               </div>
             )}
 
-            {/* Hidden input for file select */}
+            {/* hidden file input */}
             <input
               type="file"
               accept="image/*"
@@ -398,7 +410,7 @@ export default function CameraPage() {
               className="hidden"
             />
 
-            {/* Buttons */}
+            {/* main buttons */}
             <div className="flex flex-wrap items-center gap-3">
               {!camera && !picture && (
                 <>
@@ -473,7 +485,7 @@ export default function CameraPage() {
               )}
             </div>
 
-            {/* Choose a language translate to */}
+            {/* language selector */}
             <div className="grid gap-2">
               <label
                 htmlFor="targetLang"
@@ -495,18 +507,20 @@ export default function CameraPage() {
                 }}
                 className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
               >
-                {languages.map(({ code, label }) => (
-                  <option key={code} value={code}>
-                    {label}
-                  </option>
-                ))}
+                {languages.map(
+                  (lang: { code: string; label: string }) => (
+                    <option key={lang.code} value={lang.code}>
+                      {lang.label}
+                    </option>
+                  )
+                )}
               </select>
               <p className="text-xs text-gray-500">
                 Choose the output language for the translation.
               </p>
             </div>
 
-            {/* Error message */}
+            {/* error message */}
             {errorMsg && (
               <div className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700 ring-1 ring-red-200">
                 {errorMsg}
@@ -515,7 +529,7 @@ export default function CameraPage() {
           </form>
         </div>
 
-        {/* Footer hint */}
+        {/* footer hint */}
         <p className="mt-4 text-center text-xs text-gray-500">
           Tip: Good lighting improves OCR accuracy for translations.
         </p>

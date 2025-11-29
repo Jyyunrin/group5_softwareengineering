@@ -13,7 +13,7 @@ export default function DailyQuizDefault() {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // hardcoded
+  // Fallback
   const correctAnswer = "Caneta";
   const options = ["Caneta", "Cânfora", "Caneca", "Cândido"];
 

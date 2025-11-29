@@ -1,5 +1,5 @@
 /**
- * Result of AI translation page
+ * Result of AI translation page.
  */
 import { useEffect, useState } from "react";
 import { X, Volume2, Heart } from "lucide-react";

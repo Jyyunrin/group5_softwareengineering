@@ -23,19 +23,7 @@ export default function Login() {
         setErrorMsg("Email and password are required.");
         return;
       }
-
-      // let hashedPassword = "";
-      // try {
-      //   hashedPassword = bcrypt.hashSync(
-      //     password,
-      //     "$2a$10$CwTycUXWue0Thq9StjUM0u"
-      //   );
-      // } catch (err) {
-      //   console.error("Password hashing failed:", err);
-      //   setErrorMsg(`Failed to process password. Try again.`);
-      //   return;
-      // }
-
+      
       let jsonData = "";
       try {
         jsonData = JSON.stringify({

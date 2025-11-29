@@ -1,14 +1,13 @@
 /**
  * The quiz result page that displays scores and suggests to practice or save
  * This page is not activated. This feature can be added in the future.
- * 
  */
 import { useMemo } from "react";
 import { ArrowRight, Star, Settings, BookmarkPlus } from "lucide-react";
 import { addFavourite } from "./FavWords";
 
 export default function DailyQuizResult() {
-  // hardcoded
+  // Fallback
   const scorePercent = 72;
   const correct = 18;
   const total = 25;
@@ -28,16 +27,13 @@ export default function DailyQuizResult() {
     [finishedAt]
   );
 
-  // donut chart math
   const size = 160;
   const stroke = 16;
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
   const offset = c * (1 - score / 100);
 
-  // stub actions
   const handlePracticeAgain = () => alert("Practice again clicked!");
-  // maybe fav logic needs to be fixed?
   const handleAddToFavourite = () => addFavourite({
     srcLang: "Port",
     srcText: "Caneta",

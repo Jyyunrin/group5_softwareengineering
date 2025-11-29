@@ -1,12 +1,8 @@
 /**
- * Logout logic with robust error handling
+ * Logout logic with robust error handling.
  */
-import React from "react";
-
 export default function Logout() {
     const attemptLogout = async () => {
-
-        // TODO: CHANGE THIS URL
         const data = await fetch(import.meta.env.VITE_SERVER_URL + "/logout", {
             method: "post",
             headers: { "Content-Type": "application/json" },

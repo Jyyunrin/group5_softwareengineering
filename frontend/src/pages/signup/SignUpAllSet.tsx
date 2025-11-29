@@ -18,10 +18,6 @@ export default function SignUpAllSet({ onPrev }: StepProps) {
     let redirectTimer: number | null = null;
 
     const submitAll = async () => {
-      // let jsonData = JSON.stringify(data);
-      // let filtering = JSON.parse(jsonData)
-      // delete filtering['goals']
-      // jsonData = JSON.stringify(filtering)
       try {
         const res = await fetch(import.meta.env.VITE_SERVER_URL + "/register", {
           method: "POST",
