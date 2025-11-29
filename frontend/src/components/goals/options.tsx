@@ -1,5 +1,4 @@
-// Need to match with SignUpGoal.tsx and Userlearninginfo.tsx
-options = [
+export const options = [
     { label: "Image Translation", value: "image-translation" },
     { label: "Business travel", value: "Business travel" },
     { label: "Touristic travel", value: "Touristic travel" },

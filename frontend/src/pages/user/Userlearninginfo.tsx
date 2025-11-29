@@ -8,14 +8,9 @@ import {
   LANGUAGES,
   getLanguageMeta,
 } from "../../components/utils/LanguageSuggest";
+import { options } from "../../components/goals/options";
 
-const GOAL_OPTIONS = [
-  { key: "business_travel", label: "Business travel" },
-  { key: "touristic_travel", label: "Touristic travel" },
-  { key: "image_translation", label: "Image translation" },
-  { key: "study", label: "Study" },
-  { key: "etc", label: "ETC" },
-] as const;
+const GOAL_OPTIONS = options;
 
 type Difficulty = "Easy" | "Medium" | "Hard";
 
