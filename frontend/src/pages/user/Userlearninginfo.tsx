@@ -1,5 +1,5 @@
 /**
- * This page handles user's information regarding learning.
+ * Page for showing and updating user's learning preferences
  */
 import Loading from "../../pages/status/Loading";
 import React, { useEffect, useRef, useState } from "react";
@@ -10,16 +10,14 @@ import {
 } from "../../components/utils/LanguageSuggest";
 import { options } from "../../components/goals/options";
 
-const GOAL_OPTIONS = options;
 
 type Difficulty = "Easy" | "Medium" | "Hard";
-
 type LangOption = {
-  id: string;   // e.g. "EN", "KO"
+  id: string;    // e.g. "EN", "KO"
   label: string; // e.g. "English"
 };
 
-// Build full list of options from the static LANGUAGES array
+// build full static list of languages from LANGUAGES
 const ALL_LANGUAGE_OPTIONS: LangOption[] = LANGUAGES.map((label) => {
   const meta = getLanguageMeta(label);
   return {
@@ -35,16 +33,15 @@ export default function UserLearningInfo() {
   );
   const fileRef = useRef<HTMLInputElement | null>(null);
 
-  // Language state
+  // language selection state
   const [defaultLangId, setDefaultLangId] = useState(""); 
-  const [defaultLang, setDefaultLang] = useState(""); 
+  const [defaultLang, setDefaultLang] = useState("");    
   const [languages, setLanguages] = useState<LangOption[]>(ALL_LANGUAGE_OPTIONS);
-
   const [difficulty, setDifficulty] = useState<Difficulty>("Easy");
   const [goals, setGoals] = useState<string[]>(["touristic_travel"]);
-
   const [loading, setLoading] = useState(true);
 
+  // fetch user learning info from backend
   const fetchUserLearningInfo = async () => {
     try {
       const response = await fetch(
@@ -64,6 +61,7 @@ export default function UserLearningInfo() {
       const data = await response.json();
       console.log(data);
 
+      // too many requests, show rate limit message
       if (response.status === 429) {
         alert(`${data.detail}. Retry after ${data.retry_after} seconds.`);
         return;
@@ -71,28 +69,34 @@ export default function UserLearningInfo() {
 
       setName(data.user_info.name);
 
+      // start from full static languages list
       let mergedLanguages: LangOption[] = [...ALL_LANGUAGE_OPTIONS];
 
+      // merge backend languages if provided
       if (data.languages && typeof data.languages === "object") {
-        // backend shape: { "FR": "French", "KO": "Korean", ... }
+        // expected shape: { "FR": "French", "KO": "Korean", ... }
         for (const [id, label] of Object.entries<string>(data.languages)) {
           const idx = mergedLanguages.findIndex((l) => l.id === id);
           if (idx >= 0) {
+            // override label if id already exists
             mergedLanguages[idx] = { id, label };
           } else {
+            // add new entry if not found
             mergedLanguages.push({ id, label });
           }
         }
       }
-
+      
       setLanguages(mergedLanguages);
 
+      // default language id from server
       const langIdFromServer: string | undefined =
         data.user_info?.default_lang_id;
 
       if (langIdFromServer) {
         setDefaultLangId(langIdFromServer);
 
+        // find label from merged languages
         const found = mergedLanguages.find((l) => l.id === langIdFromServer);
         if (found) {
           setDefaultLang(found.label);
@@ -102,6 +106,7 @@ export default function UserLearningInfo() {
         }
       }
 
+      // difficulty from backend, map to "Easy" | "Medium" | "Hard"
       if (data.user_info?.difficulty) {
         const d = data.user_info.difficulty.toLowerCase();
         let mapped: Difficulty = "Easy";
@@ -110,6 +115,7 @@ export default function UserLearningInfo() {
         setDifficulty(mapped);
       }
 
+      // goals from backend, if array
       if (Array.isArray(data.user_info?.goals)) {
         setGoals(data.user_info.goals);
       }
@@ -121,6 +127,7 @@ export default function UserLearningInfo() {
     }
   };
 
+  // run fetch once on mount with small delay
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchUserLearningInfo();
@@ -129,6 +136,7 @@ export default function UserLearningInfo() {
     return () => clearTimeout(timer);
   }, []);
 
+  // handle avatar file change
   function onAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
     if (!f) return;
@@ -136,24 +144,27 @@ export default function UserLearningInfo() {
     setAvatarUrl(url);
   }
 
+  // toggle goal selection on/off
   function toggleGoal(key: string) {
     setGoals((prev) =>
       prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
     );
   }
 
+  // submit updated learning info to backend
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
 
+    // ensure language is selected
     if (!defaultLangId || !defaultLang) {
       alert("Please select your default learning language.");
       return;
     }
 
     const payload = {
-      defaultLangId,
-      defaultLang, 
-      difficulty: difficulty.toLowerCase(), 
+      defaultLangId, // e.g. "EN"
+      defaultLang, // e.g. "English"
+      difficulty: difficulty.toLowerCase(), // "easy" | "medium" | "hard"
       goals,
     };
 
@@ -171,6 +182,7 @@ export default function UserLearningInfo() {
       const contentType = response.headers.get("content-type") || "";
       let response_data: any = null;
 
+      // try to parse JSON response if available
       if (contentType.includes("application/json")) {
         try {
           response_data = await response.json();
@@ -182,11 +194,13 @@ export default function UserLearningInfo() {
         console.warn("Non-JSON response from server:", text);
       }
 
+      // handle unauthorized
       if (response.status === 401) {
         window.location.href = "/login";
         return;
       }
 
+      // handle rate limit
       if (response.status === 429 && response_data) {
         alert(
           `${response_data.detail}. Retry after ${response_data.retry_after} seconds.`
@@ -194,11 +208,13 @@ export default function UserLearningInfo() {
         return;
       }
 
+      // generic error
       if (!response.ok) {
         alert("Error saving user info");
         return;
       }
 
+      // success
       alert("Saved!");
     } catch (e) {
       console.error(e);
@@ -206,13 +222,14 @@ export default function UserLearningInfo() {
     }
   }
 
+  // show loading spinner while fetching data
   if (loading) {
     return <Loading />;
   }
 
   return (
     <div className="min-h-screen mx-auto w-full max-w-[1080px] bg-white text-gray-900">
-      {/* Top banner */}
+      {/* top banner with background image */}
       <div className="relative h-36 w-full overflow-visible">
         <div
           className="absolute inset-0 bg-cover bg-center"
@@ -235,7 +252,7 @@ export default function UserLearningInfo() {
           />
         </svg>
 
-        {/* Avatar */}
+        {/* avatar over banner */}
         <div className="absolute left-1/2 bottom-0 -translate-x-1/2 translate-y-1/2 z-10">
           <div className="relative">
             <img
@@ -243,6 +260,7 @@ export default function UserLearningInfo() {
               alt="Profile"
               className="h-28 w-28 rounded-full object-cover ring-4 ring-white shadow-md"
             />
+            {/* change avatar button */}
             <button
               type="button"
               onClick={() => fileRef.current?.click()}
@@ -251,6 +269,7 @@ export default function UserLearningInfo() {
             >
               <Camera size={16} />
             </button>
+            {/* hidden file input for avatar */}
             <input
               ref={fileRef}
               type="file"
@@ -262,15 +281,16 @@ export default function UserLearningInfo() {
         </div>
       </div>
 
-      {/* Content */}
+      {/* main content */}
       <div className="mx-auto max-w-sm px-5 pt-20 pb-20">
+        {/* user name heading */}
         <div className="mb-6 flex items-center justify-center">
           <h1 className="text-2xl font-semibold text-indigo-900">{name}</h1>
         </div>
 
-        {/* Form */}
+        {/* form for learning preferences */}
         <form onSubmit={onSubmit} className="space-y-6">
-          {/* Default language (required) */}
+          {/* default language select */}
           <div>
             <label className="mb-1 block text-sm font-medium">
               Default learning language{" "}
@@ -300,7 +320,7 @@ export default function UserLearningInfo() {
             </select>
           </div>
 
-          {/* Difficulty */}
+          {/* difficulty radio buttons */}
           <div>
             <label className="mb-2 block text-sm font-medium">Difficulty</label>
             <div className="grid grid-cols-3 gap-2">
@@ -327,13 +347,13 @@ export default function UserLearningInfo() {
             </div>
           </div>
 
-          {/* Learning goals */}
+          {/* learning goals checkboxes */}
           <div>
             <label className="mb-2 block text-sm font-medium">
               Learning goals (choose any)
             </label>
             <div className="space-y-2">
-              {GOAL_OPTIONS.map((g) => (
+              {options.map((g) => (
                 <label
                   key={g.key}
                   className="flex items-center gap-3 rounded-xl border border-gray-200 px-4 py-3 hover:bg-gray-50"
@@ -350,7 +370,7 @@ export default function UserLearningInfo() {
             </div>
           </div>
 
-          {/* Buttons */}
+          {/* footer buttons */}
           <div className="pt-2 flex items-center justify-between gap-3">
             <button
               type="button"
