@@ -20,7 +20,6 @@ SECRET_KEY = os.getenv('TOKEN_SECRET', 'secret')
 # creates new AppUser in the database
 class RegisterView(APIView):
     def post(self, request):
-        # request.data.pop('goals')
         request.data['default_lang_id'] = (Language.objects.get(lang=request.data["targetLan"])).pk
 
         serializer = AppUserSerializer(data=request.data)
@@ -128,7 +127,7 @@ class LogoutView(APIView):
         }
         return response
 
-# update users username and country 
+# Update users username and country 
 class UpdateUserInfo(APIView):
     def post(self, request):
         token = request.COOKIES.get('jwt')
@@ -190,7 +189,7 @@ class GetUserInfo(APIView):
             default_lang = ""
         return default_lang
         
-# gests  all user history items from the database for that user - can be filtered by language
+# Gets all user history items from the database for that user - can be filtered by language
 class GetUserHistory(APIView):
     # subject to change
     page_size = 6
@@ -284,7 +283,7 @@ class GetUserHistoryItem(APIView):
         }
         return Response(data)
 
-# functions for updating and getting user learning info
+# Functions for updating and getting user learning info
 class UserLearningInfo(APIView):
     def get(self, request):
         lang_dict = self.get_all_languages()
