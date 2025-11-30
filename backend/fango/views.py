@@ -261,11 +261,13 @@ class GetUserHistoryItem(APIView):
         token = request.COOKIES.get('jwt')
         user = authenticate_user(token)
 
+        # Get user history record associated with url history_id
         user_history = get_object_or_404(UserHistory, id=history_id, user_id=user)
         translation = user_history.translation_id
         frontend_image_path = request.build_absolute_uri(settings.MEDIA_URL + user_history.img_path)
         userHistoryUser = user_history.user_id
 
+        # Deny user if they're not getting their own record
         if user != userHistoryUser:
             raise PermissionDenied("Not authorized to view this item")
 
