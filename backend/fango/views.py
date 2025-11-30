@@ -84,7 +84,6 @@ class LoginView(APIView):
         redis_client.expire(f"user:{user.id}:session", ttl_seconds)
 
     def create_login_response(self, token):
-        # create HTTP response
         response = Response()
         ttl_seconds = 60 * 60
         response.set_cookie(key='jwt', value=token, httponly=True, secure=True, samesite='None', path='/', max_age=ttl_seconds)
