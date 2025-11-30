@@ -125,7 +125,7 @@ export default function Login() {
             <button
               type="button"
               className="w-full rounded-full border border-gray-300 bg-white px-5 py-3 text-center font-medium text-gray-900 shadow hover:bg-gray-50 active:translate-y-[1px]"
-              onClick={() => window.location.replace("http://localhost:3000/register")} 
+              onClick={() => window.location.replace(import.meta.env.VITE_REDIRECT_URL + "signup")} 
             >
               Sign Up
             </button>

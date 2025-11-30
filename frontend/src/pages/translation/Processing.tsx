@@ -1,17 +1,24 @@
 /**
  * Processing page after taking a picture or uploading a picture.
- * This page will be displayed while API call is handled 
- * 
- * TODO:
- * Add close button on top
- * 
+ * This page will be displayed while API call is handled.
  */
-
-// import React from "react";
+import { X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function Processing() {
+  const navigate = useNavigate();
+
   return (
-    <div className="min-h-screen mx-auto w-full max-w-[1080px] grid place-items-center bg-white">
+    <div className="relative min-h-screen mx-auto w-full max-w-[1080px] grid place-items-center bg-white">
+      {/* Close Button */}
+      <button
+        onClick={() => navigate(-1)}
+        className="absolute top-6 right-6 rounded-full p-2 bg-gray-100 hover:bg-gray-200 shadow transition active:scale-95"
+        aria-label="Close"
+      >
+        <X size={20} className="text-gray-700" />
+      </button>
+
       {/* Dot frames */}
       <style>{`
         @keyframes throb {

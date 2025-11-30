@@ -6,7 +6,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
 
 // Layout
-import AppLayout from "./components/layout/AppLayout";
+import AppLayout from "./components/nav/AppLayout";
 
 // Routes 
 // Basic
@@ -30,13 +30,24 @@ import Userinfo from "./pages/user/Userinfo";
 import UserLearningInfo from "./pages/user/Userlearninginfo";
 
 // Sign Up
-import SignUpName from "./pages/signup/Name";
-import SignUpEmail from "./pages/signup/Email";
-import SignUpPassword from "./pages/signup/Password";
-import SignUpGoal from "./pages/signup/Goal";
-import SignUpTargetLan from "./pages/signup/Targetlan";
-import SignUpDifficulty from "./pages/signup/Difficulty";
-import SignUpAllSet from "./pages/signup/Allset";
+import SignUp from "./pages/signup/SignUp";
+import { SignupProvider } from "./pages/signup/SignupContext";
+// import SignupLayout from "./pages/signup/SignupLayout";
+// import NameStep from "./pages/signup/NameStep";
+// import EmailStep from "./pages/signup/EmailStep";
+// import PasswordStep from "./pages/signup/PasswordStep";
+// import SetUpTargetLan from "./pages/signup/SetUpTargetLan";
+// import SignUpGoal from "./pages/signup/SignUpGoal";
+// import SignUpDifficulty from "./pages/signup/SignUpDifficulty";
+// import SignUpAllSet from "./pages/signup/SignUpAllSet";
+
+// import SignUpName from "./pages/signup/Name";
+// import SignUpEmail from "./pages/signup/Email";
+// import SignUpPassword from "./pages/signup/Password";
+// import SignUpGoal from "./pages/signup/Goal";
+// import SignUpTargetLan from "./pages/signup/Targetlan";
+// import SignUpDifficulty from "./pages/signup/Difficulty";
+// import SignUpAllSet from "./pages/signup/Allset";
 
 // Quick Guide
 import QuickGuide from "./pages/quickguide/QuickGuide";
@@ -46,10 +57,12 @@ import DailyQuizDefault from "./pages/quiz/DailyQuizDefault";
 import DailyQuizResult from "./pages/quiz/DailyQuizResult"
 import FavWords from "./pages/quiz/FavWords";
 
+import AuthGuard from "./components/utils/AuthRoute"
+
 const router = createBrowserRouter([
   // For Bottom Nav
   {
-    element: <AppLayout />,
+    element: <AuthGuard><AppLayout /></AuthGuard>,
     children: [
       { index: true, element: <Landing /> },      
       { path: "*", element: <Landing /> },                  
@@ -69,20 +82,23 @@ const router = createBrowserRouter([
   { path: "/login", element: <Login /> },
   { path: "/register", element: <RegisterPage /> },
   { path: "/translation/processing", element: <Processing /> },
-  { path: "/signup/name", element: <SignUpName /> },
-  { path: "/signup/email", element: <SignUpEmail /> },
-  { path: "/signup/password", element: <SignUpPassword /> },
-  { path: "/signup/targetlan", element: <SignUpTargetLan /> },
-  { path: "/signup/goal", element: <SignUpGoal /> },
-  { path: "/signup/difficulty", element: <SignUpDifficulty /> },
-  { path: "/signup/allset", element: <SignUpAllSet /> },
   { path: "/404", element: <CannotFindPage /> },
   { path: "/pageloading", element: <Loading /> },
   { path: "/quickguide", element: <QuickGuide /> },
+
+{
+  path: "/signup",
+    element: (
+    <SignupProvider>
+      <SignUp />
+    </SignupProvider>
+  ),
+}
+
 ]);
 
   ReactDOM.createRoot(document.getElementById("root")!).render(
-    <React.StrictMode>
+    // <React.StrictMode>
       <RouterProvider router={router} />
-    </React.StrictMode>
+    // </React.StrictMode>
 );

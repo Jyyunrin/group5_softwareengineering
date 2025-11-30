@@ -1,10 +1,6 @@
 /**
  * A page with a list of favorite words.
- * Users can search name.
- * 
- * TODO:
- * connect with DB
- * connect with previous favourite 
+ * This page is not activated. This feature can be added in the future.
  */
 
 import { useEffect, useMemo, useState } from "react";
@@ -16,7 +12,7 @@ type FavWord = {
   srcText: string;    
   tgtLang: string;    
   tgtText: string;      
-  addedAt: number;      // Date.now()
+  addedAt: number; 
 };
 
 const LS_KEY = "fango:favourites:v1";

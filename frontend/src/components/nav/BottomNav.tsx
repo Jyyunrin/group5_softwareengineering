@@ -1,9 +1,6 @@
 /**
- * Bottom navigation page 
- * 
- * TODO:       
- * Research: open camera right away for the main camera button
- * Find make the background transparant other than from-black/n
+ * Bottom navigation page with buttons.
+ * Route controls: main.tsx 
  */
 
 import React from "react";
@@ -23,10 +20,9 @@ const items: Item[] = [
 export default function BottomRadialNav() {
   const navigate = useNavigate();
 
-  // Icons' starting & end point
   const start = 180; 
   const end = 0; 
-  const radius = 90; // px from center
+  const radius = 90; 
 
   return (
     <div
@@ -67,7 +63,7 @@ export default function BottomRadialNav() {
           );
         })}
 
-        {/* Center Action ( open camera right away ) */}
+        {/* Center Action ( Open camera right away ) */}
         <button
           type="button"
           onClick={() => navigate("/translation/camera")}

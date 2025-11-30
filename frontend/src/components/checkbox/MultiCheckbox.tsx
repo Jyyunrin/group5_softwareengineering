@@ -1,32 +1,22 @@
 /**
- * Reusable checkbox component.
- * Multiple choice availalbe.
- * 
- * 
+ * Reusable checkbox component for multiple choices.
  */
+
 import React from "react";
 
 type Option = { label: string; value: string };
 
 type MultiCheckboxStepProps = {
-  /** selected values */
   values: string[];
-
-  /** called with new array of selected values */
   onChange: (vals: string[]) => void;
-
-  /** list of options to render */
   options: Option[];
-
-  /** for accessibility */
   inputName: string;
-
   submitLabel?: string;
   prevLabel?: string;
   onPrevious?: () => void;
-  onSubmit: (cleanValues: string[]) => Promise<void> | void; // caller handles fetch/side effects
+  onSubmit: (cleanValues: string[]) => Promise<void> | void; 
   validate?: (vals: string[]) => string | null; 
-  allowEmpty?: boolean; // default == false
+  allowEmpty?: boolean; 
 };
 
 export default function MultiCheckboxStep({
