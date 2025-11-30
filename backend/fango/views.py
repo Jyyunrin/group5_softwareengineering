@@ -271,6 +271,7 @@ class GetUserHistoryItem(APIView):
         if user != userHistoryUser:
             raise PermissionDenied("Not authorized to view this item")
 
+        # All data required for the user history page
         data = {
             "url": frontend_image_path,
             "translation": translation.label_target.title(),
