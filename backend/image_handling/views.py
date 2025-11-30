@@ -17,10 +17,7 @@ class ImageTranslate(APIView):
           uploaded_file = request.FILES.get("file")
 
           target_lang = request.POST.get("target_lang").lower()
-          # print("Language", target_lang)
-
           target_lang_code = request.POST.get("target_lang_code").lower()
-          # print("Code", target_lang_code)
 
           if not target_lang:
                return Response({"error":"Missing target language"}, status=status.HTTP_400_BAD_REQUEST)
@@ -33,11 +30,6 @@ class ImageTranslate(APIView):
           user_id = self.get_current_user(request)
           if not user_id:
                return Response({"error":"Invalid or missing authentication token"}, status=status.HTTP_401_UNAUTHORIZED)
-
-          # print("UserId", user_id)
-          # print("Received files:", uploaded_file.name)
-          # print("Content type:", uploaded_file.content_type)
-          # print("Size:", uploaded_file.size, "bytes")
 
           # Get folder path
           save_folder = os.path.join(settings.MEDIA_ROOT, "images")
