@@ -11,6 +11,7 @@ from rest_framework.test import APIClient
 from rest_framework.exceptions import AuthenticationFailed
 import jwt
 import datetime
+import tempfile
 
 SECRET_KEY = os.getenv('TOKEN_SECRET', 'secret')
 
@@ -388,6 +389,7 @@ class ImageTranslationTests(TestCase):
         "jwt": self.token
         }
 
+    @override_settings(MEDIA_ROOT=tempfile.gettempdir())
     @patch("image_handling.views.get_translation")
     @patch("fango.middleware.JWTRedisMiddleware.redis_client.hgetall")
     def test_image_translate_success(self, mock_hgetall, mock_translate):
@@ -428,6 +430,7 @@ class ImageTranslationTests(TestCase):
         self.assertEqual(response.status_code, 201)
         self.assertIn("user_history_id", response.data)
 
+    @override_settings(MEDIA_ROOT=tempfile.gettempdir())
     @patch("fango.middleware.JWTRedisMiddleware.redis_client.hgetall")
     def test_missing_file(self, mock_hgetall):
         self.mock_redis_user(mock_hgetall)
@@ -463,6 +466,7 @@ class ImageTranslationTests(TestCase):
         self.assertIn("error", response.data)
         self.assertEqual(response.data["error"], "Uploaded file is not an image")
 
+    @override_settings(MEDIA_ROOT=tempfile.gettempdir())
     @patch("image_handling.views.get_translation")
     @patch("fango.middleware.JWTRedisMiddleware.redis_client.hgetall")
     def test_openai_service_failure(self, mock_hgetall, mock_translate):
@@ -477,6 +481,7 @@ class ImageTranslationTests(TestCase):
         self.assertEqual(response.status_code, 500)
         self.assertIn("Failed to get translation", response.data["error"])
 
+    @override_settings(MEDIA_ROOT=tempfile.gettempdir())
     @patch("image_handling.views.get_translation")
     @patch("fango.middleware.JWTRedisMiddleware.redis_client.hgetall")
     def test_translation_missing_keys(self, mock_hgetall, mock_translate):
@@ -495,6 +500,7 @@ class ImageTranslationTests(TestCase):
         self.assertEqual(response.status_code, 500)
         self.assertIn("Missing data keys", response.data["error"])
 
+    @override_settings(MEDIA_ROOT=tempfile.gettempdir())
     @patch("image_handling.views.get_translation")
     @patch("fango.middleware.JWTRedisMiddleware.redis_client.hgetall")
     def test_db_save_failure(self, mock_hgetall, mock_translate):
@@ -521,7 +527,9 @@ class ImageTranslationTests(TestCase):
             self.assertEqual(response.status_code, 500)
             self.assertIn("Failed to save translation", response.data["error"])
 
+
     # ServeImage endpoint
+    @override_settings(MEDIA_ROOT=tempfile.gettempdir())
     @patch("fango.middleware.JWTRedisMiddleware.redis_client.hgetall")
     def test_serve_image_success(self, mock_hgetall):
         self.mock_redis_user(mock_hgetall)
@@ -539,6 +547,7 @@ class ImageTranslationTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(content_bytes, b"fakeimagecontent")
 
+    @override_settings(MEDIA_ROOT=tempfile.gettempdir())
     @patch("fango.middleware.JWTRedisMiddleware.redis_client.hgetall")
     def test_serve_image_not_found(self, mock_hgetall):
         self.mock_redis_user(mock_hgetall)
