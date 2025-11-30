@@ -1,3 +1,7 @@
+/**
+ * Logout logic with robust error handling
+ */
+import React from "react";
 
 export default function Logout() {
     const attemptLogout = async () => {
@@ -12,7 +16,7 @@ export default function Logout() {
         const upload_response = await data.json();
         if (upload_response) {
             console.log("Successful logout attempt");
-            window.location.replace(import.meta.env.VITE_REDIRECT_URL + "/login")
+            window.location.replace(import.meta.env.VITE_REDIRECT_URL + "login")
         } else {
             console.log("Error Found");
         }

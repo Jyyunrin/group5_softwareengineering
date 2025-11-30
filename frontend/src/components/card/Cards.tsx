@@ -1,8 +1,5 @@
 /**
- * A card component with image, description for the landing page(homepage) 
- * 
- * TODO:
- * Make it center aligned (or make the row 2 center aligned instead of this card components, for the landing page)
+ * A card component with image, description for the landing page(homepage).
  */
 import React from "react";
 

@@ -2,17 +2,12 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
-// CSS
 import "./index.css";
 
-// Layout
-import AppLayout from "./components/layout/AppLayout";
-
-// Routes 
-// Basic
+// Basic Routes 
+import AppLayout from "./components/nav/AppLayout";
 import Landing from "./landing";
 import Login from "./pages/user/Login";
-import RegisterPage from "./pages/user/Register";
 
 // Status
 import Loading from './pages/status/Loading';
@@ -30,13 +25,8 @@ import Userinfo from "./pages/user/Userinfo";
 import UserLearningInfo from "./pages/user/Userlearninginfo";
 
 // Sign Up
-import SignUpName from "./pages/signup/Name";
-import SignUpEmail from "./pages/signup/Email";
-import SignUpPassword from "./pages/signup/Password";
-import SignUpGoal from "./pages/signup/Goal";
-import SignUpTargetLan from "./pages/signup/Targetlan";
-import SignUpDifficulty from "./pages/signup/Difficulty";
-import SignUpAllSet from "./pages/signup/Allset";
+import SignUp from "./pages/signup/SignUp";
+import { SignupProvider } from "./pages/signup/SignupContext";
 
 // Quick Guide
 import QuickGuide from "./pages/quickguide/QuickGuide";
@@ -69,22 +59,22 @@ const router = createBrowserRouter([
 
   // Non-bottom nav
   { path: "/login", element: <Login /> },
-  { path: "/register", element: <RegisterPage /> },
   { path: "/translation/processing", element: <Processing /> },
-  { path: "/signup/name", element: <SignUpName /> },
-  { path: "/signup/email", element: <SignUpEmail /> },
-  { path: "/signup/password", element: <SignUpPassword /> },
-  { path: "/signup/targetlan", element: <SignUpTargetLan /> },
-  { path: "/signup/goal", element: <SignUpGoal /> },
-  { path: "/signup/difficulty", element: <SignUpDifficulty /> },
-  { path: "/signup/allset", element: <SignUpAllSet /> },
   { path: "/404", element: <CannotFindPage /> },
   { path: "/pageloading", element: <Loading /> },
   { path: "/quickguide", element: <QuickGuide /> },
+  {
+    path: "/signup",
+      element: (
+      <SignupProvider>
+        <SignUp />
+      </SignupProvider>
+    ),
+  }
 ]);
 
   ReactDOM.createRoot(document.getElementById("root")!).render(
-    <React.StrictMode>
+    // <React.StrictMode>
       <RouterProvider router={router} />
-    </React.StrictMode>
+    // </React.StrictMode>
 );
