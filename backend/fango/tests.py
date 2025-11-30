@@ -16,6 +16,7 @@ class TestLoginUser(TestCase):
     def setUp(self):
         self.service = LoginView()
 
+        self.lang = Language.objects.create(code="fr", lang="French")
         self.user = AppUser.objects.create_user(
             email="test@example.com",
             password="correctpassword",
@@ -24,12 +25,15 @@ class TestLoginUser(TestCase):
             role="user",
             country="CA",
             difficulty="medium",
+            default_lang_id=self.lang
         )
 
         self.banned_user = AppUser.objects.create_user(
             email="banned@example.com",
+            name="Joan",
             password="somepassword",
-            status="banned"
+            status="banned",
+            default_lang_id=self.lang
         )
 
     def test_jwt_id(self):
@@ -76,12 +80,14 @@ class LogoutViewTest(TestCase):
 class UpdateUserInfoTest(TestCase):
     def setUp(self):
         self.client = APIClient()
-    
+
+        self.lang = Language.objects.create(code="fr", lang="French")
         self.user = AppUser.objects.create_user(
             email='email@test.com',
             password='password123',
             name='OldName',
-            country='OldCountry'
+            country='OldCountry',
+            default_lang_id=self.lang
         )
 
         self.login_url = reverse('login')
@@ -124,13 +130,14 @@ class UserHistoryTestCase(TestCase):
     def setUp(self):
         self.client = APIClient()
 
+        self.lang = Language.objects.create(code="fr", lang="French")
         self.user = AppUser.objects.create_user(
             email="test@test.com",
             password="password123",
-            name="tester"
+            name="tester",
+            default_lang_id=self.lang,
         )
 
-        self.lang = Language.objects.create(code="fr", lang="French")
         self.word = Word.objects.create(label_en="Apple", meaning="A fruit")
 
         self.translation = Translation.objects.create(
@@ -185,7 +192,7 @@ class UserHistoryTestCase(TestCase):
         self.assertEqual(max_page, 2)
 
         self.assertIn("page=2", next_page_url)
-        self.assertIn("page=1", previous_page_url)
+        self.assertTrue(previous_page_url in ('', None))
 
         response = self.client.get(self.get_info_url + "?page=2")
         self.assertEqual(response.status_code, 200)
@@ -197,7 +204,7 @@ class UserHistoryTestCase(TestCase):
 
         self.assertEqual(len(history_list), 4)
         self.assertIn("page=1", previous_page_url)
-        self.assertIn("page=None", next_page_url)
+        self.assertTrue(next_page_url in ('', None))
 
     def test_get_user_history(self):
         response = self.client.get(self.get_info_url)
