@@ -99,12 +99,16 @@ class UpdateUserInfoTest(TestCase):
         self.token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
         self.client.cookies['jwt'] = self.token
 
+    @patch("fango.middleware.JWTRedisMiddleware.redis_client.hset")
     @patch("fango.middleware.JWTRedisMiddleware.redis_client.hgetall")
-    def test_update_success(self, mock_hgetall):
+    def test_update_success(self, mock_hgetall, mock_hset):
         mock_hgetall.return_value = {"id": str(self.user.id), "email": self.user.email, "jwt": self.token}
+        mock_hset.return_value = True
+
         payload = {"new_username": "Alice", "new_country": "Canada"}
         response = self.client.post(self.update_url, payload, format="json")
         self.user.refresh_from_db()
+
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()['message'], 'Successfully updated information!')
         self.assertEqual(self.user.name, 'Alice')
@@ -211,7 +215,8 @@ class UserHistoryTestCase(TestCase):
         self.assertEqual(history_list[0]['image_url'], self.history.img_path)
         self.assertEqual(history_list[0]['is_favorite'], self.history.is_favorite)
 
-        
+
+
 class AuthViewsTests(TestCase):
     def setUp(self):
         self.client = APIClient()
@@ -228,16 +233,19 @@ class AuthViewsTests(TestCase):
         self.user_info_url = reverse('userlearninginfo')
         self.auth_check_url = reverse("auth")
 
-    @patch("fango.middleware.JWTRedisMiddleware.redis_client.hgetall")
-    def test_user_learning_info_post(self, mock_hgetall):
-        mock_hgetall.return_value = {"id": str(self.user.id), "email": self.user.email, "jwt": self.token}
+    @patch("fango.middleware.JWTRedisMiddleware.redis_client.hset")
+    def test_user_learning_info_post(self, mock_hset):
+        mock_hset.return_value = True
+
         data = {"defaultLang": self.language.lang, "difficulty": "hard"}
         response = self.client.post(self.user_info_url, data, format="json")
         self.user.refresh_from_db()
+
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data.get("message"), "success")
         self.assertEqual(self.user.difficulty, "hard")
         self.assertEqual(self.user.default_lang_id.lang, "English")
+
         
     @patch("fango.middleware.JWTRedisMiddleware.redis_client.hgetall")
     def test_auth_check(self, mock_hgetall):
